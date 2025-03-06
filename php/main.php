@@ -7,18 +7,12 @@ class Builder {
 
     private string $base_path;
 
-    public function __construct(string $base_path = "templates") {
-        $this->base_path = $base_path;
+    public function __construct(string $base_path = "") {
+        $this->base_path = realpath(__DIR__ . "/../" . $base_path);
     }
-
+    
     public function load_template(string $name): Template {
-        $template_content = "";
-        try {
-            $template_content = file_get_contents("{$this->base_path}/{$name}");
-        } catch (Exception $ex) {
-            throw new Exception("Could not open template: \"{$name}\"
-                in base {$this->base_path}");
-        }
+        $template_content = file_get_contents("{$this->base_path}/{$name}");
         return new Template($name, $template_content);
     }
 }
@@ -37,18 +31,12 @@ class Template {
     }
 
     public function insert(string $id, string $value): void {
-        // Thanks PHP :)
         $patt_begin = self::PATT_BEGIN;
         $patt_end = self::PATT_END;
 
         $n_changes = 0;
         $patt = "{$patt_begin}{$id}{$patt_end}";
         $this->state = str_replace($patt, $value, $this->state, $n_changes);
-        if ($n_changes !== 1) {
-            throw new Exception("Error while replacing \"{$id}\" in
-                                template \"{$this->template_name}\":
-                                {$n_changes} maches");
-        }
     }
 
     public function insert_all(array $parameters): void {
@@ -58,27 +46,19 @@ class Template {
     }
 
     public function build(): string {
-        // Thanks PHP :)
         $patt_begin = self::PATT_BEGIN;
         $patt_end = self::PATT_END;
 
         $patt = "~{$patt_begin}([a-zA-Z0-9_-]+){$patt_end}~";
         $matches = array();
         preg_match_all($patt, $this->state, $matches);
-        if (!empty($matches[1])) {
-            $non_replaced = implode(", ", $matches[1]);
-            throw new Exception("Cannot build template
-                \"{$this->template_name}\" this placeholders
-                are empty: \"{$non_replaced}\"");
-        }
-
         return $this->state;
     }
 
 }
 
 
-$builder = new Builder("./templates");
+$builder = new Builder("templates");
 
 // Funzione di Build del footer
 
@@ -92,11 +72,11 @@ function build_footer(): string {
 // Funzione di Build del header qui inserirò i link alle pagine e i nomi
 
 $pages = array(
-    array("index.php", "Home"), 
-    array("prodotti.php", "I Nostri Prodotti"), 
-    array("chisiamo.php", "Chi Siamo"),
-    array("contatti.php", "Contatti"), 
-    array("areapersonale.php", "Area Personale")
+    array("/index.php", "Home"), 
+    array("/php/pages/prodotti.php", "I Nostri Prodotti"), 
+    array("/php/pages/chisiamo.php", "Chi Siamo"),
+    array("/php/pages/contatti.php", "Contatti"), 
+    array("/php/pages/areapersonale.php", "Area Personale")
 );
 
 function build_header(): string {
@@ -139,6 +119,4 @@ function make_link(string $content, string $ref, ?string $class = null): string 
     }
     return "{$open} href='{$ref}'>{$content}</a>";
 }
-
-
 ?>
