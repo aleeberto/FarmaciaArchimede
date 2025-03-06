@@ -1,11 +1,11 @@
 <?php
-$titolo = "Farmacia Archimede";
-$descrizione = "TODO TODO TODO";
+$page_index = 0;
 
-echo file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR . "header.template.html");
+require_once("./php/main.php");
 
-echo file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR . "index.template.html");
+$index_template = $builder->load_template("index.html");
+$index_template->insert("header", build_header());
+$index_template->insert("footer", build_footer());
 
-echo file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR . "footer.template.html");
-
+echo $index_template->build();
 ?>
