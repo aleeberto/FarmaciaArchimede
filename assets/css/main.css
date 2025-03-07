@@ -726,3 +726,7 @@ p.success {
         background-size: 90% 45%;
     }
 }
+
+#sum {
+    text-indent: -999em
+    }

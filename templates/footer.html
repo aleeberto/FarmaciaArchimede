@@ -17,12 +17,32 @@
         </div>
 
         <div class="footer-box">
-            <h2>Orari</h2>
-            <ul>
-                <li>Dal lunedì al venerdì: 08:00-12:00 e 14:00-19:00</li>
-                <li>Sabato: 08:00-12:00</li>
-                <li>Domenica: chiuso</li>             
-            </ul>
+            <p id="sum">orario di apertura della farmacia divisa in colonne che definioscono i giorni della settimana e le righe che definiscono gli orari di apertura</p>
+            <table aria-describedby="sum">
+                <caption>Orari apertura farmacia</caption>
+                <thead>
+                    <tr>
+                        <td></td>
+                        <th scope="col" abbr="Lun-Ven">Lunedì-Venerdì</th>
+                        <th scope="col" abbr="Sab">Sabato</th>
+                        <th scope="col" abbr="Dom">Domenica</th>                    
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row" abbr="8-12">08:00-12:00</th>
+                        <td>aperto</td>
+                        <td>aperto</td>
+                        <td>chiuso</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" abbr="14-19">14:00-19:00</th>
+                        <td>aperto</td>
+                        <td>chiuso</td>
+                        <td>chiuso</td>
+                    </tr>           
+                </tbody>  
+            </table>
         </div>
     </div>
 </footer>
