@@ -9,6 +9,7 @@
     /*main*/
     --primary-bg: white;
     --primary-text: black;
+    /*
     --primary-link: #9f1022;
     --primary-hover: #F3654D;
     --primary-hover-bg: #FEFEE3;
@@ -17,19 +18,25 @@
     --primary-error-bg: #F8D7DA;
     --primary-error-text: #8E4349;
     --primary-success-bg: #9ff09f;
+    */
 
     /*accent*/
-    --primary-accent-bg: #9b0014;
+    
+    --primary-accent-bg: green;
+    /*
     --primary-accent-text: white;
     --primary-accent-link: #d1d1d1;
     --primary-accent-hover: white;
     --primary-accent-active: white;
     --primary-accent-visited: #E5ECA0;
+    */
     
-    /*alternative palette*/
+    /*
+    alternative palette
     --alt-bg: #e4e4e4;
     --primary-alt: #60000C;
     --primary-c: #ffffff;
+    */
 
     /*extra*/
     margin: 0;
@@ -42,6 +49,12 @@
 
 html {
     height: 100%;
+}
+
+header img {
+    max-width: 120px;
+    height: auto;
+    padding: 1em;
 }
 
 body {
@@ -382,7 +395,6 @@ footer div.flex-container{
 }
 
 footer h2{
-    font-style: italic;
     margin-bottom: 10px;
     border-bottom: solid white 0.5px;;
 }
