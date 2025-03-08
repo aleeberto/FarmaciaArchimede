@@ -6,7 +6,7 @@
 
 - [DONE] mettere in tabella gli orari in footer.html
 
-- fare il form di login (pagina html)
+- [DONE] fare il form di login (pagina html)
 
 - [DONE] index.html inserire keywords e descrizione
 

@@ -72,11 +72,12 @@ function build_footer(): string {
 // Funzione di Build del header qui inserirò i link alle pagine e i nomi
 
 $pages = array(
-    array("/index.php", "Home"), 
-    array("/php/pages/prodotti.php", "I Nostri Prodotti"), 
-    array("/php/pages/chisiamo.php", "Chi Siamo"),
-    array("/php/pages/contatti.php", "Contatti"), 
-    array("/php/pages/areapersonale.php", "Area Personale")
+    array("index.php", "Home"), 
+    array("prodotti.php", "I Nostri Prodotti"), 
+    array("chisiamo.php", "Chi Siamo"),
+    array("contatti.php", "Contatti"), 
+    array("areapersonale.php", "Area Personale"),
+    array("login.php", "Login")
 );
 
 function build_header(): string {
