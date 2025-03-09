@@ -4,7 +4,7 @@
 
 - [DONE] inserire  Logo in template header.html logo in assets/img/logo.png
 
-- [DONE] mettere in tabella gli orari in footer.html
+- [] mettere in tabella gli orari in footer.html 
 
 - [DONE] fare il form di login (pagina html)
 

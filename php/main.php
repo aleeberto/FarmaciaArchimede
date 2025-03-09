@@ -77,7 +77,6 @@ $pages = array(
     array("chisiamo.php", "Chi Siamo"),
     array("contatti.php", "Contatti"), 
     array("areapersonale.php", "Area Personale"),
-    array("login.php", "Login")
 );
 
 function build_header(): string {
