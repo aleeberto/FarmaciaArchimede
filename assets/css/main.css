@@ -1,4 +1,120 @@
 *{
+    margin: 0px;
     /*primary palette*/
+    /*
+    --primary-bg: #fff;
+    --primary-text: #000;
+    */
+}
+
+
+/* HEADER */
+header {
+    background-color: var(--primary-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+    /* Logo */
+header img {
+    padding: 12px 20px;
+    height: 84px;
+}
+
+    /* Menu */
+header nav {
+    width: 100%;
+    background-color: var(--primary-accent-bg);
+    padding: 15px;
+    box-sizing: border-box;
     
+    border-top: 1px solid black;    /* TEMPORANEO */
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 25px;
+    padding: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+header nav ul li a:hover {
+    text-decoration: none;
+}
+
+    /* Area personale */
+header nav ul li:last-child {
+    margin-left: auto;
+}
+
+
+/* BREADCRUMB */
+.breadcrumb {
+    background-color: var(--primary-accent-bg);
+    padding: 10px 15px;
+    font-size: 1.05em;
+    
+    border-top: 1px solid black;    /* TEMPORANEO */
+    border-bottom: 1px solid black; /* TEMPORANEO */
+    
+}
+
+.breadcrumb ol {
+    display: inline-flex;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.breadcrumb ol li {
+    font-weight: bold;
+}
+
+.breadcrumb ol li:not(:last-child)::after {
+    content: " > ";
+    margin: 0 5px;
+}
+.breadcrumb ol li a:hover {
+    text-decoration:none;
+}
+
+
+/* BODY */
+body .main .flex-container {
+    padding: 30px;
+    align-items: center;
+    text-align: center;
+}
+
+body .main .login-form {
+    padding: 30px;
+    align-items: center;
+    text-align: center;
+}
+
+/* FOOTER */
+footer {
+    background-color: var(--primary-accent-bg);
+    padding: 10px 15px;
+    
+    border-top: 1px solid black;    /* TEMPORANEO */
+}
+
+footer .flex-container {
+    justify-content: center;
+    display: flex;
+}
+
+footer table {
+    text-align: center;
+    padding: 5px;
+}
+
+footer li {
+    list-style: none;
 }
