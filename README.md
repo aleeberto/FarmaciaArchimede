@@ -2,6 +2,8 @@
 
 ## TODO
 
+- fare main.css esiste main.temp.css come spunto
+
 - [DONE] inserire  Logo in template header.html logo in assets/img/logo.png
 
 - [] mettere in tabella gli orari in footer.html 
@@ -15,9 +17,3 @@
 - fare pagina home, chi siamo e contatti
 
 - caricare file .sql in cartella SQL
-
----
-
-## IMPORTANTE E PRIORITARIO
-
-- ATTENZIONE tutta la parte css è stata copiata da un vecchio progetto per semplificarmi la vita nel mettere giù le prime pagine sistemare assolutamente all' occhio che utilizzavo quella per tutto perciò riutilizzare le classi css che ho utilizzato nei file html

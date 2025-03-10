@@ -1,5 +1,5 @@
 <?php
-$root = ".";
+$root = dirname(__DIR__, 2);
 
 $page_index = 3;
 

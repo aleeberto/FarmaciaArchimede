@@ -1,5 +1,6 @@
 <?php
 $root = ".";
+
 $page_index = 0;
 
 require_once($root . "/php/main.php");
