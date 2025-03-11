@@ -17,3 +17,16 @@
 - fare pagina home, chi siamo e contatti
 
 - caricare file .sql in cartella SQL
+
+
+## HOW TO DOCKER
+1. Installa [Docker](https://docs.docker.com/engine/install/) (se avete linux seguite questa guida dopo averlo installato [Guida](https://docs.docker.com/engine/install/linux-postinstall/))
+2. Apri un terminale all interno di Farmacia Archimede (La root del repository Github)
+3. Lancia il comando ``` docker-compose up -d ``` la prima volta ci metterà tanto perchè deve scaricare le immagini di php e mysql
+4. Digitando localhost su qualsiasi browser web ci verrà proposto il file index.php
+5. Se fate modifiche al file sql dovete rilanciare i comandi. Non è necessario per modifiche ai file php/html
+```sh 
+docker-compose down
+docker-compose up -d 
+```
+In teoria il down non è necessario ma almeno pulisce tutto

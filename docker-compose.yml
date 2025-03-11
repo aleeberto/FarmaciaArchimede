@@ -1,0 +1,31 @@
+services:
+  # Servizio PHP con Apache
+  web:
+    build: .
+    container_name: farmacia_apache_php
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - farmacia_network
+
+  # Servizio MySQL
+  db:
+    image: mysql:5.7
+    container_name: farmacia_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: farmacia_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - farmacia_network
+
+networks:
+  farmacia_network:
+    driver: bridge

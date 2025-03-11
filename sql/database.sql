@@ -1,4 +1,4 @@
-#CREATE DATABASE farmacia_archimede;
+CREATE DATABASE IF NOT EXISTS farmacia_archimede;
 use farmacia_archimede;
 
 DROP TABLE IF EXISTS Ordinazioni;
