@@ -21,15 +21,15 @@ create table Utente(
 
 create table Prodotto(
 	ID_prodotto SMALLINT UNSIGNED PRIMARY KEY,
-    Nome varchar(30) NOT NULL,
+    Nome varchar(128) NOT NULL,
     Produttore varchar(30) NOT NULL,
 	Codice_AIC char(10) NOT NULL,
     Tipo varchar(20) NOT NULL,
-    Prezzo SMALLINT UNSIGNED  NOT NULL,
-    Disponibilità SMALLINT UNSIGNED  NOT NULL,
-    Descrizione varchar(50) NOT NULL,
+    Prezzo DECIMAL (5,2) NOT NULL,
+    Disponibilita SMALLINT UNSIGNED  NOT NULL,
+    Descrizione varchar(1024) NOT NULL,
     
-    check(Disponibilità > 0),
+    check(Disponibilita > 0),
     check(Prezzo > 0)
 );
 
@@ -43,7 +43,7 @@ create table Immagine(
 
 create table Indirizzo(
 	ID_indirizzo SMALLINT UNSIGNED PRIMARY KEY,
-	Città varchar(20) NOT NULL,
+	Citta varchar(20) NOT NULL,
     Provincia varchar(20) NOT NULL,
     Via varchar(30) NOT NULL,
     Civico TINYINT UNSIGNED NOT NULL,
@@ -93,12 +93,12 @@ create table Ordine(
 create table Ordinazioni(
 	Ordine SMALLINT UNSIGNED,
     Prodotto SMALLINT UNSIGNED,
-    Quantità SMALLINT UNSIGNED NOT NULL,
+    Quantita SMALLINT UNSIGNED NOT NULL,
     
     PRIMARY KEY(Ordine,Prodotto),
     FOREIGN KEY (Ordine) REFERENCES Ordine(ID_ordine),
 	FOREIGN KEY (Prodotto) REFERENCES Prodotto(ID_prodotto),
     
-    check(Quantità > 0)
+    check(Quantita > 0)
 );
 
