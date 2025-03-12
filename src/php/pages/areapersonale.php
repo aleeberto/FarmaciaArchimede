@@ -5,9 +5,10 @@ $page_index = 4;
 
 require_once($root . "/php/main.php");
 
-$prodotti_template = $builder->load_template("areapersonale.html");
-$prodotti_template->insert("header", build_header());
-$prodotti_template->insert("footer", build_footer());
+$areapersonale_template = $builder->load_template("areapersonale.html");
+$areapersonale_template->insert("head", build_head());
+$areapersonale_template->insert("header", build_header());
+$areapersonale_template->insert("footer", build_footer());
 
-echo $prodotti_template->build();
+echo $areapersonale_template->build();
 ?>

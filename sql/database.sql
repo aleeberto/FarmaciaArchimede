@@ -36,7 +36,7 @@ create table Prodotto(
 create table Immagine(
 	Prodotto SMALLINT UNSIGNED PRIMARY KEY,
     Alt varchar(20) NOT NULL,
-    Path varchar(30) NOT NULL,
+    Path varchar(64) NOT NULL,
     
     FOREIGN KEY(Prodotto) REFERENCES Prodotto(ID_prodotto)
 );

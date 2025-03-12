@@ -20,6 +20,9 @@
 
 - Civico non è small int è un char
 
+## Appunti parte di prodotti
+
+Esistono 3 elementi che vanno a compore la parte di prodotti. La pagina prodotti.html presenterà una board in cui verranno appesi tutti i prodootti presi dal server sql ogni prodotto verrà messo all interno di un item. Gli item verranno creatii sempre dal mai.php con luso di prodottiquery.php. Si utilizzerà come template per gli item item.html. Infine prodotto.html sarà la pagina che indica la descrizione codice e tutto il resto del prodotto
 
 ## HOW TO DOCKER
 1. Installa [Docker](https://docs.docker.com/engine/install/) (se avete linux seguite questa guida dopo averlo installato [Guida](https://docs.docker.com/engine/install/linux-postinstall/))
@@ -32,38 +35,3 @@ docker-compose down
 docker-compose up -d 
 ```
 In teoria il down non è necessario ma almeno pulisce tutto
-
-
-
-### Esempio connessione
-
-```php
-<?php
-$host = 'db';
-$dbname = 'farmacia_archimede';
-$username = 'root';
-$password = 'root_password';
-$dsn = "mysql:host=$host;dbname=$dbname;charset=utf8";
-
-try {
-    // Creazione della connessione PDO
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $query = "SHOW TABLES";
-    $stmt = $pdo->query($query);
-
-    if ($stmt->rowCount() > 0) {
-        echo "Tabelle nel database '$dbname':<br>";
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo $row['Tables_in_' . $dbname] . "<br>";
-        }
-    } else {
-        echo "Nessuna tabella trovata nel database.";
-    }
-} catch (PDOException $e) {
-    echo "Errore di connessione: " . $e->getMessage();
-}
-?>
-
-```

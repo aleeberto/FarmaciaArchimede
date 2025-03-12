@@ -1,7 +1,6 @@
 <?php
 
-//inserire qui tutti i file php necessari
-// require_once(Path to file)
+require_once($root ."/php/script/prodottiquery.php");
 
 class Builder {
 
@@ -58,7 +57,56 @@ class Template {
 }
 
 
+class Database {
+    private string $url;
+    private string $user;
+    private string $password;
+    private string $database;
+    private ?mysqli $connection;
+    
+    private static ?Database $instance = null;
+
+    private function __construct(string $url, string $user, string $password, string $database) {
+        $this->url = $url;
+        $this->user = $user;
+        $this->password = $password;
+        $this->database = $database;
+        $this->connection = null;
+    }
+
+    public static function getInstance(string $url, string $user, string $password, string $database): Database {
+        if (self::$instance === null) {
+            self::$instance = new Database($url, $user, $password, $database);
+        }
+        return self::$instance;
+    }
+
+    public function connect(): mysqli {
+        if ($this->connection === null) {
+            $this->connection = new mysqli($this->url, $this->user, $this->password, $this->database);
+
+            if ($this->connection->connect_error) {
+                throw new Exception("Errore di connessione al Database: " . $this->connection->connect_error);
+            }
+        }
+        return $this->connection;
+    }
+}
+
+$db = Database::getInstance("farmacia_mysql", "root", "root_password", "farmacia_archimede");
+
+$conn = $db->connect();
+
 $builder = new Builder("templates");
+
+//Append head
+
+function build_head(): string {
+    global $builder;
+
+    $head_template = $builder->load_template("head.html");
+    return $head_template->build();
+}
 
 // Funzione di Build del footer
 
@@ -119,4 +167,5 @@ function make_link(string $content, string $ref, ?string $class = null): string 
     }
     return "{$open} href='{$ref}'>{$content}</a>";
 }
+
 ?>

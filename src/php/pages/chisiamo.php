@@ -5,9 +5,10 @@ $page_index = 2;
 
 require_once($root . "/php/main.php");
 
-$prodotti_template = $builder->load_template("chisiamo.html");
-$prodotti_template->insert("header", build_header());
-$prodotti_template->insert("footer", build_footer());
+$chisiamo_template = $builder->load_template("chisiamo.html");
+$chisiamo_template->insert("head", build_head());
+$chisiamo_template->insert("header", build_header());
+$chisiamo_template->insert("footer", build_footer());
 
-echo $prodotti_template->build();
+echo $chisiamo_template->build();
 ?>
