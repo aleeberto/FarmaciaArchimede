@@ -1,6 +1,6 @@
 <?php
 
-require_once($root ."/php/script/prodottiquery.php");
+require_once($root ."/php/script/prodottoBuilder.php");
 
 class Builder {
 

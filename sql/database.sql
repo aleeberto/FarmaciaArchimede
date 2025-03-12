@@ -101,4 +101,3 @@ create table Ordinazioni(
     
     check(Quantita > 0)
 );
-
