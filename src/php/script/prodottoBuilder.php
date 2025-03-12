@@ -2,8 +2,6 @@
 
 $root = dirname(__DIR__, 2);
 
-$page_index = 0;
-
 require_once($root . "/php/main.php");
 
 $db = Database::getInstance("farmacia_mysql", "root", "root_password", "farmacia_archimede");
