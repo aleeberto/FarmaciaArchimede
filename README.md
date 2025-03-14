@@ -35,3 +35,5 @@ docker-compose down
 docker-compose up -d 
 ```
 In teoria il down non è necessario ma almeno pulisce tutto
+
+### Semplificazione PHP
