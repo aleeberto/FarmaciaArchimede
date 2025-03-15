@@ -8,24 +8,28 @@
 
     <component>header</component>
 
-    <div class="main">
-        <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
-            <ol>
-                <li><a href="/index.php" lang="it">Home</a>   </li>
-                <li aria-current="page">Prodotti</li>
-            </ol>
-        </nav>
-        
-        <section id="prodotti">
+    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+        <ol>
+            <li><a href="/index.php" lang="it">Home</a>   </li>
+            <li aria-current="page">Prodotti</li>
+        </ol>
+    </nav>
 
-            <ol class="items">
+    <main>
+        <h1>Prodotti</h1>
+
+        <div class="main-content">
+            <div id="filter-container" class="flex-container">
+                <h2>Filtri</h2>
+            </div>
+            <div id="prodotti" class="items">
                 <component>items</component>
-            </ol>
-        </section>
-
-    </div>
+            </div>
+        </div>
+    </main>
 
     <component>footer</component>
 
 </body>
+
 </html>

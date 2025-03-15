@@ -8,26 +8,28 @@
 
     <component>header</component>
 
-    <div class="main">
-        <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
-            <ol>
-                <li><a href="/index.php" lang="it">Home</a>   </li>
-                <li aria-current="page">Login</li>
-            </ol>
-        </nav>
+    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+        <ol>
+            <li><a href="/index.php" lang="it">Home</a>   </li>
+            <li aria-current="page">Login</li>
+        </ol>
+    </nav>
 
+    <main>
         <div class="login-form">
             <h1>Effettua il login</h1>
             <form action="">
-                <div>
-                    <p>Accedi alla tua area personale</p>
+                <p>Accedi alla tua area personale</p>
+                <label>Email:
                     <input type="text" name="email" placeholder="youremail@example.com">
-                    <input type="text" name="password" placeholder="password">
-                    <button type="submit">invio</button>
-                </div>
+                </label>
+                <label>Password:
+                    <input type="password" name="password" placeholder="password">
+                </label>
+                <button type="submit">Invio</button>
             </form>
         </div>
-    </div>
+    </main>
     <component>footer</component>
 
 </body>
