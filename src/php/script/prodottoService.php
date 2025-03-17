@@ -9,6 +9,7 @@ $conn = $db->connect();
 
 class ProdottoDTO {
     public int $id;
+    public string $shortNome;
     public string $nome;
     public string $produttore;
     public string $codice_aic;
@@ -34,15 +35,18 @@ class ProdottoService {
     public function getAllProducts(): array {
         $conn = $this->db->connect();
         $result = $conn->query("SELECT * FROM Prodotto");
-
+        
         if (!$result) {
             die("Errore nella query: " . $conn->error);
         }
 
         $prodotti = [];
+
+        // TODO DA CANCELLARE QUELLI CHE NON SERVONO
         while ($row = $result->fetch_assoc()) {
             $prodotto = new ProdottoDTO();
             $prodotto->id = $row["ID_prodotto"];
+            $prodotto->shortNome = $row["ShortNome"];
             $prodotto->nome = $row["Nome"];
             $prodotto->produttore = $row["Produttore"];
             $prodotto->codice_aic = $row["Codice_AIC"];
@@ -54,6 +58,35 @@ class ProdottoService {
         }
 
         return $prodotti;
+    }
+
+    public function getProductByID(int $id): ?ProdottoDTO {
+        $conn = $this->db->connect();
+        $stmt = $conn->prepare("SELECT * FROM Prodotto WHERE ID_prodotto = ?");
+        
+        if (!$stmt) {
+            die("Errore nella preparazione della query: " . $conn->error);
+        }
+    
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    
+        if ($row = $result->fetch_assoc()) {
+            $prodotto = new ProdottoDTO();
+            $prodotto->id = $row["ID_prodotto"];
+            $prodotto->shortNome = $row["ShortNome"];
+            $prodotto->nome = $row["Nome"];
+            $prodotto->produttore = $row["Produttore"];
+            $prodotto->codice_aic = $row["Codice_AIC"];
+            $prodotto->tipo = $row["Tipo"];
+            $prodotto->prezzo = (float) $row["Prezzo"];
+            $prodotto->disponibilita = (int) $row["Disponibilita"];
+            $prodotto->descrizione = $row["Descrizione"];
+            return $prodotto;
+        }
+        
+        return null;
     }
 
     public function getProductImage(int $productId): ?ImmagineDTO {

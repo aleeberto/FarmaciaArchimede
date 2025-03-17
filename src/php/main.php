@@ -1,6 +1,8 @@
 <?php
 
-require_once($root ."/php/script/prodottoBuilder.php");
+require_once($root ."/php/script/prodottoService.php");
+require_once($root ."/php/script/loginService.php");
+
 
 class Builder {
 

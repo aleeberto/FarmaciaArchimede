@@ -1,27 +1,39 @@
 <?php
-//// Recupera l'ID del prodotto dalla query string
-//$product_id = $_GET['id'] ?? null;
-//
-//if ($product_id) {
-//    // Recuperiamo i dettagli del prodotto
-//    $conn = $db->connect();
-//    $stmt = $conn->prepare("SELECT * FROM Prodotto WHERE ID_prodotto = ?");
-//    $stmt->bind_param("i", $product_id);
-//    $stmt->execute();
-//    $result = $stmt->get_result();
-//    
-//    if ($product = $result->fetch_assoc()) {
-//        // Visualizziamo i dettagli del prodotto
-//        echo "<h1>" . $product['Nome'] . "</h1>";
-//        echo "<p>" . $product['Descrizione'] . "</p>";
-//        echo "<p>Prezzo: € " . number_format($product['Prezzo'], 2) . "</p>";
-//        echo "<img src='/assets/img/" . $product['Path_immagine'] . "' alt='" . htmlspecialchars($product['Nome'], ENT_QUOTES) . "'>";
-//    } else {
-//        echo "<p>Prodotto non trovato.</p>";
-//    }
-//} else {
-//    echo "<p>Prodotto non specificato.</p>";
-//}
-echo "cazzabubbolo"
+
+$root = dirname(__DIR__, 2);
+
+$page_index = 2;
+
+require_once($root . "/php/main.php");
+
+$prodotto_template = $builder->load_template("prodotto.html");
+$prodotto_template->insert("head", build_head());
+$prodotto_template->insert("header", build_header());
+$prodotto_template->insert("footer", build_footer());
+
+$id = $_GET["id"];
+
+$prodottoService = new ProdottoService($db);
+$prodotto = $prodottoService->getProductByID($id);
+
+// Recupera immagine prodotto
+$immagine = $prodottoService->getProductImage($prodotto->id);
+$imagePath = $immagine ? $immagine->path : "/assets/img/default.jpg";
+$imageAlt = $immagine ? $immagine->alt : "Immagine non disponibile";
+
+$prodotto_template->insert_all(array(
+    "shortNome" => $prodotto->shortNome,
+    "nome" => $prodotto->nome,
+    "tipo" => $prodotto->tipo,
+    "descrizone" => $prodotto->descrizione,
+    "produttore" => $prodotto->produttore,
+    "codice" => $prodotto->codice_aic,
+    "disponibilita" => $prodotto->disponibilita,
+    "prezzo" => number_format($prodotto->prezzo, 2, ',', '.') . "€",
+    "immagine" => "<img src='{$imagePath}' alt='{$imageAlt}' width='100' height='100'>",
+    
+));
+
+echo $prodotto_template->build();
 
 ?>

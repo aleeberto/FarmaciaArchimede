@@ -21,6 +21,7 @@ create table Utente(
 
 create table Prodotto(
 	ID_prodotto SMALLINT UNSIGNED PRIMARY KEY,
+    ShortNome varchar(128) NOT NULL,
     Nome varchar(128) NOT NULL,
     Produttore varchar(30) NOT NULL,
 	Codice_AIC char(10) NOT NULL,

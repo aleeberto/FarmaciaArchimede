@@ -26,7 +26,7 @@ function build_item(ProdottoDTO $prodotto): string {
     $imageAlt = $immagine ? $immagine->alt : "Immagine non disponibile";
 
     $prodotti_template->insert_all(array(
-        "nome" => $prodotto->nome,
+        "nome" => $prodotto->shortNome,
         "prezzo" => number_format($prodotto->prezzo, 2, ',', '.') . "€",
         "immagine" => "<img src='{$imagePath}' alt='{$imageAlt}' width='100' height='100'>",
         "url_farmaco" => "/php/pages/prodotto.php?id={$prodotto->id}",
