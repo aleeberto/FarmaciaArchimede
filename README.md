@@ -1,24 +1,37 @@
 # Farmacia Archimede
+ 
+ Progetto per il corso Tecnologie Web 
 
 ## TODO
 
-- fare main.css esiste main.temp.css come spunto
+#### SQL
 
-- [DONE] inserire  Logo in template header.html logo in assets/img/logo.png
+- Popolare il database (file popupate_db.sql)
 
-- [] mettere in tabella gli orari in footer.html 
+#### HTML e CSS
+- Fare e sistemare pagina Home (file index.html)
+- Fare e sistemare pagina Chi Siamo (file chisiamo.html)
+- Fare e sistemare pagina Contatti (file contatti.html)
+- Sistemare stile della pagina I Nostri Prodotti (prodotti.html)
+    - inserire campo di testo nel box di login
+    - Sistemare gli item
+- Fare e sistemare la pagina del singolo Prodotto (prodotto.html)
+    - Se si guarda nel file si capisce come restituisco i vari dati utilizzarli per creare la pagina
+    - Ricordarsi di aggiungere tasto di aggiunta al carrello
+- Inserire campo di testo in filtri nella pagina Prodotti
+- Sistemare la pagina di login (login.html)
+- Inserire nell header di fianco a Area personale bottone per carrello
 
-- [DONE] fare il form di login (pagina html)
+(Sistemare --> CSS Fare --> HTML)
 
-- [DONE] index.html inserire keywords e descrizione
+#### PHP
 
-- fare html di base per singolo prodotto (quello che si vedrà nella lista dei prodotti, poi verrà generata la lista completa con php nella pagina prodotti.html (per capirci la foto dell integratore mandato da @-- su telegram))
+- Gestire login con generazione pagina login / registrazione / AreaPersonale(loggato)
+- Gestire Filtri
+- Gestire aggiunta al carrello
 
-- fare pagina home, chi siamo e contatti
 
-- popolare il database i link ai medicinali sono disponibili nel file condiviso
 
-- Civico non è small int è un char
 
 ## Appunti parte di prodotti
 
@@ -35,5 +48,3 @@ docker-compose down
 docker-compose up -d 
 ```
 In teoria il down non è necessario ma almeno pulisce tutto
-
-### Semplificazione PHP
