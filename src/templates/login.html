@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<component>head</component>
+
+<html lang="it">
+
+<body class="no-print">
+
+    <component>header</component>
+
+    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+        <ol>
+            <li><a href="/index.php" lang="it">Home</a></li>
+            <li aria-current="page">Login</li>
+        </ol>
+    </nav>
+
+    <main>
+        <div class="login-form">
+            <h1>Effettua il login</h1>
+            <form action="/login.php" method="POST">
+                <p>Accedi alla tua area personale</p>
+                <label>Email:
+                    <input type="text" name="email" placeholder="youremail@example.com" required>
+                </label>
+                <label>Password:
+                    <input type="password" name="password" placeholder="password" required>
+                </label>
+                <button type="submit">Invio</button>
+                <p>Non hai un account? </p>
+                <a href="signin.php"><button type="button">Registrati</button></a>
+            </form>
+        </div>
+    </main>
+
+    <component>footer</component>
+
+</body>
+</html>
+
