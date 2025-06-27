@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<component>head</component>
+
+<body class="no-print">
+
+    <component>header</component>
+
+    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+        <ol>
+            <li><a href="/index.php" lang="it">Home</a></li>
+            <li aria-current="page">Area personale</li>
+        </ol>
+    </nav>
+
+    <main>
+        <h1>Benvenuto,
+            <component>user.nome</component>
+            <component>user.cognome</component>!
+        </h1>
+
+        <ul>
+            <li><a href="/logout.php">Esci</a></li>
+        </ul>
+    </main>
+
+
+    <component>footer</component>
+
+</body>
+</html>

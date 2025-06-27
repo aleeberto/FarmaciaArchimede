@@ -1,0 +1,11 @@
+# Caddyfile aggiornato
+http://localhost {
+    encode zstd gzip
+    redir /pma /pma/ 308
+    handle_path /pma/* {
+        reverse_proxy phpmyadmin:80
+    }
+    handle {
+        reverse_proxy php-apache:80
+    }
+}
