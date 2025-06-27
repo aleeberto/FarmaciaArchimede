@@ -33,20 +33,20 @@ Albero delle cartelle (aggiornato all'ultima modifica):
 
 ```
 .
-├── docker/            # configurazione dei container
+├── docker/           
 │   ├── caddy/
 │   ├── mariadb/
 │   ├── php-apache/
 │   └── phpmyadmin/
-├── public/            # entry point web
+├── public/            
 │   ├── assets/
 │   └── css/
-├── sql/               # schema e dati iniziali
+├── sql/              
 ├── src/
 │   ├── Core/
 │   ├── Service/
 │   ├── View/
-│   └── html/          # qui lavorano gli addetti all'HTML
+│   └── html/        
 ```
 
 Il gruppo che si occupa dell’HTML deve modificare i file presenti nella cartella `src/html`.
