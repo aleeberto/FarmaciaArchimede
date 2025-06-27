@@ -49,7 +49,7 @@ Albero delle cartelle (aggiornato all'ultima modifica):
 │   └── html/        
 ```
 
-Il gruppo che si occupa dell’HTML deve modificare i file presenti nella cartella `src/html`.
+Chi si occupa dell’HTML deve modificare i file presenti nella cartella `src/html`.
 
 Se il browser non mostra il sito assicurati di usare **http** e non https. L'impostazione di Caddy è pensata per consentire a Total Validator di trovare il sito in locale.
 
