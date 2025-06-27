@@ -54,3 +54,9 @@ Chi si occupa dell’HTML deve modificare i file presenti nella cartella `src/ht
 Se il browser non mostra il sito assicurati di usare **http** e non https. L'impostazione di Caddy è pensata per consentire a Total Validator di trovare il sito in locale.
 
 Per accedere rapidamente a phpMyAdmin è sufficiente aprire `http://localhost/pma`.
+
+> ⚠️ **Importante — non rimuovere `vendor/`, `composer.json` e `composer.lock`**
+>
+> * `vendor/` contiene **tutte le dipendenze locali** e l’autoloader generato da Composer.
+> * `composer.json` elenca le dipendenze del progetto.
+> * `composer.lock` blocca le versioni installate, garantendo che ogni ambiente usi lo stesso codice.
