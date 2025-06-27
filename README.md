@@ -33,36 +33,24 @@ Albero delle cartelle (aggiornato all'ultima modifica):
 
 ```
 .
-├── docker/            
+├── docker/            # configurazione dei container
 │   ├── caddy/
 │   ├── mariadb/
 │   ├── php-apache/
 │   └── phpmyadmin/
-├── public/            
+├── public/            # entry point web
 │   ├── assets/
 │   └── css/
-├── sql/              
+├── sql/               # schema e dati iniziali
 ├── src/
-│   ├── Config/
 │   ├── Core/
 │   ├── Service/
 │   ├── View/
-│   ├── vendor/
-│   └── templates/    
-├── composer.lock
-├── composer.json
+│   └── html/          # qui lavorano gli addetti all'HTML
 ```
 
-Chi si occupa dell’HTML deve modificare i file presenti nella cartella `src/templates`.
+Il gruppo che si occupa dell’HTML deve modificare i file presenti nella cartella `src/html`.
 
 Se il browser non mostra il sito assicurati di usare **http** e non https. L'impostazione di Caddy è pensata per consentire a Total Validator di trovare il sito in locale.
 
 Per accedere rapidamente a phpMyAdmin è sufficiente aprire `http://localhost/pma`.
-
-> ⚠️ **Importante — non rimuovere `vendor/`, `composer.json` e `composer.lock`**
->
-> * `vendor/` contiene le dipendenze e l’autoloader generato da Composer.
-> * `composer.json` elenca le dipendenze del progetto.
-> * `composer.lock` blocca le versioni installate, garantendo che ogni ambiente usi lo stesso codice.
->
-> Se uno di questi elementi viene cancellato, l’applicazione non troverà le classi necessarie e smetterà di funzionare. In tal caso dovrai rieseguire `composer install` (dentro il container `php-apache`) per ricostruire l’ambiente.

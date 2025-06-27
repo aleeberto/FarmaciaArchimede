@@ -1,107 +1,58 @@
 <?php
-
 namespace App\View;
 
 use App\Core\PageBuilder;
-use App\Config\Config;
-use App\Core\Auth; // <-- importiamo il facade Auth
-use RuntimeException;
 
 /**
- * Class HeaderBuilder
- *
- * Costruisce il menu di navigazione utilizzando la configurazione 'paths.navigation'
- * o, se non definita, effettuando la discovery dei template. Se l'utente è loggato,
- * sostituisce la voce "Area personale" con il suo nome.
+ * Costruisce l'header della pagina con menu e selezione percorso corrente.
  */
 class HeaderBuilder
 {
     private PageBuilder $builder;
-    private int $currentIndex;
-    /** @var array<int,array{string,string}> */
-    private array $pages;
+    private string $currentPath;
 
     /**
-     * @param PageBuilder $builder      Istanza del PageBuilder per caricare template e percorsi.
-     * @param int         $currentIndex Indice corrente nella navigazione.
+     * HeaderBuilder constructor.
+     *
+     * @param PageBuilder $builder  Istanza di PageBuilder per il rendering del template.
+     * @param string      $currentPath Percorso corrente della pagina (es. '/contatti.php').
      */
-    public function __construct(PageBuilder $builder, int $currentIndex = 0)
+    public function __construct(PageBuilder $builder, string $currentPath = '/')
     {
-        $this->builder      = $builder;
-        $this->currentIndex = $currentIndex;
-
-        $nav = Config::get('paths.navigation', []);
-        if (is_array($nav) && count($nav) > 0) {
-            // Usa la configurazione esplicita
-            $this->pages = array_map(
-                fn(array $item): array => [(string)($item[0] ?? '/'), (string)($item[1] ?? '')],
-                $nav
-            );
-        } else {
-            // Fallback alla discovery dei template
-            $this->pages = $this->discoverPages();
-        }
+        $this->builder     = $builder;
+        $this->currentPath = $currentPath;
     }
 
     /**
-     * Ritorna l'HTML dell'header con il menu di navigazione.
-     * Sostituisce la voce "Area personale" con il nome dell'utente se loggato.
+     * Genera l'HTML dell'header, aggiungendo la classe 'active' alla voce di menu corrispondente al percorso corrente.
      *
-     * @return string HTML dell'header.
+     * @return string HTML dell'header modificato.
      */
     public function build(): string
     {
-        $tpl  = $this->builder->loadTemplate('header.html');
-        $user = Auth::user();
+        $html = $this->builder->loadTemplate('header.html')->build();
 
-        $html = '';
-        foreach ($this->pages as $i => [$path, $title]) {
-            $active = $i === $this->currentIndex ? ' class="active"' : '';
-            $href   = $i === $this->currentIndex ? '' : " href=\"{$path}\"";
+        $relPath = ltrim($this->currentPath, '/');
 
-            if ($title === 'Accedi' && is_array($user)) {
-                $display = $user['nome'] ?? $user['username'] ?? 'Profilo';
+        $p = preg_quote($relPath, '#');
+        $pattern = "#(<li\\b[^>]*>)(\\s*<a\\s+href=\"/?{$p}\"[^>]*>)#i";
+
+        $html = preg_replace_callback($pattern, function(array $m) {
+            $liTag = $m[1];
+
+            if (preg_match('/\\bclass="([^\"]*)"/', $liTag, $cls)) {
+                $liTag = preg_replace(
+                    '/\\bclass="([^\"]*)"/',
+                    'class="'.trim($cls[1].' active').'"',
+                    $liTag
+                );
             } else {
-                $display = $title;
+                $liTag = rtrim($liTag, '>') . ' class="active">';
             }
 
-            $html .= "<li{$active}><a{$href}>{$display}</a></li>";
-        }
+            return $liTag . $m[2];
+        }, $html);
 
-        $tpl->insert('navigation', $html);
-        return $tpl->build();
-    }
-
-    /**
-     * Scandisce la cartella dei template per trovare le pagine da inserire nel menu.
-     * Esclude i partial come head, header e footer.
-     * Estrae il titolo dal <title> del template o genera un titolo dal filename.
-     *
-     * @return array<int,array{string,string}>
-     */
-    private function discoverPages(): array
-    {
-        $templatesDir = $this->builder->getBasePath();
-        $files = glob($templatesDir . '/*.html');
-        $menu = [];
-
-        foreach ($files as $file) {
-            $name = pathinfo($file, PATHINFO_FILENAME);
-            if (in_array($name, ['head', 'header', 'footer'], true)) {
-                continue;
-            }
-
-            $path = $name === 'index' ? '/' : '/' . $name;
-            $content = file_get_contents($file);
-            if (preg_match('/<title>(.*?)<\/title>/i', $content, $m)) {
-                $title = $m[1];
-            } else {
-                $title = ucwords(str_replace(['-', '_'], ' ', $name));
-            }
-
-            $menu[] = [$path, $title];
-        }
-
-        return $menu;
+        return $html;
     }
 }

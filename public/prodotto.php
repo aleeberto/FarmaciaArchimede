@@ -5,7 +5,6 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\AuthFacade;
 use App\Core\PageBuilder;
-use App\Config\Config;
 use App\Core\Database;
 use App\Service\ProductService;
 
@@ -13,9 +12,11 @@ use App\Service\ProductService;
 // AuthFacade::requireLogin();
 
 // Inizializza DB e servizio
-$cfg = Config::get('database');
 $db  = Database::getInstance(
-    $cfg['host'], $cfg['username'], $cfg['password'], $cfg['dbname']
+    getenv('MARIADB_HOST') ?: 'mariadb',
+    getenv('MARIADB_USER') ?: 'admin',
+    getenv('MARIADB_PASSWORD') ?: 'admin',
+    getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
 );
 $service = new ProductService($db);
 

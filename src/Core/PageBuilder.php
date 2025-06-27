@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Core;
-
-use App\Config\Config;
 use App\Service\AuthService;
 use App\View\FooterBuilder;
 use App\View\HeadBuilder;
@@ -36,9 +34,9 @@ class PageBuilder
     private AuthService $auth;
 
     /**
-     * Costruttore privato: avvia la sessione, inizializza AuthService e definisce il percorso ai template.
+     * Costruttore privato: avvia la sessione, inizializza AuthService e definisce il percorso ai file HTML.
      *
-     * @throws RuntimeException Se manca la configurazione paths.templates o la directory non esiste.
+     * @throws RuntimeException Se la cartella html non esiste.
      */
     private function __construct()
     {
@@ -47,24 +45,19 @@ class PageBuilder
             session_start();
         }
 
-        $dbCfg = Config::get('database');
         $db    = Database::getInstance(
-            $dbCfg['host'],
-            $dbCfg['username'],
-            $dbCfg['password'],
-            $dbCfg['dbname']
+            getenv('MARIADB_HOST') ?: 'mariadb',
+            getenv('MARIADB_USER') ?: 'admin',
+            getenv('MARIADB_PASSWORD') ?: 'admin',
+            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
         );
         $this->auth = new AuthService($db);
 
-        $configuredPath = Config::get('paths.templates');
-        if (!is_string($configuredPath) || $configuredPath === '') {
-            throw new RuntimeException("Configurazione mancante: paths.templates");
+        $configuredPath = realpath(__DIR__ . '/../html');
+        if ($configuredPath === false) {
+            throw new RuntimeException('Directory template non trovata');
         }
-        $real = realpath($configuredPath);
-        if ($real === false) {
-            throw new RuntimeException("Directory template non trovata: {$configuredPath}");
-        }
-        $this->basePath = $real;
+        $this->basePath = $configuredPath;
     }
 
     /**
@@ -135,35 +128,19 @@ class PageBuilder
      *
      * @param string $templateName Nome del template (senza estensione).
      * @param array  $parameters   Parametri da sostituire all'interno del template.
-     * @param int    $currentIndex Indice corrente della voce di navigazione (opzionale).
      * @throws RuntimeException In caso di errori nel caricamento o nella navigazione.
      * @return string             Markup HTML finale.
      */
     public function build(
         string $templateName,
-        array  $parameters   = [],
-        int    $currentIndex = 0
+        array  $parameters   = []
     ): string {
-        $uriPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $uriPath = rtrim($uriPath, '/');
-        $base    = pathinfo($uriPath, PATHINFO_FILENAME);
-        $uri     = $base === '' ? '/' : '/' . $base;
-        $nav     = Config::get('paths.navigation', []);
-        $calculatedIndex = 0;
-        if (is_array($nav)) {
-            foreach ($nav as $i => $item) {
-                $raw      = (string)($item[0] ?? '');
-                $fileName = pathinfo(ltrim($raw, '/\\'), PATHINFO_FILENAME);
-                if ('/' . $fileName === $uri) {
-                    $calculatedIndex = $i;
-                    break;
-                }
-            }
-        }
+        $uriPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+        $uriPath = $uriPath === '/index.php' ? '/' : $uriPath;
 
         $main        = $this->loadTemplate("{$templateName}.html");
         $headHtml    = (new HeadBuilder($this))->build();
-        $headerHtml  = (new HeaderBuilder($this, $calculatedIndex))->build();
+        $headerHtml  = (new HeaderBuilder($this, $uriPath))->build();
         $contentHtml = $main->build();
         $footerHtml  = (new FooterBuilder($this))->build();
 

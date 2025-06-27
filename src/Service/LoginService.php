@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Config\Config;
 use App\Core\Database;
 use App\Core\PageBuilder;
 
@@ -14,9 +13,11 @@ class LoginService
 
     public function __construct()
     {
-        $cfg = Config::get('database');
         $db = Database::getInstance(
-            $cfg['host'], $cfg['username'], $cfg['password'], $cfg['dbname']
+            getenv('MARIADB_HOST') ?: 'mariadb',
+            getenv('MARIADB_USER') ?: 'admin',
+            getenv('MARIADB_PASSWORD') ?: 'admin',
+            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
         );
         $this->auth = new AuthService($db);
     }

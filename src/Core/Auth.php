@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Config\Config;
 use App\Service\AuthService;
 
 /**
@@ -28,12 +27,11 @@ class Auth
         }
 
         if (self::$auth === null) {
-            $cfg = Config::get('database');
-            $db  = Database::getInstance(
-                $cfg['host'],
-                $cfg['username'],
-                $cfg['password'],
-                $cfg['dbname']
+            $db = Database::getInstance(
+                getenv('MARIADB_HOST') ?: 'mariadb',
+                getenv('MARIADB_USER') ?: 'admin',
+                getenv('MARIADB_PASSWORD') ?: 'admin',
+                getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
             );
             self::$auth = new AuthService($db);
         }

@@ -3,18 +3,16 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Config\Config;
 use App\Service\AuthService;
 use App\Core\Database;
 use App\Core\Auth;
 
 // 1. Inizializza DB e AuthenticationService
-$cfg = Config::get('database');
 $db  = Database::getInstance(
-    $cfg['host'],
-    $cfg['username'],
-    $cfg['password'],
-    $cfg['dbname']
+    getenv('MARIADB_HOST') ?: 'mariadb',
+    getenv('MARIADB_USER') ?: 'admin',
+    getenv('MARIADB_PASSWORD') ?: 'admin',
+    getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
 );
 
 Auth::requireLogin();
