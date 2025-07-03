@@ -26,6 +26,7 @@ create table Prodotto(
                          Produttore varchar(30) NOT NULL,
                          Codice_AIC char(10) NOT NULL,
                          Tipo varchar(20) NOT NULL,
+                         Formato varchar(20) NOT NULL,
                          Prezzo DECIMAL (5,2) NOT NULL,
                          Disponibilita SMALLINT UNSIGNED  NOT NULL,
                          Descrizione varchar(1024) NOT NULL,
@@ -36,7 +37,7 @@ create table Prodotto(
 
 create table Immagine(
                          Prodotto SMALLINT UNSIGNED PRIMARY KEY,
-                         Alt varchar(20) NOT NULL,
+                         Alt varchar(64) NOT NULL,
                          Path varchar(64) NOT NULL,
 
                          FOREIGN KEY(Prodotto) REFERENCES Prodotto(ID_prodotto)
