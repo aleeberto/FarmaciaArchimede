@@ -16,6 +16,49 @@ Progetto per il corso Tecnologie Web. L'ambiente di sviluppo è basato su Docker
 - filtri
 - login
 
+## Git Flow
+
+Git Flow è una metodologia di branching che aiuta a gestire il flusso di lavoro. Git Flow è già configurato nel repository, quindi **non** è necessario eseguire `git flow init`.
+
+### Installazione
+
+Per installare Git Flow:
+
+* Su macOS: `brew install git-flow`
+* Su Ubuntu/Debian: `sudo apt install git-flow`
+* Altri sistemi: vedi la [documentazione ufficiale di Git Flow](https://github.com/nvie/gitflow).
+
+Per maggiori dettagli sui comandi e la gestione delle release, consulta lo [spreadsheet principale](https://danielkummer.github.io/git-flow-cheatsheet/index.html).
+
+### Feature
+
+Per ogni nuova funzionalità o modifica:
+
+1. Assicurati di essere su `develop`:
+
+   ```bash
+   git checkout develop
+   git pull
+   ```
+2. Crea la feature:
+
+   ```bash
+   git flow feature start nome-feature
+   ```
+3. Lavora sulla feature, fai commit regolari.
+4. Pubblica (pusherà il branch remoto):
+
+   ```bash
+   git flow feature publish nome-feature
+   ```
+5. Quando la feature è completa:
+
+   ```bash
+   git flow feature finish nome-feature
+   ```
+
+   Questo comando unisce la feature a `develop` e cancella il branch locale.
+
 ## Avvio rapido
 
 1. Installa [Docker](https://docs.docker.com/engine/install/). Se usi Linux segui anche la [guida post installazione](https://docs.docker.com/engine/install/linux-postinstall/).

@@ -5,6 +5,7 @@ use App\Service\AuthService;
 use App\View\FooterBuilder;
 use App\View\HeadBuilder;
 use App\View\HeaderBuilder;
+use App\View\BreadcrumbBuilder;
 use RuntimeException;
 
 /**
@@ -58,6 +59,14 @@ class PageBuilder
             throw new RuntimeException('Directory template non trovata');
         }
         $this->basePath = $configuredPath;
+    }
+
+    /**
+     * Restituisce l’istanza di AuthService.
+     */
+    public function getAuthService(): AuthService
+    {
+        return $this->auth;
     }
 
     /**
@@ -139,18 +148,28 @@ class PageBuilder
         $uriPath = $uriPath === '/index.php' ? '/' : $uriPath;
 
         $main        = $this->loadTemplate("{$templateName}.html");
-        $headHtml    = (new HeadBuilder($this))->build();
-        $headerHtml  = (new HeaderBuilder($this, $uriPath))->build();
-        $contentHtml = $main->build();
-        $footerHtml  = (new FooterBuilder($this))->build();
+        $headBuilder = new \App\View\HeadBuilder($this);
+        if (isset($parameters['title'])) {
+            $headBuilder->setTitle($parameters['title']);
+        }
+        $headHtml = $headBuilder->build();
 
-        $main->insert('head',    $headHtml);
-        $main->insert('header',  $headerHtml);
-        $main->insert('content', $contentHtml);
-        $main->insert('footer',  $footerHtml);
+        // 2) Header, Breadcrumb, Contenuto, Footer
+        $headerHtml     = (new HeaderBuilder($this, $uriPath))->build();
+        $breadcrumbHtml = (new \App\View\BreadcrumbBuilder($this, $uriPath))->build();
+        $contentHtml    = $main->build();
+        $footerHtml     = (new FooterBuilder($this))->build();
+
+        // 3) Inserimento dei componenti e dei parametri
+        $main->insert('head',       $headHtml);
+        $main->insert('header',     $headerHtml);
+        $main->insert('breadcrumb', $breadcrumbHtml);
+        $main->insert('content',    $contentHtml);
+        $main->insert('footer',     $footerHtml);
 
         $main->insertAll($parameters);
 
         return $main->build();
     }
 }
+

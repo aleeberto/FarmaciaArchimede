@@ -20,4 +20,7 @@ if (!$auth->isLogged()) {
 }
 
 $user = $auth->getUser();
-PageBuilder::show('area_personale', ['user' => $user]);
+PageBuilder::show('area_personale', [
+    'user' => $user,
+    'title' => 'Area personale'
+]);

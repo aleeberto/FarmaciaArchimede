@@ -32,7 +32,10 @@ class LoginService
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $error = $_GET['error'] ?? '';
-            PageBuilder::show('login', ['error' => $error]);
+            PageBuilder::show('login', [
+                'error' => $error,
+                'title' => 'Accedi',
+            ]);
             exit;
         }
 

@@ -47,4 +47,5 @@ foreach ($prodotti as $prodotto) {
 
 PageBuilder::show($_SERVER['SCRIPT_NAME'], [
     'items' => $items,
+    'title' => 'Prodotti'
 ]);
