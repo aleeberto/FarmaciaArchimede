@@ -32,9 +32,9 @@ foreach ($prodotti as $prodotto) {
     $itemTpl = PageBuilder::getInstance()
         ->loadTemplate('item.html');
 
-    $imm = $service->getProductImage($prodotto->id);
-    $path = $imm ? $imm->path : '/assets/img/default.jpg';
-    $alt  = $imm ? $imm->alt  : 'Immagine non disponibile';
+    $imm = $prodotto->pathImmagine;
+    $path = $imm ?: '/assets/img/default.jpg';
+    $alt  = $imm ? 'Immagine del prodotto' : 'Immagine non disponibile';
 
     $itemTpl->insertAll([
         'nome'      => $prodotto->shortNome,

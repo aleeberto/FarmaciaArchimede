@@ -1,3 +1,4 @@
 .devcontainer/*
 debug.*
 .DS_Store
+temp
