@@ -16,13 +16,17 @@ class ProdottoDTO
     public float $prezzo;
     public int $disponibilita;
     public string $descrizione;
-}
+    public string $pathImmagine;
 
-class ImmagineDTO
-{
-    public int $prodotto_id;
-    public string $alt;
-    public string $path;
+    /**
+     * Restituisce la disponibilità come stringa, con "ESAURITO" se 0.
+     */
+    public function getDisponibilita(): string
+    {
+        return $this->disponibilita > 0
+            ? (string) $this->disponibilita
+            : 'ESAURITO';
+    }
 }
 
 class ProductService
@@ -54,6 +58,7 @@ class ProductService
             $dto->prezzo = (float) $row['Prezzo'];
             $dto->disponibilita = (int) $row['Disponibilita'];
             $dto->descrizione = (string) $row['Descrizione'];
+            $dto->pathImmagine = '/assets/img/' . $row['PathImmagine'];
             $prodotti[] = $dto;
         }
 
@@ -82,27 +87,7 @@ class ProductService
             $dto->prezzo = (float) $row['Prezzo'];
             $dto->disponibilita = (int) $row['Disponibilita'];
             $dto->descrizione = (string) $row['Descrizione'];
-            return $dto;
-        }
-        return null;
-    }
-
-    public function getProductImage(int $productId): ?ImmagineDTO
-    {
-        $conn = $this->db->connect();
-        $stmt = $conn->prepare('SELECT * FROM Immagine WHERE Prodotto = ?');
-        if (! $stmt) {
-            throw new \RuntimeException('Errore nella preparazione: ' . $conn->error);
-        }
-        $stmt->bind_param('i', $productId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($row = $result->fetch_assoc()) {
-            $dto = new ImmagineDTO();
-            $dto->prodotto_id = (int) $row['Prodotto'];
-            $dto->alt = (string) $row['Alt'];
-            $dto->path = '/assets/img/' . $row['Path'];
+            $dto->pathImmagine = '/assets/img/' . $row['PathImmagine'];
             return $dto;
         }
         return null;

@@ -3,7 +3,6 @@ use farmacia_archimede;
 
 DROP TABLE IF EXISTS Ordinazioni;
 DROP TABLE IF EXISTS Ordine;
-DROP TABLE IF EXISTS Immagine;
 DROP TABLE IF EXISTS Prodotto;
 DROP TABLE IF EXISTS Lista_carte;
 DROP TABLE IF EXISTS Carta_di_credito;
@@ -30,17 +29,10 @@ create table Prodotto(
                          Prezzo DECIMAL (5,2) NOT NULL,
                          Disponibilita SMALLINT UNSIGNED  NOT NULL,
                          Descrizione varchar(1024) NOT NULL,
+                         PathImmagine varchar(64) NOT NULL,
 
-                         check(Disponibilita > 0),
+                         check(Disponibilita >= 0),
                          check(Prezzo > 0)
-);
-
-create table Immagine(
-                         Prodotto SMALLINT UNSIGNED PRIMARY KEY,
-                         Alt varchar(64) NOT NULL,
-                         Path varchar(64) NOT NULL,
-
-                         FOREIGN KEY(Prodotto) REFERENCES Prodotto(ID_prodotto)
 );
 
 create table Indirizzo(

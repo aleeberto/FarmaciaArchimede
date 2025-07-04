@@ -33,9 +33,10 @@ if (! $prodotto) {
     header('Location: /prodotti.php');
     exit;
 }
-$imm = $service->getProductImage($prodotto->id);
-$path = $imm ? $imm->path : '/assets/img/default.jpg';
-$alt  = $imm ? $imm->alt  : 'Immagine non disponibile';
+
+$imm = $prodotto->pathImmagine;
+$path = $imm ?: '/assets/img/default.jpg';
+$alt  = $imm ? 'Immagine del prodotto' : 'Immagine non disponibile';
 
 // Prepara i parametri per il template
 $params = [
@@ -45,9 +46,9 @@ $params = [
     'descrizione'   => $prodotto->descrizione,
     'produttore'    => $prodotto->produttore,
     'codice'        => $prodotto->codice_aic,
-    'disponibilita' => (string) $prodotto->disponibilita,
+    'disponibilita' => $prodotto->getDisponibilita(),
     'prezzo'        => number_format($prodotto->prezzo, 2, ',', '.') . '€',
-    'immagine'      => "<img src='{$path}' alt='{$alt}' width='100' height='100'>",
+    'immagine'      => "<img src='{$path}' width='100' height='100'>",
 ];
 
 // Mostra la pagina "prodotto.html"
