@@ -250,6 +250,11 @@ body #product-container {
     max-width: 800px;
 }
 
+body #product-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
 
 /* FOOTER */
 footer {
