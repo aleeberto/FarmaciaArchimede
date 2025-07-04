@@ -21,7 +21,29 @@
         <div class="main-content">
             <div id="filter-container" class="flex-container">
                 <h2>Filtri</h2>
-            </div>
+                <div id="search-box">
+                    <input type="text" placeholder="Cerca..." name="search">
+                </div>
+                <div id="filters">
+                    <fieldset>
+                        <legend>Tipologia:</legend>
+                        <label><input type="radio" name="tipologia" value="tutte" checked> Tutte</label><br>
+                        <label><input type="radio" name="tipologia" value="farmaci"> Farmaci</label><br>
+                        <label><input type="radio" name="tipologia" value="integratori"> Integratori</label><br>
+                        <label><input type="radio" name="tipologia" value="cosmetici"> Cosmetici</label>
+                    </fieldset>
+                  
+                    <fieldset>
+                        <legend>Disponibilità:</legend>
+                        <label><input type="radio" name="disponibilita" value="tutti" checked> Tutti</label><br>
+                        <label><input type="radio" name="disponibilita" value="disponibile"> Disponibile</label><br>
+                        <label><input type="radio" name="disponibilita" value="esaurito"> Esaurito</label>
+                    </fieldset>
+                </div>
+                
+                <input type="submit" value="Applica">
+            </div>    
+
             <div id="prodotti" class="items">
                 <component>items</component>
             </div>

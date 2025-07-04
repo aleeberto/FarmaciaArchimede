@@ -149,7 +149,21 @@ header nav ul li:last-child {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: left;
+}
+
+.login-form p {
+    font-weight: bold;
     text-align: center;
+}
+
+.login-form input {
+    width: 100%;
+}
+
+.login-form button {
+    text-align: center;
+    width: 30%;
 }
 
 /* BODY */
@@ -190,6 +204,24 @@ body #filter-container {
     text-align: left;
 }
 
+body #search-box input {
+    width: 100%;
+}
+
+body #filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1em;
+}
+  
+body input[type=submit] {
+    float: right;
+    margin-top: 2em;
+    font-size: 1.05em;
+}
+
+    /* ELENCO PRODOTTI */
 body .items {
     flex: 4;
     display: flex;
@@ -208,6 +240,14 @@ body .item {
     margin: 5px;
     padding: 10px;
     text-align: center;
+}
+
+    /* DETTAGLIO PRODOTTO */
+body #product-container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    max-width: 800px;
 }
 
 
