@@ -19,19 +19,34 @@
 
     <main>
         <h1><component>shortNome</component></h1>
+
         <div id="product-container" class="flex-container">
             <div id="product-action">
-                <input type="button" value="Modifica">
-                <input type="button" value="Elimina">
+                <button>Modifica</button>
+                <button>Elimina</button>
             </div>
-            <component>nome</component>
-            <component>immagine</component>
-            <component>tipo</component>
-            <component>descrizione</component>
-            <component>prezzo</component>
-            <component>produttore</component>
-            <component>codice</component>
-        </div>        
+            <div class="main-content">
+                
+                <div id="product-image">
+                    <component>immagine</component>
+                </div>
+                <div id="product-details">
+                    <h2><component>nome</component></h2>
+                    <p><strong>Produttore:</strong> <component>produttore</component></p>
+                    <p><strong>Prezzo:</strong> <component>prezzo</component></p>
+            
+                    <div class="cart-actions">
+                        <input type="number" id="qty-input" name="quantity" value="1" min="1" max="50" style="width: 50px; text-align: center;">
+                        <button type="button" id="add-to-cart">Aggiungi al carrello</button>
+                    </div>
+                    <p><strong>Disponibilità:</strong> <component>disponibilita</component></p>
+                    <p><component>descrizione</component></p>
+                    <p><component>tipo</component></p>
+                    <p><strong>Codice:</strong> <component>codice</component></p>
+
+                </div>
+            </div>
+        </div>
     </main>
 
     <component>footer</component>

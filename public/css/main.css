@@ -135,36 +135,57 @@ header nav ul li:last-child {
     text-decoration:none;
 }
 
-/* LOGIN FORM */
+/* LOGIN */
 .login-form {
-    margin: 20px auto;
-    padding: 20px 30px;
-    width: 300px;
+    margin: 30px auto;
+    padding: 30px;
+    width: 320px;
     font-size: 1.1em;
     line-height: 1.5;
-
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
-
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: left;
-}
-
-.login-form p {
-    font-weight: bold;
+    gap: 1em;
+  }
+  
+.login-form h1, p {
     text-align: center;
 }
-
+  
+.login-form label {
+    margin-top: 1em;
+    display: block;
+}
+  
 .login-form input {
     width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
 }
-
-.login-form button {
+  
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5em;
+}
+  
+.login-form button,
+.register-link {
+    padding: 8px 12px;
+    font-size: 1em;
     text-align: center;
-    width: 30%;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
+  
+.register-link {
+    display: inline-block;
+}
+  
 
 /* BODY */
 body main {
@@ -202,10 +223,18 @@ body .main-content {
 body #filter-container {
     flex: 1;
     text-align: left;
+    align-self: flex-start;
+}
+
+body #filter-container > h2 {
+    text-align: center;
 }
 
 body #search-box input {
     width: 100%;
+    box-sizing: border-box;
+    padding: 4px;
+    margin-top: 1em;
 }
 
 body #filters {
@@ -221,7 +250,7 @@ body input[type=submit] {
     font-size: 1.05em;
 }
 
-    /* ELENCO PRODOTTI */
+    /* ELENCO PRODOTTI *//*
 body .items {
     flex: 4;
     display: flex;
@@ -240,19 +269,78 @@ body .item {
     margin: 5px;
     padding: 10px;
     text-align: center;
-}
+}*/
 
-    /* DETTAGLIO PRODOTTO */
-body #product-container {
+body .items {
+    flex: 5;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 40px 18px;
+    padding: 20px 25px 40px 5px;
+}
+  
+body .item {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    text-align: center;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    max-width: 800px;
+    justify-content: space-between;
+}
+
+
+    /* DETTAGLIO PRODOTTO */
+body #product-container {    
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+body #product-image {
+    flex: 1;
+    text-align: left;
+}
+
+body #product-image img {
+    max-width: 100%;
+    width: fit-content;
+    display: block;
+}
+
+body #product-details {
+    flex: 3;
+    margin: 30px;
+    line-height: 1.5em;
+}
+
+body #product-details > h2 {
+    margin-bottom: 15px;
+}
+
+body #product-details > p {
+    text-align: left;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 5px;
 }
 
 body #product-action {
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
+}
+
+.cart-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0 15px 10px;
+}
+
+#qty-input, #add-to-cart {
+    padding: 5px;
 }
 
 

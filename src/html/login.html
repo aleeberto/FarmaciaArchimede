@@ -17,21 +17,23 @@
 
     <main>
         <div class="login-form">
-            <h1>Effettua il login</h1>
+            <h1>Login</h1>
             <form action="/login.php" method="POST">
                 <p>Accedi alla tua area personale</p>
-                <label>Email:
-                    <input type="text" name="email" placeholder="youremail@example.com" required>
-                </label>
-                <label>Password:
-                    <input type="password" name="password" placeholder="password" required>
-                </label>
-                <button type="submit">Invio</button>
-                <p>Non hai un account? </p>
-                <a href="signin.php"><button type="button">Registrati</button></a>
+        
+                <label for="email">Email:</label>
+                <input id="email" type="email" name="email" placeholder="youremail@example.com" required>
+        
+                <label for="password">Password:</label>
+                <input id="password" type="password" name="password" placeholder="password" required>
+        
+                <div class="form-buttons">
+                    <a href="signup.php" class="register-link">Registrati</a>
+                    <button type="submit">Accedi</button>
+                </div>
             </form>
         </div>
-    </main>
+      </main>
 
     <component>footer</component>
 

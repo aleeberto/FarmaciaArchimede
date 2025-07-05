@@ -48,7 +48,7 @@ $params = [
     'codice'        => $prodotto->codice_aic,
     'disponibilita' => $prodotto->getDisponibilita(),
     'prezzo'        => number_format($prodotto->prezzo, 2, ',', '.') . '€',
-    'immagine'      => "<img src='{$path}' width='100' height='100'>",
+    'immagine'      => "<img src='{$path}'>",
 ];
 
 // Mostra la pagina "prodotto.html"
