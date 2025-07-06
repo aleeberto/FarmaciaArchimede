@@ -3,53 +3,50 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Core\AuthFacade;
 use App\Core\PageBuilder;
 use App\Core\Database;
 use App\Service\ProductService;
 
-// Se il dettaglio prodotto deve essere protetto:
+// If this page should be protected:
 // AuthFacade::requireLogin();
 
-// Inizializza DB e servizio
+// Initialize DB and service
 $db  = Database::getInstance(
-    getenv('MARIADB_HOST') ?: 'mariadb',
-    getenv('MARIADB_USER') ?: 'admin',
+    getenv('MARIADB_HOST')     ?: 'mariadb',
+    getenv('MARIADB_USER')     ?: 'admin',
     getenv('MARIADB_PASSWORD') ?: 'admin',
     getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
 );
 $service = new ProductService($db);
 
-// Ottieni ID prodotto da query string
-$id = (int) ($_GET['id'] ?? 0);
+// Get product ID from query string
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
 if ($id <= 0) {
-    header('Location: /prodotti.php');
+    header('Location: /products.php');
     exit;
 }
 
-// Recupera dati prodotto e immagine
-$prodotto = $service->getProductByID($id);
-if (! $prodotto) {
-    header('Location: /prodotti.php');
+// Fetch the product
+$product = $service->getProductByID($id);
+if (! $product) {
+    header('Location: /products.php');
     exit;
 }
 
-$imm = $prodotto->pathImmagine;
-$path = $imm ?: '/assets/img/default.jpg';
-$alt  = $imm ? 'Immagine del prodotto' : 'Immagine non disponibile';
+$imagePath = $product->imagePath;
+$src       = $imagePath ?: '/assets/img/default.jpg';
+$alt       = $imagePath ? 'Immagine del prodotto' : 'Immagine non disponibile';
 
-// Prepara i parametri per il template
 $params = [
-    'shortNome'     => $prodotto->shortNome,
-    'nome'          => $prodotto->nome,
-    'tipo'          => $prodotto->tipo,
-    'descrizione'   => $prodotto->descrizione,
-    'produttore'    => $prodotto->produttore,
-    'codice'        => $prodotto->codice_aic,
-    'disponibilita' => $prodotto->getDisponibilita(),
-    'prezzo'        => number_format($prodotto->prezzo, 2, ',', '.') . '€',
-    'immagine'      => "<img src='{$path}'>",
+    'shortName'    => $product->shortName,
+    'name'         => $product->name,
+    'type'         => $product->type,
+    'description'  => $product->description,
+    'manufacturer' => $product->manufacturer,
+    'code'         => $product->aicCode,
+    'availability' => $product->getAvailability(),
+    'price'        => number_format($product->price, 2, ',', '.') . '€',
+    'image'        => "<img src=\"{$src}\" alt=\"{$alt}\">",
 ];
 
-// Mostra la pagina "prodotto.html"
 PageBuilder::show($_SERVER['SCRIPT_NAME'], $params);

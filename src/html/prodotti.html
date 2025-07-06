@@ -1,57 +1,89 @@
 <!DOCTYPE html>
-
 <html lang="it">
-
 <component>head</component>
-
 <body class="no-print">
 
-    <component>header</component>
+<component>header</component>
 
-    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
-        <ol>
-            <li><a href="/index.php" lang="it">Home</a></li>
-            <li aria-current="page">Prodotti</li>
-        </ol>
-    </nav>
+<nav aria-label="breadcrumb" class="breadcrumb">
+    Ti trovi in:
+    <ol>
+        <li><a href="/index.php" lang="it">Home</a></li>
+        <li aria-current="page">Prodotti</li>
+    </ol>
+</nav>
 
-    <main>
-        <h1>Prodotti</h1>
+<main>
+    <h1>Prodotti</h1>
 
-        <div class="main-content">
+    <div class="main-content">
+        <!-- FORM NORMALE -->
+        <form id="filterForm" action="prodotti.php" method="get">
             <div id="filter-container" class="flex-container">
                 <h2>Filtri</h2>
+
                 <div id="search-box">
-                    <input type="text" placeholder="Cerca..." name="search">
+                    <input
+                            type="text"
+                            name="search"
+                            placeholder="Cerca..."
+                            value="<component>searchQuery</component>"
+                    >
                 </div>
+
                 <div id="filters">
                     <fieldset>
                         <legend>Tipologia:</legend>
-                        <label><input type="radio" name="tipologia" value="tutte" checked> Tutte</label><br>
-                        <label><input type="radio" name="tipologia" value="farmaci"> Farmaci</label><br>
-                        <label><input type="radio" name="tipologia" value="integratori"> Integratori</label><br>
-                        <label><input type="radio" name="tipologia" value="cosmetici"> Cosmetici</label>
+                        <label>
+                            <input type="radio" name="tipologia" value="tutte" checked>
+                            Tutte
+                        </label><br>
+                        <label>
+                            <input type="radio" name="tipologia" value="farmaci">
+                            Farmaci
+                        </label><br>
+                        <label>
+                            <input type="radio" name="tipologia" value="integratori">
+                            Integratori
+                        </label><br>
+                        <label>
+                            <input type="radio" name="tipologia" value="cosmetici">
+                            Cosmetici
+                        </label>
                     </fieldset>
-                  
+
                     <fieldset>
                         <legend>Disponibilità:</legend>
-                        <label><input type="radio" name="disponibilita" value="tutti" checked> Tutti</label><br>
-                        <label><input type="radio" name="disponibilita" value="disponibile"> Disponibile</label><br>
-                        <label><input type="radio" name="disponibilita" value="esaurito"> Esaurito</label>
+                        <label>
+                            <input type="radio" name="disponibilita" value="tutti" checked>
+                            Tutti
+                        </label><br>
+                        <label>
+                            <input type="radio" name="disponibilita" value="disponibile">
+                            Disponibile
+                        </label><br>
+                        <label>
+                            <input type="radio" name="disponibilita" value="esaurito">
+                            Esaurito
+                        </label>
                     </fieldset>
                 </div>
-                
+
                 <input type="submit" value="Applica">
-            </div>    
-
-            <div id="prodotti" class="items">
-                <component>items</component>
             </div>
+        </form>
+
+        <div id="prodotti" class="items">
+            <component>items</component>
         </div>
-    </main>
 
-    <component>footer</component>
+        <div id="pagination-container">
+            <component>pagination</component>
+        </div>
+    </div>
+</main>
 
+<component>footer</component>
+<script src="/js/products.js"></script>
 </body>
-
 </html>
