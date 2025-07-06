@@ -11,6 +11,10 @@ FROM php:8.2.0-apache
 RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 RUN a2enmod rewrite
 
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+
 # Imposta la DocumentRoot a /var/www/html/public
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
 
