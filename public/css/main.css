@@ -262,11 +262,15 @@ body #results-container {
     flex-direction: column;
 }
 
+body .pagination-info {
+    padding-left: 10px;
+}
+
 body .items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 40px 18px;
-    padding: 20px 25px 40px 5px;
+    padding: 10px 25px 40px 5px;
 }
   
 body .item {
@@ -282,6 +286,16 @@ body .item {
 
 body #pagination-container {
     align-self: center;
+}
+
+.pagination {
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination li {
+    display: inline;
 }
 
     /* DETTAGLIO PRODOTTO */
