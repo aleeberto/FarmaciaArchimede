@@ -5,9 +5,6 @@ namespace App\Service;
 use App\Core\Database;
 use Exception;
 
-/**
- * Classe AuthService: gestisce autenticazione, sessioni e logout.
- */
 class AuthService
 {
     private const SESSION_USER = 'user';
@@ -23,17 +20,12 @@ class AuthService
 
     /**
      * Tenta il login con email e password.
-     *
-     * @param string $email
-     * @param string $password
-     * @return bool
-     * @throws Exception
      */
     public function login(string $email, string $password): bool
     {
         $conn = $this->db->connect();
         $stmt = $conn->prepare(
-            'SELECT Email, Psw, Nome, Cognome, CF FROM Utente WHERE Email = ?'
+            'SELECT user_id, email, password_hash, first_name, last_name, tax_code, is_admin FROM users WHERE email = ?'
         );
         if (!$stmt) {
             throw new Exception('Errore nella preparazione della query di login.');
@@ -43,13 +35,14 @@ class AuthService
         $result = $stmt->get_result();
 
         if ($user = $result->fetch_assoc()) {
-
-            if (password_verify($password, $user['Psw'])) {
+            if (password_verify($password, $user['password_hash'])) {
                 $_SESSION[self::SESSION_USER] = [
-                    'email'   => $user['Email'],
-                    'nome'    => $user['Nome'],
-                    'cognome' => $user['Cognome'],
-                    'cf'      => $user['CF'],
+                    'user_id'    => $user['user_id'],
+                    'email'      => $user['email'],
+                    'first_name' => $user['first_name'],
+                    'last_name'  => $user['last_name'],
+                    'tax_code'   => $user['tax_code'],
+                    'is_admin'   => (bool)$user['is_admin'],
                 ];
                 return true;
             }
@@ -57,11 +50,6 @@ class AuthService
         return false;
     }
 
-    /**
-     * Verifica se l'utente è autenticato.
-     *
-     * @return bool
-     */
     public function isLogged(): bool
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -70,19 +58,11 @@ class AuthService
         return isset($_SESSION[self::SESSION_USER]);
     }
 
-    /**
-     * Restituisce i dati dell'utente autenticato, o null.
-     *
-     * @return array<string,string>|null
-     */
     public function getUser(): ?array
     {
         return $this->isLogged() ? $_SESSION[self::SESSION_USER] : null;
     }
 
-    /**
-     * Distrugge la sessione e fa logout.
-     */
     public function logout(): void
     {
         if (session_status() === PHP_SESSION_NONE) {

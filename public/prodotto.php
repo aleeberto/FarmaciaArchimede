@@ -22,14 +22,14 @@ $service = new ProductService($db);
 // Get product ID from query string
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
 if ($id <= 0) {
-    header('Location: /products.php');
+    header('Location: /prodotti.php');
     exit;
 }
 
 // Fetch the product
 $product = $service->getProductByID($id);
 if (! $product) {
-    header('Location: /products.php');
+    header('Location: /prodotti.php');
     exit;
 }
 
@@ -40,7 +40,7 @@ $alt       = $imagePath ? 'Immagine del prodotto' : 'Immagine non disponibile';
 $params = [
     'shortName'    => $product->shortName,
     'name'         => $product->name,
-    'type'         => $product->type,
+    'type'         => $product->productType ?? '',
     'description'  => $product->description,
     'manufacturer' => $product->manufacturer,
     'code'         => $product->aicCode,

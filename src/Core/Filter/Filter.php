@@ -16,25 +16,34 @@ class Filter
         $this->availability = $availability;
     }
 
+    /**
+     * Applica i filtri, popolando condizioni e parametri per query SQL con JOIN.
+     */
     public function apply(array &$conditions, array &$params, string &$types): void
     {
+        // Cerca nel nome breve prodotto (case insensitive)
         if ($this->search !== '') {
-            $conditions[] = 'ShortNome LIKE ?';
-            $params[] = "%{$this->search}%";
+            $conditions[] = 'p.short_name LIKE ?';
+            $params[] = '%' . $this->search . '%';
             $types .= 's';
         }
+        // Filtro per tipologia (nome tipo prodotto)
         if ($this->type !== 'tutte') {
-            $conditions[] = 'Tipo = ?';
+            $conditions[] = 'pt.name = ?';
             $params[] = $this->type;
             $types .= 's';
         }
+        // Disponibilità
         if ($this->availability === 'disponibile') {
-            $conditions[] = 'Disponibilita > 0';
+            $conditions[] = 'p.availability > 0';
         } elseif ($this->availability === 'esaurito') {
-            $conditions[] = 'Disponibilita = 0';
+            $conditions[] = 'p.availability = 0';
         }
     }
 
+    /**
+     * Query string per mantenere i filtri su URL
+     */
     public function toQueryString(): string
     {
         $qs = [];
@@ -50,4 +59,3 @@ class Filter
         return http_build_query($qs);
     }
 }
-

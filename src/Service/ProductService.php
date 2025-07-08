@@ -18,7 +18,6 @@ class ProductService
 
     /**
      * Recupera un blocco di prodotti con filtri, LIMIT e OFFSET.
-     *
      * @return ProductDTO[]
      */
     public function getProducts(int $limit, int $offset, Filter $filter): array
@@ -31,23 +30,25 @@ class ProductService
         $filter->apply($conds, $params, $types);
 
         $where = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
-        $sql   = "SELECT * FROM Prodotto {$where} LIMIT ? OFFSET ?";
+        $sql   = "SELECT 
+                    p.product_id, p.short_name, p.name, p.manufacturer, p.aic_code,
+                    pt.name AS product_type, p.format, p.price, p.availability,
+                    p.description, p.image_path
+                  FROM products p
+                  JOIN product_types pt ON p.product_type_id = pt.product_type_id
+                  {$where}
+                  LIMIT ? OFFSET ?";
+
+        // Bind parametri filtro + limit/offset
+        $types .= 'ii';
+        $params[] = $limit;
+        $params[] = $offset;
 
         $stmt = $conn->prepare($sql);
         if (! $stmt) {
             throw new \RuntimeException('Errore preparazione: ' . $conn->error);
         }
-
-        // Bind dei parametri per filtro + limit/offset
-        if ($types !== '') {
-            $types    .= 'ii';
-            $params[]  = $limit;
-            $params[]  = $offset;
-            $stmt->bind_param($types, ...$params);
-        } else {
-            $stmt->bind_param('ii', $limit, $offset);
-        }
-
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -71,7 +72,10 @@ class ProductService
         $filter->apply($conds, $params, $types);
 
         $where = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
-        $sql   = "SELECT COUNT(*) AS cnt FROM Prodotto {$where}";
+        $sql   = "SELECT COUNT(*) AS cnt
+                  FROM products p
+                  JOIN product_types pt ON p.product_type_id = pt.product_type_id
+                  {$where}";
 
         $stmt = $conn->prepare($sql);
         if (! $stmt) {
@@ -92,7 +96,14 @@ class ProductService
     public function getProductByID(int $id): ?ProductDTO
     {
         $conn = $this->db->connect();
-        $stmt = $conn->prepare('SELECT * FROM Prodotto WHERE ID_prodotto = ?');
+        $sql = "SELECT 
+                    p.product_id, p.short_name, p.name, p.manufacturer, p.aic_code,
+                    pt.name AS product_type, p.format, p.price, p.availability,
+                    p.description, p.image_path
+                FROM products p
+                JOIN product_types pt ON p.product_type_id = pt.product_type_id
+                WHERE p.product_id = ?";
+        $stmt = $conn->prepare($sql);
         if (! $stmt) {
             throw new \RuntimeException('Errore preparazione: ' . $conn->error);
         }
@@ -113,16 +124,17 @@ class ProductService
     private function mapRowToDTO(array $row): ProductDTO
     {
         $dto = new ProductDTO();
-        $dto->id           = (int)$row['ID_prodotto'];
-        $dto->shortName    = (string)$row['ShortNome'];
-        $dto->name         = (string)$row['Nome'];
-        $dto->manufacturer = (string)$row['Produttore'];
-        $dto->aicCode      = (string)$row['Codice_AIC'];
-        $dto->type         = (string)$row['Tipo'];
-        $dto->price        = (float)$row['Prezzo'];
-        $dto->availability = (int)$row['Disponibilita'];
-        $dto->description  = (string)$row['Descrizione'];
-        $dto->imagePath    = '/assets/img/' . $row['PathImmagine'];
+        $dto->id           = (int)$row['product_id'];
+        $dto->shortName    = (string)$row['short_name'];
+        $dto->name         = (string)$row['name'];
+        $dto->manufacturer = (string)$row['manufacturer'];
+        $dto->aicCode      = (string)$row['aic_code'];
+        $dto->productType  = (string)$row['product_type'];
+        $dto->format       = (string)$row['format'];
+        $dto->price        = (float)$row['price'];
+        $dto->availability = (int)$row['availability'];
+        $dto->description  = (string)$row['description'];
+        $dto->imagePath    = '/assets/img/' . $row['image_path'];
         return $dto;
     }
 }

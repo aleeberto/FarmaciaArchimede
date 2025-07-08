@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 prodottiDiv.innerHTML = data.items;
                 paginationDiv.innerHTML = data.pagination;
+                document.querySelector('.pagination-info').textContent = data.info;
                 attachPaginationEvents();
             });
     }
