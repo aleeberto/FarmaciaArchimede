@@ -220,10 +220,15 @@ body .main-content {
 }
 
     /* FILTRO */
-body #filter-container {
+body #filterForm {
     flex: 1;
+}
+
+body #filter-container {
     text-align: left;
     align-self: flex-start;
+    display: flex;
+    flex-direction: column;
 }
 
 body #filter-container > h2 {
@@ -250,33 +255,22 @@ body input[type=submit] {
     font-size: 1.05em;
 }
 
-    /* ELENCO PRODOTTI *//*
-body .items {
+    /* ELENCO PRODOTTI */
+body #results-container {
     flex: 4;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 10px;
+    flex-direction: column;
 }
 
-body .item {
-    max-width: 200px;
-    flex: 1;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.05);
-    margin: 5px;
-    padding: 10px;
-    text-align: center;
-}*/
+body .pagination-info {
+    padding-left: 10px;
+}
 
 body .items {
-    flex: 5;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 40px 18px;
-    padding: 20px 25px 40px 5px;
+    padding: 10px 25px 40px 5px;
 }
   
 body .item {
@@ -290,6 +284,19 @@ body .item {
     justify-content: space-between;
 }
 
+body #pagination-container {
+    align-self: center;
+}
+
+.pagination {
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination li {
+    display: inline;
+}
 
     /* DETTAGLIO PRODOTTO */
 body #product-container {    

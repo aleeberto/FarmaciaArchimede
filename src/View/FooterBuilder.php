@@ -28,7 +28,7 @@ class FooterBuilder
      */
     public function build(): string
     {
-        $tpl = $this->builder->loadTemplate('footer.html');
+        $tpl = $this->builder->loadTemplate('common/footer.html');
         return $tpl->build();
     }
 }

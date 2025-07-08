@@ -1,55 +1,52 @@
 <!DOCTYPE html>
-
 <html lang="it">
 
 <component>head</component>
 
 <body class="no-print">
 
-    <component>header</component>
+<component>header</component>
 
-    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
-        <ol>
-            <li><a href="/index.php" lang="it">Home</a></li>
-            <li><a href="/prodotti.php" lang="it">Prodotti</a></li>
-            </li>
-            <li aria-current="page"><component>shortNome</component></li>
-        </ol>
-    </nav>
+<nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+    <ol>
+        <li><a href="/index.php" lang="it">Home</a></li>
+        <li><a href="/prodotti.php" lang="it">Prodotti</a></li>
+        <li aria-current="page"><component>shortName</component></li>
+    </ol>
+</nav>
 
-    <main>
-        <h1><component>shortNome</component></h1>
+<main>
+    <h1><component>shortName</component></h1>
 
-        <div id="product-container" class="flex-container">
-            <div id="product-action">
-                <button>Modifica</button>
-                <button>Elimina</button>
+    <div id="product-container" class="flex-container">
+        <div id="product-action">
+            <button>Modifica</button>
+            <button>Elimina</button>
+        </div>
+        <div class="main-content">
+
+            <div id="product-image">
+                <component>image</component>
             </div>
-            <div class="main-content">
-                
-                <div id="product-image">
-                    <component>immagine</component>
-                </div>
-                <div id="product-details">
-                    <h2><component>nome</component></h2>
-                    <p><strong>Produttore:</strong> <component>produttore</component></p>
-                    <p><strong>Prezzo:</strong> <component>prezzo</component></p>
-            
-                    <div class="cart-actions">
-                        <input type="number" id="qty-input" name="quantity" value="1" min="1" max="50" style="width: 50px; text-align: center;">
-                        <button type="button" id="add-to-cart">Aggiungi al carrello</button>
-                    </div>
-                    <p><strong>Disponibilità:</strong> <component>disponibilita</component></p>
-                    <p><component>descrizione</component></p>
-                    <p><component>tipo</component></p>
-                    <p><strong>Codice:</strong> <component>codice</component></p>
+            <div id="product-details">
+                <h2><component>name</component></h2>
+                <p><strong>Produttore:</strong> <component>manufacturer</component></p>
+                <p><strong>Prezzo:</strong> <component>price</component></p>
 
+                <div class="cart-actions">
+                    <input type="number" id="qty-input" name="quantity" value="1" min="1" max="50" style="width: 50px; text-align: center;">
+                    <button type="button" id="add-to-cart">Aggiungi al carrello</button>
                 </div>
+                <p><strong>Disponibilità:</strong> <component>availability</component></p>
+                <p><component>description</component></p>
+                <p><component>type</component></p>
+                <p><strong>Codice:</strong> <component>code</component></p>
             </div>
         </div>
-    </main>
+    </div>
+</main>
 
-    <component>footer</component>
+<component>footer</component>
 
 </body>
 </html>

@@ -28,7 +28,7 @@ class HeadBuilder
      */
     public function build(): string
     {
-        $tpl = $this->builder->loadTemplate('head.html');
+        $tpl = $this->builder->loadTemplate('common/head.html');
         return $tpl->build();
     }
 }

@@ -30,7 +30,7 @@ class HeaderBuilder
      */
     public function build(): string
     {
-        $html = $this->builder->loadTemplate('header.html')->build();
+        $html = $this->builder->loadTemplate('common/header.html')->build();
 
         $relPath = ltrim($this->currentPath, '/');
 
