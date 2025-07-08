@@ -25,31 +25,25 @@ class ProductPageService
         $this->perPage   = $perPage;
     }
 
-    public function handleRequest(): void
-    {
+    public function handleRequest(): void {
         // 1) Parametri GET
         $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
-
         $rawSearch = filter_input(INPUT_GET, 'search', FILTER_UNSAFE_RAW);
         $search    = $rawSearch !== null ? strip_tags($rawSearch) : '';
-
         $rawType   = filter_input(INPUT_GET, 'tipologia', FILTER_UNSAFE_RAW);
-        $type      = $rawType   !== null ? strip_tags($rawType)   : 'tutte';
-
+        $type      = $rawType !== null ? strip_tags($rawType) : 'tutte';
         $rawAvail  = filter_input(INPUT_GET, 'disponibilita', FILTER_UNSAFE_RAW);
-        $avail     = $rawAvail  !== null ? strip_tags($rawAvail)  : 'tutti';
-
+        $avail     = $rawAvail !== null ? strip_tags($rawAvail) : 'tutti';
         $ajax = filter_input(INPUT_GET, 'ajax', FILTER_VALIDATE_BOOLEAN);
 
-        // 2) Applicazione filtro e recupero dati
+        // 2) Filtro e recupero dati
         $filter = new Filter($search, $type, $avail);
         $offset = ($page - 1) * $this->perPage;
-
         $products = $this->service->getProducts($this->perPage, $offset, $filter);
         $total    = $this->service->countProducts($filter);
         $pages    = (int)ceil($total / $this->perPage);
 
-        // 3) Costruzione HTML dei prodotti
+        // 3) Costruzione HTML prodotti (invariato)
         $htmlItems = '';
         foreach ($products as $p) {
             $tpl = PageBuilder::getInstance()->loadTemplate('item.html');
@@ -62,8 +56,8 @@ class ProductPageService
             $htmlItems .= $tpl->build();
         }
 
-        // 4) Paginazione
-        $paginator = new Paginator(
+        // 4) Paginazione: ottieni dati e markup
+        $paginator      = new Paginator(
             $page,
             $pages,
             $this->perPage,
@@ -71,26 +65,32 @@ class ProductPageService
             'prodotti.php',
             $filter->toQueryString()
         );
-
-        $paginationHtml = $paginator->render();
+        $pagination = $paginator->getData();
+        // carico il partial di paginazione
+        $tplPag         = PageBuilder::getInstance()
+            ->loadTemplate('pagination.html');
+        $tplPag->insertAll([
+            'pagination' => $pagination
+        ]);
+        $htmlPagination = $tplPag->build();
 
         // 5) Risposta AJAX
         if ($ajax) {
             header('Content-Type: application/json');
             echo json_encode([
                 'items'      => $htmlItems,
-                'pagination' => $paginationHtml
+                'pagination' => $htmlPagination,
             ]);
             exit;
         }
 
         // 6) Render finale
         PageBuilder::show('prodotti', [
-            'items'       => $htmlItems,
-            'pagination'  => $paginationHtml,
-            'searchQuery' => $search,
-            'typeFilter'  => $type,
+            'items'              => $htmlItems,
+            'searchQuery'        => $search,
+            'typeFilter'         => $type,
             'availabilityFilter' => $avail,
+            'pagination'         => $htmlPagination,
         ]);
     }
 }

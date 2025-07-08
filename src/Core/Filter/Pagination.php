@@ -3,96 +3,61 @@ declare(strict_types=1);
 
 namespace App\Core\Filter;
 
-use App\Core\PageBuilder;
-
 class Pagination
 {
-    private int    $currentPage;
-    private int    $totalPages;
-    private int    $itemsPerPage;
-    private int    $totalItems;
+    private int $currentPage;
+    private int $lastPage;
+    private int $perPage;
+    private int $total;
     private string $baseUrl;
     private string $queryString;
+    private int $start;
+    private int $end;
 
     public function __construct(
-        int    $currentPage,
-        int    $totalPages,
-        int    $itemsPerPage,
-        int    $totalItems,
+        int $currentPage,
+        int $lastPage,
+        int $perPage,
+        int $total,
         string $baseUrl,
-        string $queryString = ''
+        string $queryString
     ) {
-        $this->currentPage  = $currentPage;
-        $this->totalPages   = $totalPages;
-        $this->itemsPerPage = $itemsPerPage;
-        $this->totalItems   = $totalItems;
-        $this->baseUrl      = $baseUrl;
-        $this->queryString  = $queryString;
+        $this->currentPage = $currentPage;
+        $this->lastPage    = $lastPage;
+        $this->perPage     = $perPage;
+        $this->total       = $total;
+        $this->baseUrl     = $baseUrl;
+        $this->queryString = $queryString;
+
+        $this->start = ($currentPage - 1) * $perPage + 1;
+        $this->end   = min($this->start + $perPage - 1, $total);
     }
 
-    public function getStart(): int
+    private function buildUrl(int $page): string
     {
-        return ($this->currentPage - 1) * $this->itemsPerPage + 1;
-    }
-
-    public function getEnd(): int
-    {
-        return min($this->currentPage * $this->itemsPerPage, $this->totalItems);
-    }
-
-    public function hasPrev(): bool
-    {
-        return $this->currentPage > 1;
-    }
-
-    public function hasNext(): bool
-    {
-        return $this->currentPage < $this->totalPages;
-    }
-
-    public function getPrevUrl(): string
-    {
-        $page = $this->currentPage - 1;
-        $qs   = 'page='.$page.($this->queryString?'&'.$this->queryString:'');
-        return $this->baseUrl.'?'.$qs;
-    }
-
-    public function getNextUrl(): string
-    {
-        $page = $this->currentPage + 1;
-        $qs   = 'page='.$page.($this->queryString?'&'.$this->queryString:'');
-        return $this->baseUrl.'?'.$qs;
+        parse_str(ltrim($this->queryString, '?'), $params);
+        $qs = http_build_query(array_merge(['page' => $page], $params));
+        return "{$this->baseUrl}?{$qs}";
     }
 
     /**
-     * Carica il template pagination.html, popola i placeholder e restituisce l’HTML.
+     * Restituisce i dati per il template di paginazione.
+     * Nessun HTML qui, solo dati pronti.
      */
-    public function render(): string
+    public function getData(): array
     {
-        // se tipo single-page, niente paginazione
-        if ($this->totalPages <= 1) {
-            return '';
-        }
+        $hasPrev = $this->currentPage > 1;
+        $hasNext = $this->currentPage < $this->lastPage;
 
-        $tpl = PageBuilder::getInstance()
-            ->loadTemplate('pagination.html');
-
-        // preparo i frammenti Prev/Next
-        $prevHtml = $this->hasPrev()
-            ? '<li><a href="'.$this->getPrevUrl().'">Prev</a></li>'
-            : '';
-        $nextHtml = $this->hasNext()
-            ? '<li><a href="'.$this->getNextUrl().'">Next</a></li>'
-            : '';
-
-        $tpl->insertAll([
-            'start' => $this->getStart(),
-            'end'   => $this->getEnd(),
-            'total' => $this->totalItems,
-            'prev'  => $prevHtml,
-            'next'  => $nextHtml,
-        ]);
-
-        return $tpl->build();
+        return [
+            'start'       => $this->start,
+            'end'         => $this->end,
+            'total'       => $this->total,
+            'currentPage' => $this->currentPage,
+            'prevHref'    => $hasPrev ? $this->buildUrl($this->currentPage - 1) : '#',
+            'nextHref'    => $hasNext ? $this->buildUrl($this->currentPage + 1) : '#',
+            'prevClass'   => $hasPrev ? '' : 'disabled',
+            'nextClass'   => $hasNext ? '' : 'disabled',
+        ];
     }
 }

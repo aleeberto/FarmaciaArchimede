@@ -35,16 +35,31 @@ class Template
      */
     public function insert(string $id, string|array $value): void
     {
+        // se è oggetto, prima lo trasformo
+        if (is_object($value)) {
+            $value = get_object_vars($value);
+        }
+
         if (is_array($value)) {
-            // per ogni chiave $k e valore $v dell'array, chiamo di nuovo insert
+            // espando i figli
             foreach ($value as $k => $v) {
                 $this->insert("$id.$k", (string)$v);
             }
+            // poi elimino (o sostituisco) il placeholder genitore
+            $this->state = str_replace(
+                self::PATT_BEGIN . $id . self::PATT_END,
+                '',      // oppure implode dei figli, se vuoi
+                $this->state
+            );
             return;
         }
 
-        $pattern     = self::PATT_BEGIN . $id . self::PATT_END;
-        $this->state = str_replace($pattern, $value, $this->state);
+        // valore scalare: sostituisco direttamente
+        $this->state = str_replace(
+            self::PATT_BEGIN . $id . self::PATT_END,
+            $value,
+            $this->state
+        );
     }
 
     /**
