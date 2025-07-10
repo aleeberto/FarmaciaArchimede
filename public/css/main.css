@@ -461,3 +461,27 @@ footer #sum {
     color: #2196F3;
     text-decoration: none;
 }
+
+.user-section, .admin-section {
+    display: none;
+}
+
+.user-section.show, .admin-section.show {
+    display: block;
+}
+
+.add-product-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.btn-add-product {
+    padding: 6px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
