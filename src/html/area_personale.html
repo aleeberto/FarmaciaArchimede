@@ -17,15 +17,44 @@
 
     <main>
         <h1>Benvenuto,
-            <component>user.nome</component>
-            <component>user.cognome</component>!
+            <component>user.first_name</component>
+            <component>user.last_name</component>!
         </h1>
+
+        <!-- Sezione per utente normale -->
+        <div id="user-section" style="display: <component>user_section_display</component>">
+            <section>
+                <h2>I tuoi dati</h2>
+                <ul>
+                    <li><strong>Email:</strong> <component>user.email</component></li>
+                    <li><strong>Codice Fiscale:</strong> <component>user.tax_code</component></li>
+                </ul>
+                <button class="edit-button" type="button">Modifica dati</button>
+            </section>
+
+            <section>
+                <h2>I tuoi ordini</h2>
+                <component>user_orders</component>
+            </section>
+        </div>
+
+        <!-- Sezione per admin -->
+        <div id="admin-section" style="display: <component>admin_section_display</component>">
+            <section>
+                <h2>Gestione Prodotti</h2>
+                <component>all_products</component>
+            </section>
+
+            <section>
+                <h2>Tutti gli ordini</h2>
+                <component>all_orders</component>
+            </section>
+        </div>
 
         <ul>
             <li><a href="/logout.php">Esci</a></li>
         </ul>
     </main>
-
 
     <component>footer</component>
 
