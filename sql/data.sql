@@ -5,7 +5,7 @@ INSERT INTO product_types (name, description) VALUES
     ('Integratore', 'Integratori alimentari e vitamine');
 
 INSERT INTO users (email, password_hash, first_name, last_name, tax_code, is_admin) VALUES
-    ('utente@utente.it', '$2y$10$76uE93tISlqWStJ.qYtmx.I.jhdDjY/vQLy81hJbD85z5k3Wx9.UW', 'utente', 'utente', 'utenteutente', 0),
+    ('utente@utente.it', '$2y$10$aMaKtkEfsdymuc.jj5ZGw.tPql6lSjckmxndSZuyqHPnOH0A5hn9y', 'utente', 'utente', 'utenteutente', 0),
     ('admin@admin.it', '$2y$10$iQKwz.lhMxk6E0f2S68nn.7trjjGTBnYRjPqv/VX3VrQftVvSm6hS', 'admin', 'admin', 'adminadmin', 1);
 
 INSERT INTO products (product_type_id, short_name, name, manufacturer, aic_code, format, price, availability, description, image_path) VALUES
