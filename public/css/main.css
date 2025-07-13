@@ -61,7 +61,7 @@ header {
     background-color: var(--primary-bg);
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
 }
 
     /* Logo */
@@ -75,7 +75,7 @@ header nav {
     width: 100%;
     /*background-color: var(--primary-bg);*/
     align-items: center;
-    padding: 45px;
+    padding: 0 42px;
     box-sizing: border-box;
     
     /*border-top: 1px solid black;    /* TEMPORANEO */
@@ -86,7 +86,7 @@ header nav ul {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 25px;
+    gap: 2em;
     padding: 0;
     font-size: 1.1em;
 }
@@ -107,13 +107,14 @@ header nav ul li:last-child {
 
 /* BREADCRUMB */
 .breadcrumb {
-    margin: 0 15px;
+    margin: 0 17px;
     background-color: var(--primary-accent-bg);
-    padding: 10px 20px;
+    padding: 9px 20px;
     font-size: 1.05em;
 
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.08);
 }
 
 .breadcrumb ol {
@@ -142,8 +143,9 @@ header nav ul li:last-child {
     width: 320px;
     font-size: 1.1em;
     line-height: 1.5;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.1);
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
     display: flex;
     flex-direction: column;
     gap: 1em;
@@ -160,9 +162,11 @@ header nav ul li:last-child {
   
 .login-form input {
     width: 100%;
-    padding: 8px;
+    padding: 8px 12px;
     margin-top: 5px;
     box-sizing: border-box;
+    border-radius: 20px;
+
 }
   
 .form-buttons {
@@ -174,11 +178,10 @@ header nav ul li:last-child {
   
 .login-form button,
 .register-link {
-    padding: 8px 12px;
+    padding: 8px 24px;
     font-size: 1em;
     text-align: center;
-    border: none;
-    border-radius: 4px;
+    border-radius: 20px;
     cursor: pointer;
 }
   
@@ -189,7 +192,6 @@ header nav ul li:last-child {
 
 /* BODY */
 body main {
-    margin-top: 25px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -200,13 +202,15 @@ body main {
 body main .flex-container {
     margin: 20px;
     padding: 30px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.08);
     text-align: center;
 }
 
     /* TITOLO */
-body main h1 {
+body main > h1 {
+    margin-top: 30px;
     text-align: center;
     width: 100%;
 }
@@ -226,9 +230,9 @@ body #filterForm {
 
 body #filter-container {
     text-align: left;
-    align-self: flex-start;
     display: flex;
     flex-direction: column;
+    gap: 1em;
 }
 
 body #filter-container > h2 {
@@ -238,21 +242,36 @@ body #filter-container > h2 {
 body #search-box input {
     width: 100%;
     box-sizing: border-box;
-    padding: 4px;
-    margin-top: 1em;
+    padding: 5px 10px;
+    border-radius: 20px;
 }
 
 body #filters {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1em;
+    gap: 0.8em;
 }
-  
+
+body .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+select {
+    border-radius: 20px;
+    padding: 5px 10px;
+}
+
+fieldset {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
 body input[type=submit] {
-    float: right;
-    margin-top: 2em;
+    padding: 3px;
     font-size: 1.05em;
+    border-radius: 30px;
 }
 
     /* ELENCO PRODOTTI */
@@ -263,25 +282,36 @@ body #results-container {
 }
 
 body .pagination-info {
-    padding-left: 10px;
+    padding: 5px 10px;
 }
 
 body .items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 40px 18px;
-    padding: 10px 25px 40px 5px;
+    grid-gap: 20px;
+    padding: 0 20px 15px 5px;
 }
   
 body .item {
+    box-sizing: border-box;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.05);
-    padding: 10px;
+    border-radius: 25px;
+    box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.05);
     text-align: center;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 8px;
+    padding: 11px;
+}
+
+body .item > * {
+    padding: 0px;
+}
+
+.product-price {
+    text-decoration: none;
 }
 
 body #pagination-container {
@@ -303,12 +333,13 @@ body #product-container {
     align-self: center;
     display: flex;
     flex-direction: column;
-    padding: 30px;
+    max-width: 70%;
 }
 
 body #product-image {
     flex: 1;
     text-align: left;
+    align-content: center;
 }
 
 body #product-image img {
@@ -318,25 +349,21 @@ body #product-image img {
 }
 
 body #product-details {
-    flex: 3;
+    flex: 2;
     margin: 30px;
     line-height: 1.5em;
 }
 
 body #product-details > h2 {
     margin-bottom: 15px;
+    text-align: left;
+    padding-left: 5px;
 }
 
 body #product-details > p {
     text-align: left;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     padding: 5px;
-}
-
-body #product-action {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
 }
 
 .cart-actions {
@@ -346,22 +373,30 @@ body #product-action {
     margin: 5px 0 15px 10px;
 }
 
+#product-price {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
 #qty-input, #add-to-cart {
-    padding: 5px;
+    margin: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
 }
 
 
 /* FOOTER */
 footer {
-    margin: 20px;
+    margin: 20px 30px 0 30px;
     background-color: var(--primary-accent-bg);
     padding: 15px 20px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 footer .flex-container {
-    /*width: 100%;*/
     display: flex;
     flex-direction: row;
     justify-content: center;

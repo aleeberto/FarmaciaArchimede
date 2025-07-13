@@ -19,10 +19,6 @@
     <h1><component>shortName</component></h1>
 
     <div id="product-container" class="flex-container">
-        <div id="product-action">
-            <button>Modifica</button>
-            <button>Elimina</button>
-        </div>
         <div class="main-content">
 
             <div id="product-image">
@@ -31,8 +27,7 @@
             <div id="product-details">
                 <h2><component>name</component></h2>
                 <p><strong>Produttore:</strong> <component>manufacturer</component></p>
-                <p><strong>Prezzo:</strong> <component>price</component></p>
-
+                <p id="product-price"><component>price</component></p>
                 <div class="cart-actions">
                     <input type="number" id="qty-input" name="quantity" value="1" min="1" max="50" style="width: 50px; text-align: center;">
                     <button type="button" id="add-to-cart">Aggiungi al carrello</button>
