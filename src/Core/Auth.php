@@ -4,67 +4,65 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Service\AuthService;
+use App\Core\Model\UserDTO;
 
 /**
- * Facade per la gestione della sessione e dei redirect di autenticazione.
+ * Facade per la gestione della sessione e dell'autenticazione.
  */
-class Auth
+final class Auth
 {
-    /**
-     * @var AuthService|null Istanza singleton del servizio di autenticazione.
-     */
-    private static ?AuthService $auth = null;
+    private static ?AuthService $authService = null;
 
     /**
-     * Inizializza la sessione e crea l'istanza di AuthService se non già presente.
-     *
-     * @return void
+     * Inizializza il servizio di autenticazione con iniezione del Database.
      */
-    public static function init(): void
+    private static function init(): void
+    {
+        self::ensureSessionStarted();
+
+        if (self::$authService === null) {
+            $dbInstance = Database::getInstance(
+                getenv('MARIADB_HOST')     ?: 'mariadb',
+                getenv('MARIADB_USER')     ?: 'admin',
+                getenv('MARIADB_PASSWORD') ?: 'admin',
+                getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+            );
+            self::$authService = new AuthService($dbInstance);
+        }
+    }
+
+    /**
+     * Assicura che la sessione PHP sia avviata.
+     */
+    private static function ensureSessionStarted(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
-        if (self::$auth === null) {
-            $db = Database::getInstance(
-                getenv('MARIADB_HOST') ?: 'mariadb',
-                getenv('MARIADB_USER') ?: 'admin',
-                getenv('MARIADB_PASSWORD') ?: 'admin',
-                getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
-            );
-            self::$auth = new AuthService($db);
-        }
     }
 
     /**
-     * Restituisce l'istanza di AuthService, inizializzandola se necessario.
-     *
-     * @return AuthService L'istanza del servizio di autenticazione.
+     * Restituisce l'istanza di AuthService.
      */
     public static function manager(): AuthService
     {
         self::init();
-        return self::$auth;
+        return self::$authService;
     }
 
     /**
-     * Verifica che l'utente sia autenticato; in caso contrario esegue un redirect alla pagina di login.
-     *
-     * @return void
+     * Impone il login: se non autenticato, reindirizza.
      */
     public static function requireLogin(): void
     {
-        if (! self::manager()->isLogged()) {
+        if (!self::manager()->isLogged()) {
             header('Location: /login.php');
             exit;
         }
     }
 
     /**
-     * Se l'utente è già autenticato, lo reindirizza all'area personale.
-     *
-     * @return void
+     * Se già autenticato, reindirizza all'area personale.
      */
     public static function redirectIfLogged(): void
     {
@@ -75,12 +73,23 @@ class Auth
     }
 
     /**
-     * Ottiene i dati dell'utente autenticato.
-     *
-     * @return array<string,mixed>|null Array associativo con le informazioni dell'utente, oppure null se non autenticato.
+     * Restituisce i dati dell'utente autenticato come array o null.
      */
     public static function user(): ?array
     {
-        return self::manager()->getUser();
+        return self::manager()->getUserDataArray();
+    }
+
+    /**
+     * Impone che l'utente sia admin, altrimenti 403 e stop.
+     */
+    public static function requireAdmin(): void
+    {
+        $user = self::manager()->getUserDataArray();
+        if (!$user || empty($user['is_admin'])) {
+            http_response_code(403);
+            echo 'Accesso negato: permessi insufficienti.';
+            exit;
+        }
     }
 }

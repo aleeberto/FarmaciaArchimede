@@ -99,6 +99,9 @@ class ProductPageService
             'checkedTutti'       => $checkedTutti,
             'checkedDisponibile' => $checkedDisponibile,
             'checkedEsaurito'    => $checkedEsaurito,
+            'meta_title'       => 'Prodotti | Farmacia Archimede',
+            'meta_description' => 'Descrizione specifica per questa pagina',
+            'meta_keywords'    => 'parola1, parola2, parola3'
         ]);
     }
 

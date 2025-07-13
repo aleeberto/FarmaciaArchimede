@@ -5,6 +5,9 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Core\Database;
 use App\Core\PageBuilder;
 use App\Service\AuthService;
+use App\Core\Auth;
+
+Auth::requireLogin();
 
 $db  = Database::getInstance(
     getenv('MARIADB_HOST') ?: 'mariadb',
@@ -14,10 +17,11 @@ $db  = Database::getInstance(
 );
 $auth = new AuthService($db);
 
-if (!$auth->isLogged()) {
-    header('Location: /login.php?error=not_logged');
-    exit;
-}
+$user = Auth::user();
 
-$user = $auth->getUser();
-PageBuilder::show('area_personale', ['user' => $user]);
+PageBuilder::show('area_personale', [
+    'user' => $user,
+    'meta_title'       => 'Area Personale | Farmacia Archimede',
+    'meta_description' => 'Descrizione specifica per questa pagina',
+    'meta_keywords'    => 'parola1, parola2, parola3'
+]);

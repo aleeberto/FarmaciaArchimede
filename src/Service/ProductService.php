@@ -5,7 +5,7 @@ namespace App\Service;
 
 use App\Core\Database;
 use App\Core\Filter\Filter;
-use App\Core\Product\ProductDTO;
+use App\Core\Model\ProductDTO;
 
 class ProductService
 {

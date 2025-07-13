@@ -1,74 +1,120 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Core\Database;
+use App\Core\Model\UserDTO;
+use mysqli;
 use Exception;
 
 class AuthService
 {
-    private const SESSION_USER = 'user';
-    private Database $db;
+    private mysqli $db;
 
-    public function __construct(Database $db)
+    public function __construct(Database $database)
     {
-        $this->db = $db;
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        // Ottiene la connessione mysqli dal singleton Database
+        $this->db = $database->connect();
     }
 
     /**
      * Tenta il login con email e password.
+     * Restituisce true se avvenuto con successo, false altrimenti.
      */
     public function login(string $email, string $password): bool
     {
-        $conn = $this->db->connect();
-        $stmt = $conn->prepare(
-            'SELECT user_id, email, password_hash, first_name, last_name, tax_code, is_admin FROM users WHERE email = ?'
-        );
+        $query = 'SELECT user_id, email, first_name, last_name, tax_code, password_hash, is_admin
+                  FROM users
+                  WHERE email = ?';
+        $stmt = $this->db->prepare($query);
         if (!$stmt) {
             throw new Exception('Errore nella preparazione della query di login.');
         }
         $stmt->bind_param('s', $email);
         $stmt->execute();
+
         $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
 
-        if ($user = $result->fetch_assoc()) {
-            if (password_verify($password, $user['password_hash'])) {
-                $_SESSION[self::SESSION_USER] = [
-                    'user_id'    => $user['user_id'],
-                    'email'      => $user['email'],
-                    'first_name' => $user['first_name'],
-                    'last_name'  => $user['last_name'],
-                    'tax_code'   => $user['tax_code'],
-                    'is_admin'   => (bool)$user['is_admin'],
-                ];
-                return true;
-            }
+        if (!$row) {
+            return false;
         }
-        return false;
-    }
 
-    public function isLogged(): bool
-    {
-        if (session_status() === PHP_SESSION_NONE) {
+        // Verifica password usando password_verify
+        if (!password_verify($password, $row['password_hash'])) {
+            return false;
+        }
+
+        // Crea un UserDTO con i dati
+        $userDTO = new UserDTO(
+            (int)$row['user_id'],
+            $row['email'],
+            $row['first_name'],
+            $row['last_name'],
+            $row['tax_code'],
+            (bool)$row['is_admin']
+        );
+
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        return isset($_SESSION[self::SESSION_USER]);
+        $_SESSION['user'] = $userDTO;
+
+        return true;
     }
 
-    public function getUser(): ?array
-    {
-        return $this->isLogged() ? $_SESSION[self::SESSION_USER] : null;
-    }
-
+    /**
+     * Effettua il logout, distruggendo la sessione.
+     */
     public function logout(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        unset($_SESSION[self::SESSION_USER]);
+        unset($_SESSION['user']);
         session_destroy();
+    }
+
+    /**
+     * Verifica se esiste un utente loggato.
+     */
+    public function isLogged(): bool
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        return isset($_SESSION['user']) && $_SESSION['user'] instanceof UserDTO;
+    }
+
+    /**
+     * Restituisce l'utente loggato (istanza di UserDTO) o null.
+     */
+    public function getUser(): ?UserDTO
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        return $_SESSION['user'] ?? null;
+    }
+
+    /**
+     * Estrae i dati dell'utente loggato come array.
+     */
+    public function getUserDataArray(): ?array
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return null;
+        }
+        return [
+            'user_id'    => $user->getId(),
+            'email'      => $user->getEmail(),
+            'first_name' => $user->getFirstName(),
+            'last_name'  => $user->getLastName(),
+            'tax_code'   => $user->getTaxCode(),
+            'is_admin'   => $user->isAdmin(),
+        ];
     }
 }
