@@ -18,103 +18,69 @@
 
     <div class="main-content">
         <form id="product-form" class="product-form" method="post" action="/products/save" enctype="multipart/form-data" novalidate>
-            <!-- Campo nascosto per l’ID (solo in modifica) -->
-            <input type="hidden" id="product-id" name="product_id" value="">
+            <!-- ID nascosto -->
+            <input type="hidden" id="product-id" name="product_id"
+                   value="{{product_id}}">
 
-            <fieldset class="form-group" id="fieldset-details">
-                <legend>Dettagli Prodotto</legend>
-
-                <!-- Tipo di prodotto -->
-                <div class="form-control">
-                    <label for="product-type" class="form-label">Tipo prodotto<span aria-hidden="true">*</span></label>
-                    <select id="product-type" name="product_type_id" required>
-                        <option value="" disabled selected>Seleziona un tipo</option>
-                        <option value="1">Farmaci</option>
-                        <option value="2">Integratori</option>
-                        <!-- …altri tipi popolati dinamicamente… -->
-                    </select>
-                </div>
-
-                <!-- Nome breve -->
-                <div class="form-control">
-                    <label for="product-short-name" class="form-label">Nome breve<span aria-hidden="true">*</span></label>
-                    <input type="text" id="product-short-name" name="short_name" maxlength="128" required aria-describedby="short-name-help">
-                    <small id="short-name-help" class="form-text">Massimo 128 caratteri.</small>
-                </div>
-
-                <!-- Nome completo -->
-                <div class="form-control">
-                    <label for="product-name" class="form-label">Nome completo<span aria-hidden="true">*</span></label>
-                    <input type="text" id="product-name" name="name" maxlength="128" required>
-                </div>
-
-                <!-- Produttore -->
-                <div class="form-control">
-                    <label for="product-manufacturer" class="form-label">Produttore<span aria-hidden="true">*</span></label>
-                    <input type="text" id="product-manufacturer" name="manufacturer" maxlength="100" required>
-                </div>
-
-                <!-- Codice AIC -->
-                <div class="form-control">
-                    <label for="product-aic" class="form-label">Codice AIC<span aria-hidden="true">*</span></label>
-                    <input type="text" id="product-aic" name="aic_code" pattern="[A-Z0-9]{10}" maxlength="10" required aria-describedby="aic-help">
-                    <small id="aic-help" class="form-text">10 caratteri alfanumerici.</small>
-                </div>
-
-                <!-- Formato -->
-                <div class="form-control">
-                    <label for="product-format" class="form-label">Formato<span aria-hidden="true">*</span></label>
-                    <select id="product-format" name="format" required>
-                        <option value="" disabled selected>Seleziona formato</option>
-                        <option value="compresse">Compresse</option>
-                        <option value="capsule">Capsule</option>
-                        <option value="sciroppo">Sciroppo</option>
-                        <option value="gocce">Gocce</option>
-                        <option value="pomata">Pomata</option>
-                        <option value="crema">Crema</option>
-                        <option value="spray">Spray</option>
-                        <option value="polvere">Polvere</option>
-                        <option value="soluzione">Soluzione</option>
-                        <option value="gel">Gel</option>
-                        <option value="granulato">Granulato</option>
-                        <option value="cerotto">Cerotto</option>
-                        <option value="altro">Altro</option>
-                    </select>
-                </div>
-
-                <!-- Prezzo -->
-                <div class="form-control">
-                    <label for="product-price" class="form-label">Prezzo (€)<span aria-hidden="true">*</span></label>
-                    <input type="number" id="product-price" name="price" step="0.01" min="0.01" required aria-describedby="price-help">
-                    <small id="price-help" class="form-text">Inserisci un valore maggiore di 0.</small>
-                </div>
-
-                <!-- Disponibilità -->
-                <div class="form-control">
-                    <label for="product-availability" class="form-label">Disponibilità (pz)<span aria-hidden="true">*</span></label>
-                    <input type="number" id="product-availability" name="availability" min="0" required>
-                </div>
-
-                <!-- Descrizione -->
-                <div class="form-control">
-                    <label for="product-description" class="form-label">Descrizione</label>
-                    <textarea id="product-description" name="description" rows="4" aria-describedby="description-help"></textarea>
-                    <small id="description-help" class="form-text">Facoltativa, testo libero.</small>
-                </div>
-
-                <!-- Immagine -->
-                <div class="form-control">
-                    <label for="product-image" class="form-label">Immagine prodotto</label>
-                    <input type="file" id="product-image" name="image_file" accept="image/*" aria-describedby="image-help">
-                    <small id="image-help" class="form-text">JPEG, PNG o GIF.</small>
-                </div>
-            </fieldset>
-
-            <!-- Azioni -->
-            <div class="form-actions">
-                <button type="submit" id="product-submit" class="btn btn-primary">Salva</button>
-                <button type="reset" id="product-reset" class="btn btn-secondary">Annulla</button>
+            <!-- Select tipo prodotto -->
+            <div class="form-control">
+                <label for="product-type" class="form-label">Tipo prodotto<span>*</span></label>
+                <select id="product-type" name="product_type_id" required>
+                    <option value="" disabled>Seleziona un tipo</option>
+                    {{product_type_options}}
+                </select>
             </div>
+
+            <!-- Nome breve -->
+            <input type="text" id="product-short-name" name="short_name" required
+                   maxlength="128" value="{{short_name}}">
+
+            <!-- Nome completo -->
+            <input type="text" id="product-name" name="name" required
+                   maxlength="128" value="{{name}}">
+
+            <!-- Produttore -->
+            <input type="text" id="product-manufacturer" name="manufacturer" required
+                   maxlength="100" value="{{manufacturer}}">
+
+            <!-- Codice AIC -->
+            <input type="text" id="product-aic" name="aic_code" required
+                   maxlength="10" pattern="[A-Z0-9]{10}"
+                   value="{{aic_code}}">
+
+            <!-- Formato -->
+            <select id="product-format" name="format" required>
+                <option value="" disabled>Seleziona formato</option>
+                <?php foreach (['compresse','capsule','sciroppo',/*…*/] as $fmt): ?>
+                <option value="<?= $fmt?>"
+                <?= $fmt === '{{format}}' ? ' selected' : ''?>>
+                <?= ucfirst($fmt)?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+
+            <!-- Prezzo -->
+            <input type="number" id="product-price" name="price"
+                   step="0.01" min="0.01" required
+                   value="{{price}}">
+
+            <!-- Disponibilità -->
+            <input type="number" id="product-availability" name="availability"
+                   min="0" required value="{{availability}}">
+
+            <!-- Descrizione -->
+            <textarea id="product-description" name="description"
+                      rows="4">{{description}}</textarea>
+
+            <!-- Anteprima immagine (solo se esiste) -->
+
+            <div><img src="{{image_url}}" alt="Anteprima prodotto" style="max-width:150px"></div>
+
+            <input type="file" id="product-image" name="image_file" accept="image/*">
+
+            <!-- Pulsanti -->
+            <button type="submit">Salva</button>
+            <button type="reset">Annulla</button>
         </form>
 
     </div>
