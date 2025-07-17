@@ -1,17 +1,14 @@
-<section class="all-orders">
-    <h3>Tutti gli ordini</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>ID ordine</th>
-                <th>Utente</th>
-                <th>Data ordine</th>
-                <th>Metodo pagamento</th>
-                <th>Totale articoli</th>
-            </tr>
-        </thead>
-        <tbody>
-            <component>orders_list</component>
-        </tbody>
-    </table>
-</section>
+<table class="order-table">
+  <thead>
+    <tr>
+      <th>ID Ordine</th>
+      <th>Data</th>
+      <th>Utente</th>
+      <th>Email</th>
+      <th>Azioni</th>
+    </tr>
+  </thead>
+  <tbody>
+    <component>orders_rows</component>
+  </tbody>
+</table>

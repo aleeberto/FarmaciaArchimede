@@ -403,69 +403,50 @@ footer #sum {
 /*TODO TODO TODO*/
 
 
-/* Sezioni dell'area personale */
-.user-section, .admin-section {
-    margin-top: 2rem;
+/* Bottoni di azione nella tabella */
+table button {
+  padding: 6px 10px;
+  margin: 0 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
-/* Mostra solo se la classe visibilità è attiva */
-.user-section:not(.user-visible),
-.admin-section:not(.admin-visible) {
-    display: none;
+/* Bottone Modifica */
+.btn-edit {
+  background-color: #007bff;
+  color: white;
 }
 
-/* Dati utente */
-.user-section section ul {
-    list-style: none;
-    padding-left: 0;
+.btn-edit:hover {
+  background-color: #0056b3;
 }
 
-.user-section section ul li {
-    padding: 0.25rem 0;
+/* Bottone Elimina */
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
 }
 
-/* Lista ordini utente */
-.user-orders-list {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
+.btn-delete:hover {
+  background-color: #a71d2a;
 }
 
-.user-orders-list li {
-    border-bottom: 1px solid #ddd;
-    padding: 0.75rem 0;
-}
-
-/* Tabelle ordini/prodotti per admin */
+/* Tabella stile generale */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
 }
 
-table th,
-table td {
-    border: 1px solid #ccc;
-    padding: 0.5rem;
-    text-align: left;
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: left;
 }
 
-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-}
-
-/* Pulsante modifica */
-.edit-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 0.5rem;
-}
-
-.edit-button:hover {
-    background-color: #0056b3;
+th {
+  background-color: #f5f5f5;
 }

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Core\Database;
+use App\Core\Template;
 use RuntimeException;
 
 class AreaPersonaleService
@@ -16,11 +17,6 @@ class AreaPersonaleService
         $this->mysqli = $db->connect();
     }
 
-    /**
-     * Recupera tutti i dati e HTML necessari per l'area personale.
-     *
-     * @return array Dati da passare al template.
-     */
     public function getAreaPersonaleData(): array
     {
         $user = $this->auth->getUser();
@@ -35,40 +31,29 @@ class AreaPersonaleService
         }
     }
 
-    /**
-     * Dati e HTML per admin
-     */
     private function getAdminData(): array
     {
         return [
             'user' => $this->auth->getUser(),
             'user_section_display' => 'none',
             'admin_section_display' => 'block',
-            'all_orders' => $this->getAllOrdersHtml(),
-            'all_products' => $this->getAllProductsHtml(),
-            'all_users' => $this->getAllUsersHtml(),
+            'all_orders' => $this->renderOrdersComponent(),
+            'all_products' => $this->renderProductsComponent(),
+            'all_users' => $this->renderUsersComponent(),
         ];
     }
 
-    /**
-     * Dati e HTML per utente normale
-     */
     private function getUserData(int $userId): array
     {
-        $user = $this->auth->getUser();
-
         return [
-            'user' => $user,
+            'user' => $this->auth->getUser(),
             'user_section_display' => 'block',
             'admin_section_display' => 'none',
-            'user_orders' => $this->getUserOrdersHtml($userId),
+            'user_orders' => $this->renderUserOrdersComponent($userId),
         ];
     }
 
-    /**
-     * Recupera tutti gli ordini con dettagli e costruisce HTML per admin
-     */
-    private function getAllOrdersHtml(): string
+    private function renderOrdersComponent(): string
     {
         $sql = "
             SELECT o.order_id, o.created_at, u.first_name, u.last_name, u.email
@@ -83,26 +68,153 @@ class AreaPersonaleService
         }
 
         $orders = $result->fetch_all(MYSQLI_ASSOC);
+        $rows = '';
 
-        $html = '';
         foreach ($orders as $order) {
-            $html .= "<article class='order'>";
-            $html .= "<h3>Ordine #{$order['order_id']} - {$order['created_at']}</h3>";
-            $html .= "<p>Utente: {$order['first_name']} {$order['last_name']} ({$order['email']})</p>";
-            $html .= "<ul>";
-            $items = $this->getOrderItems($order['order_id']);
-            foreach ($items as $item) {
-                $html .= "<li>{$item['product_name']} x {$item['quantity']}</li>";
-            }
-            $html .= "</ul>";
-            $html .= "</article>";
+            $orderId = $order['order_id'];
+            $date = $order['created_at'];
+            $name = htmlspecialchars($order['first_name'] . ' ' . $order['last_name']);
+            $email = htmlspecialchars($order['email']);
+
+            $rows .= "<tr>";
+            $rows .= "<td>{$orderId}</td>";
+            $rows .= "<td>{$date}</td>";
+            $rows .= "<td>{$name}</td>";
+            $rows .= "<td>{$email}</td>";
+            $rows .= "<td>
+                        <button class='btn-edit' data-id='{$orderId}'>Modifica</button>
+                        <button class='btn-delete' data-id='{$orderId}'>Elimina</button>
+                      </td>";
+            $rows .= "</tr>";
         }
-        return $html;
+
+        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/all_orders.html');
+        $template = new Template('all_orders', $templateHtml);
+        $template->insert('orders_rows', $rows);
+        return $template->build();
     }
 
-    /**
-     * Recupera gli articoli di un ordine
-     */
+    private function renderProductsComponent(): string
+    {
+        $sql = "
+            SELECT product_id, name, manufacturer, price, availability
+            FROM products
+            ORDER BY name ASC
+        ";
+
+        $result = $this->mysqli->query($sql);
+        if (!$result) {
+            throw new \RuntimeException("Errore query prodotti: " . $this->mysqli->error);
+        }
+
+        $products = $result->fetch_all(MYSQLI_ASSOC);
+        $rows = '';
+
+        foreach ($products as $p) {
+            $id = $p['product_id'];
+            $rows .= "<tr>";
+            $rows .= "<td>{$id}</td>";
+            $rows .= "<td>" . htmlspecialchars($p['name']) . "</td>";
+            $rows .= "<td>" . htmlspecialchars($p['manufacturer']) . "</td>";
+            $rows .= "<td>" . number_format($p['price'], 2) . "</td>";
+            $rows .= "<td>{$p['availability']}</td>";
+            $rows .= "<td>
+                        <button class='btn-edit' data-id='{$id}'>Modifica</button>
+                        <button class='btn-delete' data-id='{$id}'>Elimina</button>
+                      </td>";
+            $rows .= "</tr>";
+        }
+
+        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/all_products.html');
+        $template = new Template('all_products', $templateHtml);
+        $template->insert('products_rows', $rows);
+        return $template->build();
+    }
+
+    private function renderUsersComponent(): string
+    {
+        $sql = "
+            SELECT user_id, email, first_name, last_name, tax_code, is_admin
+            FROM users
+            ORDER BY last_name, first_name
+        ";
+
+        $result = $this->mysqli->query($sql);
+        if (!$result) {
+            throw new \RuntimeException("Errore nella query utenti: " . $this->mysqli->error);
+        }
+
+        $users = $result->fetch_all(MYSQLI_ASSOC);
+        $rows = '';
+
+        foreach ($users as $u) {
+            $userId = $u['user_id'];
+            $role = $u['is_admin'] ? 'Admin' : 'Utente';
+
+            $rows .= "<tr>";
+            $rows .= "<td>{$userId}</td>";
+            $rows .= "<td>" . htmlspecialchars($u['email']) . "</td>";
+            $rows .= "<td>" . htmlspecialchars($u['first_name']) . "</td>";
+            $rows .= "<td>" . htmlspecialchars($u['last_name']) . "</td>";
+            $rows .= "<td>" . htmlspecialchars($u['tax_code']) . "</td>";
+            $rows .= "<td>{$role}</td>";
+            $rows .= "<td>
+                        <button class='btn-edit' data-id='{$userId}'>Modifica</button>
+                        <button class='btn-delete' data-id='{$userId}'>Elimina</button>
+                      </td>";
+            $rows .= "</tr>";
+        }
+
+        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/all_users.html');
+        $template = new Template('all_users', $templateHtml);
+        $template->insert('users_rows', $rows);
+        return $template->build();
+    }
+
+    private function renderUserOrdersComponent(int $userId): string
+    {
+        $stmt = $this->mysqli->prepare("
+            SELECT order_id, created_at
+            FROM orders
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare getUserOrders: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if (!$result) {
+            throw new \RuntimeException("Errore execute getUserOrders: " . $stmt->error);
+        }
+
+        $orders = $result->fetch_all(MYSQLI_ASSOC);
+        $html = '';
+
+        if (empty($orders)) {
+            $html = "<p>Non hai ancora effettuato ordini.</p>";
+        } else {
+            foreach ($orders as $order) {
+                $html .= "<article class='order'>";
+                $html .= "<h3>Ordine #{$order['order_id']} - {$order['created_at']}</h3><ul>";
+
+                $items = $this->getOrderItems($order['order_id']);
+                foreach ($items as $item) {
+                    $html .= "<li>" . htmlspecialchars($item['product_name']) . " x {$item['quantity']}</li>";
+                }
+
+                $html .= "</ul></article>";
+            }
+        }
+
+        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/user_orders.html');
+        $template = new Template('user_orders', $templateHtml);
+        $template->insert('user_orders_list', $html);
+        return $template->build();
+    }
+
     private function getOrderItems(int $orderId): array
     {
         $stmt = $this->mysqli->prepare("
@@ -121,118 +233,7 @@ class AreaPersonaleService
         if (!$result) {
             throw new \RuntimeException("Errore execute getOrderItems: " . $stmt->error);
         }
+
         return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    /**
-     * Recupera tutti i prodotti e costruisce HTML per admin
-     */
-    private function getAllProductsHtml(): string
-    {
-        $sql = "
-            SELECT product_id, short_name, name, manufacturer, price, availability
-            FROM products
-            ORDER BY name ASC
-        ";
-
-        $result = $this->mysqli->query($sql);
-        if (!$result) {
-            throw new \RuntimeException("Errore nella query prodotti: " . $this->mysqli->error);
-        }
-
-        $products = $result->fetch_all(MYSQLI_ASSOC);
-
-        $html = "<table border='1' cellpadding='5'>";
-        $html .= "<thead><tr><th>ID</th><th>Nome</th><th>Produttore</th><th>Prezzo (€)</th><th>Disponibilità</th></tr></thead><tbody>";
-
-        foreach ($products as $p) {
-            $html .= "<tr>";
-            $html .= "<td>{$p['product_id']}</td>";
-            $html .= "<td>" . htmlspecialchars($p['name']) . "</td>";
-            $html .= "<td>" . htmlspecialchars($p['manufacturer']) . "</td>";
-            $html .= "<td>" . number_format($p['price'], 2) . "</td>";
-            $html .= "<td>{$p['availability']}</td>";
-            $html .= "</tr>";
-        }
-        $html .= "</tbody></table>";
-
-        return $html;
-    }
-
-    /**
-     * Recupera tutti gli utenti e costruisce HTML per admin
-     */
-    private function getAllUsersHtml(): string
-    {
-        $sql = "
-            SELECT user_id, email, first_name, last_name, tax_code, is_admin
-            FROM users
-            ORDER BY last_name, first_name
-        ";
-
-        $result = $this->mysqli->query($sql);
-        if (!$result) {
-            throw new \RuntimeException("Errore nella query utenti: " . $this->mysqli->error);
-        }
-
-        $users = $result->fetch_all(MYSQLI_ASSOC);
-
-        $html = "<table border='1' cellpadding='5'>";
-        $html .= "<thead><tr><th>ID</th><th>Email</th><th>Nome</th><th>Cognome</th><th>Codice Fiscale</th><th>Ruolo</th></tr></thead><tbody>";
-
-        foreach ($users as $u) {
-            $role = $u['is_admin'] ? 'Admin' : 'Utente';
-            $html .= "<tr>";
-            $html .= "<td>{$u['user_id']}</td>";
-            $html .= "<td>" . htmlspecialchars($u['email']) . "</td>";
-            $html .= "<td>" . htmlspecialchars($u['first_name']) . "</td>";
-            $html .= "<td>" . htmlspecialchars($u['last_name']) . "</td>";
-            $html .= "<td>" . htmlspecialchars($u['tax_code']) . "</td>";
-            $html .= "<td>{$role}</td>";
-            $html .= "</tr>";
-        }
-        $html .= "</tbody></table>";
-
-        return $html;
-    }
-
-    /**
-     * Recupera ordini di un singolo utente e costruisce HTML
-     */
-    private function getUserOrdersHtml(int $userId): string
-    {
-        $stmt = $this->mysqli->prepare("
-            SELECT order_id, created_at
-            FROM orders
-            WHERE user_id = ?
-            ORDER BY created_at DESC
-        ");
-        if (!$stmt) {
-            throw new \RuntimeException("Errore prepare getUserOrdersHtml: " . $this->mysqli->error);
-        }
-
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if (!$result) {
-            throw new \RuntimeException("Errore execute getUserOrdersHtml: " . $stmt->error);
-        }
-        $orders = $result->fetch_all(MYSQLI_ASSOC);
-
-        if (empty($orders)) {
-            return "<p>Non hai ancora effettuato ordini.</p>";
-        }
-
-        $html = '';
-        foreach ($orders as $order) {
-            $html .= "<article class='order'>";
-            $html .= "<h3>Ordine #{$order['order_id']} - {$order['created_at']}</h3><ul>";
-            $items = $this->getOrderItems($order['order_id']);
-            foreach ($items as $item) {
-                $html .= "<li>" . htmlspecialchars($item['product_name']) . " x {$item['quantity']}</li>";
-            }
-            $html .= "</ul></article>";
-        }
-        return $html;
     }
 }
