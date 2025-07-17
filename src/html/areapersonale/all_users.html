@@ -1,0 +1,24 @@
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Email</th>
+            <th>Codice Fiscale</th>
+            <th>Admin</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each users}}
+        <tr>
+            <td>{{user_id}}</td>
+            <td>{{first_name}}</td>
+            <td>{{last_name}}</td>
+            <td>{{email}}</td>
+            <td>{{tax_code}}</td>
+            <td>{{#if is_admin}}✔️{{else}}❌{{/if}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

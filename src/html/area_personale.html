@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="it">
 
-<component>head</component>
+<head>
+    <component>head</component>
+</head>
 
 <body class="no-print">
 
@@ -16,13 +17,10 @@
     </nav>
 
     <main>
-        <h1>Benvenuto,
-            <component>user.first_name</component>
-            <component>user.last_name</component>!
-        </h1>
+        <h1>Benvenuto, <component>user.first_name</component> <component>user.last_name</component>!</h1>
 
         <!-- Sezione per utente normale -->
-        <div id="user-section" class="user-section <component>user_section_class</component>">
+        <div id="user-section" style="display: <component>user_section_display</component>;">
             <section>
                 <h2>I tuoi dati</h2>
                 <ul>
@@ -39,7 +37,7 @@
         </div>
 
         <!-- Sezione per admin -->
-        <div id="admin-section" class="admin-section <component>admin_section_class</component>">
+        <div id="admin-section" style="display: <component>admin_section_display</component>;">
             <section>
                 <h2>Gestione Prodotti</h2>
                 <component>all_products</component>
@@ -48,6 +46,11 @@
             <section>
                 <h2>Tutti gli ordini</h2>
                 <component>all_orders</component>
+            </section>
+
+            <section>
+                <h2>Utenti Registrati</h2>
+                <component>all_users</component>
             </section>
         </div>
 
@@ -59,4 +62,5 @@
     <component>footer</component>
 
 </body>
+
 </html>
