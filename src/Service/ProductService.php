@@ -5,7 +5,8 @@ namespace App\Service;
 
 use App\Core\Database;
 use App\Core\Filter\Filter;
-use App\Core\Product\ProductDTO;
+use App\Core\Model\ProductDTO;
+use RuntimeException;
 
 class ProductService
 {
@@ -32,21 +33,20 @@ class ProductService
         $where = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
         $sql   = "SELECT 
                     p.product_id, p.short_name, p.name, p.manufacturer, p.aic_code,
-                    pt.name AS product_type, p.format, p.price, p.availability,
+                    p.product_type_id, pt.name AS product_type, p.format, p.price, p.availability,
                     p.description, p.image_path
                   FROM products p
                   JOIN product_types pt ON p.product_type_id = pt.product_type_id
                   {$where}
                   LIMIT ? OFFSET ?";
 
-        // Bind parametri filtro + limit/offset
-        $types .= 'ii';
-        $params[] = $limit;
-        $params[] = $offset;
+        $types    .= 'ii';
+        $params[]  = $limit;
+        $params[]  = $offset;
 
         $stmt = $conn->prepare($sql);
         if (! $stmt) {
-            throw new \RuntimeException('Errore preparazione: ' . $conn->error);
+            throw new RuntimeException('Errore preparazione: ' . $conn->error);
         }
         $stmt->bind_param($types, ...$params);
         $stmt->execute();
@@ -79,7 +79,7 @@ class ProductService
 
         $stmt = $conn->prepare($sql);
         if (! $stmt) {
-            throw new \RuntimeException('Errore preparazione: ' . $conn->error);
+            throw new RuntimeException('Errore preparazione: ' . $conn->error);
         }
         if ($types !== '') {
             $stmt->bind_param($types, ...$params);
@@ -96,26 +96,23 @@ class ProductService
     public function getProductByID(int $id): ?ProductDTO
     {
         $conn = $this->db->connect();
-        $sql = "SELECT 
+        $sql  = "SELECT 
                     p.product_id, p.short_name, p.name, p.manufacturer, p.aic_code,
-                    pt.name AS product_type, p.format, p.price, p.availability,
+                    p.product_type_id, pt.name AS product_type, p.format, p.price, p.availability,
                     p.description, p.image_path
-                FROM products p
-                JOIN product_types pt ON p.product_type_id = pt.product_type_id
-                WHERE p.product_id = ?";
+                 FROM products p
+                 JOIN product_types pt ON p.product_type_id = pt.product_type_id
+                 WHERE p.product_id = ?";
         $stmt = $conn->prepare($sql);
         if (! $stmt) {
-            throw new \RuntimeException('Errore preparazione: ' . $conn->error);
+            throw new RuntimeException('Errore preparazione: ' . $conn->error);
         }
 
         $stmt->bind_param('i', $id);
         $stmt->execute();
-        $result = $stmt->get_result();
+        $row = $stmt->get_result()->fetch_assoc();
 
-        if ($row = $result->fetch_assoc()) {
-            return $this->mapRowToDTO($row);
-        }
-        return null;
+        return $row ? $this->mapRowToDTO($row) : null;
     }
 
     /**
@@ -129,6 +126,7 @@ class ProductService
         $dto->name         = (string)$row['name'];
         $dto->manufacturer = (string)$row['manufacturer'];
         $dto->aicCode      = (string)$row['aic_code'];
+        // productType qui serve solo per DTO, non per il select
         $dto->productType  = (string)$row['product_type'];
         $dto->format       = (string)$row['format'];
         $dto->price        = (float)$row['price'];
@@ -136,5 +134,80 @@ class ProductService
         $dto->description  = (string)$row['description'];
         $dto->imagePath    = '/assets/img/' . $row['image_path'];
         return $dto;
+    }
+
+    /**
+     * Recupera dinamicamente tutti i tipi di prodotto.
+     * @return array<int,string>  [product_type_id => nome]
+     */
+    public function getAllProductTypes(): array
+    {
+        $conn = $this->db->connect();
+        $sql  = "SELECT product_type_id, name FROM product_types ORDER BY name";
+        $stmt = $conn->prepare($sql);
+        if (! $stmt) {
+            throw new RuntimeException('Errore preparazione: ' . $conn->error);
+        }
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        $types = [];
+        while ($row = $res->fetch_assoc()) {
+            $types[(int)$row['product_type_id']] = $row['name'];
+        }
+        return $types;
+    }
+
+    /**
+     * Genera l’HTML <option> per i tipi prodotto.
+     */
+    public function renderTypeOptions($selectedId): string
+    {
+        $html = '';
+        foreach ($this->getAllProductTypes() as $id => $label) {
+            $sel = ((string)$id === (string)$selectedId) ? ' selected' : '';
+            $html .= "<option value=\"{$id}\"{$sel}>"
+                . htmlspecialchars($label, ENT_QUOTES)
+                . "</option>\n";
+        }
+        return $html;
+    }
+
+    /**
+     * Legge i valori dell'ENUM 'format' dalla colonna di DB.
+     * @return string[] Lista di valori (es. ['compresse', ...])
+     */
+    private function getFormatValues(): array
+    {
+        $conn = $this->db->connect();
+        $sql  = "SHOW COLUMNS FROM products WHERE Field = 'format'";
+        $stmt = $conn->prepare($sql);
+        if (! $stmt) {
+            throw new RuntimeException('Errore preparazione: ' . $conn->error);
+        }
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        if (! $row) {
+            throw new RuntimeException("Colonna 'format' non trovata");
+        }
+
+        preg_match_all("/'([^']+)'/", $row['Type'], $matches);
+        return $matches[1] ?? [];
+    }
+
+    /**
+     * Genera l’HTML <option> per i formati, basandosi sui valori ENUM.
+     */
+    public function renderFormatOptions($selectedFormat): string
+    {
+        $html = '';
+        foreach ($this->getFormatValues() as $value) {
+            $label = ucfirst($value);
+            $sel   = ($value === $selectedFormat) ? ' selected' : '';
+            $html .= "<option value=\"{$value}\"{$sel}>"
+                . htmlspecialchars($label, ENT_QUOTES)
+                . "</option>\n";
+        }
+        return $html;
     }
 }
