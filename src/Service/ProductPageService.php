@@ -5,203 +5,101 @@ namespace App\Service;
 
 use App\Core\Database;
 use App\Core\Filter\Filter;
-use App\Core\Filter\Pagination as Paginator;
-use App\Core\PageBuilder;
+use App\Core\Model\ProductDTO;
 
-class ProductPageService
+class ProductService
 {
-    private ProductService $service;
-    private int $perPage;
+    private Database $db;
 
-    public function __construct(int $perPage = 10)
+    public function __construct(Database $db)
     {
-        $db = Database::getInstance(
-            getenv('MARIADB_HOST')     ?: 'mariadb',
-            getenv('MARIADB_USER')     ?: 'admin',
-            getenv('MARIADB_PASSWORD') ?: 'admin',
-            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
-        );
-        $this->service = new ProductService($db);
-        $this->perPage = $perPage;
+        $this->db = $db;
     }
 
-    public function handleRequest(): void
+    // ... metodi esistenti getProducts(), countProducts(), getProductByID(), mapRowToDTO() ...
+
+    /**
+     * Recupera i valori ENUM definiti per la colonna `format` nella tabella `products`.
+     * @return string[] array di valori (es. ['compresse','capsule',…])
+     */
+    public function getFormatEnums(): array
     {
-        // 1) Parametri GET
-        $page      = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
-        $rawSearch = filter_input(INPUT_GET, 'search', FILTER_UNSAFE_RAW);
-        $search    = $rawSearch !== null ? strip_tags($rawSearch) : '';
-        $rawType   = filter_input(INPUT_GET, 'tipologia', FILTER_UNSAFE_RAW);
-        $type      = $rawType !== null ? strip_tags($rawType) : 'tutte';
-        $rawAvail  = filter_input(INPUT_GET, 'disponibilita', FILTER_UNSAFE_RAW);
-        $avail     = $rawAvail !== null ? strip_tags($rawAvail) : 'tutti';
-        $ajax      = filter_input(INPUT_GET, 'ajax', FILTER_VALIDATE_BOOLEAN);
-
-        // 2) Filtro e recupero dati
-        $filter   = new Filter($search, $type, $avail);
-        $offset   = ($page - 1) * $this->perPage;
-        $products = $this->service->getProducts($this->perPage, $offset, $filter);
-        $total    = $this->service->countProducts($filter);
-        $pages    = (int)ceil($total / $this->perPage);
-
-        // 3) Costruzione HTML prodotti
-        $htmlItems = '';
-        foreach ($products as $p) {
-            $tpl = PageBuilder::getInstance()->loadTemplate('prodotti/item.html');
-            $tpl->insertAll([
-                'url_farmaco' => "prodotto.php?id={$p->id}",
-                'immagine'    => "<img src=\"{$p->imagePath}\" alt=\"{$p->description}\" width=\"100\" height=\"100\">",
-                'nome'        => $p->shortName,
-                'prezzo'      => number_format($p->price, 2, ',', '.') . '€',
-            ]);
-            $htmlItems .= $tpl->build();
+        $conn = $this->db->connect();
+        // Metodo 1: information_schema
+        $sql = "
+            SELECT COLUMN_TYPE
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'products'
+              AND COLUMN_NAME = 'format'
+        ";
+        $stmt = $conn->prepare($sql);
+        if (! $stmt) {
+            throw new \RuntimeException('Errore preparazione ENUM: ' . $conn->error);
+        }
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        if (! $row) {
+            return [];
         }
 
-        // 4) Paginazione markup modulare
-        $htmlPagination = $this->buildPagination($page, $pages, $total, $filter);
-
-        // 5) Tipi prodotto dal DB (per la select)
-        $productTypes = $this->getProductTypes();
-        $typeOptions  = '<option value="tutte"' . ($type === 'tutte' ? ' selected' : '') . '>Tutte</option>';
-        foreach ($productTypes as $t) {
-            $sel = ($type === $t) ? ' selected' : '';
-            $typeOptions .= '<option value="' . htmlspecialchars($t) . '"' . $sel . '>' . htmlspecialchars($t) . '</option>';
-        }
-
-        // 6) Radio "Disponibilità" checked dinamico
-        $checkedTutti       = ($avail === 'tutti') ? 'checked' : '';
-        $checkedDisponibile = ($avail === 'disponibile') ? 'checked' : '';
-        $checkedEsaurito    = ($avail === 'esaurito') ? 'checked' : '';
-
-        // 7) Frase dinamica per i risultati (variabile 'info')
-        $info = $this->getInfo($total, $this->perPage, $page);
-
-        // 8) Risposta AJAX
-        if ($ajax) {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'items'      => $htmlItems,
-                'pagination' => $htmlPagination,
-                'info'       => $info,
-            ]);
-            exit;
-        }
-
-        // 9) Render finale
-        PageBuilder::show('prodotti', [
-            'items'              => $htmlItems,
-            'searchQuery'        => $search,
-            'typeFilter'         => $type,
-            'availabilityFilter' => $avail,
-            'pagination'         => $htmlPagination,
-            'info'               => $info,
-            'typeOptions'        => $typeOptions,
-            'checkedTutti'       => $checkedTutti,
-            'checkedDisponibile' => $checkedDisponibile,
-            'checkedEsaurito'    => $checkedEsaurito,
-            'meta_title'       => 'Prodotti | Farmacia Archimede',
-            'meta_description' => 'Descrizione specifica per questa pagina',
-            'meta_keywords'    => 'parola1, parola2, parola3'
-        ]);
+        // COLUMN_TYPE è tipo "enum('compresse','capsule',…)"
+        $enumDef = $row['COLUMN_TYPE'];
+        // estraggo con regex i valori tra apici
+        preg_match_all("/'([^']+)'/", $enumDef, $matches);
+        return $matches[1] ?? [];
     }
 
     /**
-     * Costruisce la paginazione tramite template separati.
+     * Genera le <option> per il select dei formati, prendendo i valori ENUM dal DB.
+     * @param string|null $selectedFormat
+     * @return string HTML delle <option>
      */
-    private function buildPagination(int $page, int $pages, int $total, Filter $filter): string
+    public function renderFormatOptions(?string $selectedFormat): string
     {
-        $paginator = new Paginator(
-            $page,
-            $pages,
-            $this->perPage,
-            $total,
-            'prodotti.php',
-            $filter->toQueryString()
-        );
-        $pagination = $paginator->getData();
-
-        if ($pages <= 1) {
-            return '';
+        $options = '';
+        foreach ($this->getFormatEnums() as $value) {
+            // qui potresti anche mappare label più leggibili, se vuoi
+            $label = ucfirst($value);
+            $sel   = ($value === $selectedFormat) ? ' selected' : '';
+            $options .= "<option value=\"{$value}\"{$sel}>"
+                . htmlspecialchars($label, ENT_QUOTES)
+                . "</option>\n";
         }
-
-        $blocks = [
-            'prev'   => '',
-            'next'   => '',
-        ];
-
-        // Prev
-        if ($pagination['currentPage'] > 1) {
-            $tplPrev = PageBuilder::getInstance()->loadTemplate('prodotti/pagination-prev.html');
-            $tplPrev->insertAll([
-                'href' => htmlspecialchars($pagination['prevHref'])
-            ]);
-            $blocks['prev'] = $tplPrev->build();
-        }
-
-        // Next
-        if ($pagination['currentPage'] < $pages) {
-            $tplNext = PageBuilder::getInstance()->loadTemplate('prodotti/pagination-next.html');
-            $tplNext->insertAll([
-                'href' => htmlspecialchars($pagination['nextHref'])
-            ]);
-            $blocks['next'] = $tplNext->build();
-        }
-
-        // Template principale
-        $tplPag = PageBuilder::getInstance()->loadTemplate('prodotti/pagination.html');
-        $tplPag->insertAll([
-            'start'       => $pagination['start'],
-            'end'         => $pagination['end'],
-            'total'       => $pagination['total'],
-            'prev'        => $blocks['prev'],
-            'currentPage' => $pagination['currentPage'],
-            'next'        => $blocks['next'],
-        ]);
-        return $tplPag->build();
+        return $options;
     }
 
     /**
-     * Recupera tutti i tipi di prodotto dal DB
-     * @return string[]
+     * Recupera tutti i tipi di prodotto (id + nome).
+     * @return array<int,string>
      */
-    private function getProductTypes(): array
+    public function getAllProductTypes(): array
     {
-        $db = Database::getInstance(
-            getenv('MARIADB_HOST')     ?: 'mariadb',
-            getenv('MARIADB_USER')     ?: 'admin',
-            getenv('MARIADB_PASSWORD') ?: 'admin',
-            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
-        )->connect();
+        $conn = $this->db->connect();
+        $sql  = "SELECT product_type_id, name FROM product_types ORDER BY name";
+        $stmt = $conn->prepare($sql);
+        if (! $stmt) {
+            throw new \RuntimeException('Errore preparazione: ' . $conn->error);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $res = $db->query('SELECT name FROM product_types ORDER BY name');
         $types = [];
-        while ($row = $res->fetch_assoc()) {
-            $types[] = $row['name'];
+        while ($row = $result->fetch_assoc()) {
+            $types[(int)$row['product_type_id']] = $row['name'];
         }
         return $types;
     }
 
-    /**
-     * Frase dinamica per la paginazione
-     */
-    private function getInfo(int $total, int $perPage, int $currentPage): string
+    public function renderTypeOptions($selectedId): string
     {
-        if ($total === 0) {
-            return "Nessun risultato trovato";
+        $options = '';
+        foreach ($this->getAllProductTypes() as $id => $label) {
+            $sel = ((string)$id === (string)$selectedId) ? ' selected' : '';
+            $options .= "<option value=\"{$id}\"{$sel}>"
+                . htmlspecialchars($label, ENT_QUOTES)
+                . "</option>\n";
         }
-
-        $start = ($currentPage - 1) * $perPage + 1;
-        $end   = min($start + $perPage - 1, $total);
-
-        if ($total === 1) {
-            return "Risultati 1 di 1";
-        }
-
-        if ($total <= $perPage) {
-            return "Risultati {$start}–{$end} di {$total}";
-        }
-
-        return "Risultati {$start}–{$end} di {$total}";
+        return $options;
     }
-
 }
