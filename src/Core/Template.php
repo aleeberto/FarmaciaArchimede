@@ -2,11 +2,6 @@
 
 namespace App\Core;
 
-/**
- * Class Template
- *
- * Gestisce l’inserimento dinamico di componenti all’interno di un template HTML.
- */
 class Template
 {
     private const PATT_BEGIN = '<component>';
@@ -15,58 +10,49 @@ class Template
     private string $name;
     private string $state;
 
-    /**
-     * Template constructor.
-     *
-     * @param string $name   Nome del template
-     * @param string $state  Contenuto HTML del template
-     */
     public function __construct(string $name, string $state)
     {
         $this->name  = $name;
         $this->state = $state;
     }
 
-    /**
-     * Sostituisce un singolo componente identificato da ID.
-     *
-     * @param string $id     Identificatore del componente
-     * @param string $value  HTML da inserire al posto del componente
-     */
     public function insert(string $id, string|array $value): void
     {
-        // se è oggetto, prima lo trasformo
+        // Se è oggetto, prima trasformalo in array
         if (is_object($value)) {
             $value = get_object_vars($value);
         }
 
         if (is_array($value)) {
-            // espando i figli
+            // Espandi i figli
             foreach ($value as $k => $v) {
                 $this->insert("$id.$k", (string)$v);
             }
-            // poi elimino (o sostituisco) il placeholder genitore
+            // Rimuovi il placeholder genitore
             $this->state = str_replace(
                 self::PATT_BEGIN . $id . self::PATT_END,
-                '',      // oppure implode dei figli, se vuoi
+                '',
                 $this->state
             );
             return;
         }
 
-        // valore scalare: sostituisco direttamente
+        // Sostituisci i <component>id</component>
         $this->state = str_replace(
             self::PATT_BEGIN . $id . self::PATT_END,
             $value,
             $this->state
         );
+
+        // Sostituisci anche i {{id}}
+        // Uso regex per cogliere eventuali spazi: {{  id  }}
+        $this->state = preg_replace(
+            '/\{\{\s*' . preg_quote($id, '/') . '\s*\}\}/',
+            $value,
+            $this->state
+        );
     }
 
-    /**
-     * Inserisce più componenti contemporaneamente.
-     *
-     * @param array<string,string> $parameters  Mappa id => valore
-     */
     public function insertAll(array $parameters): void
     {
         foreach ($parameters as $id => $value) {
@@ -74,14 +60,8 @@ class Template
         }
     }
 
-    /**
-     * Restituisce il template finale (senza placeholder non sostituiti).
-     *
-     * @return string  HTML risultante
-     */
     public function build(): string
     {
-        // qui si potrebbero controllare placeholder rimasti
         return $this->state;
     }
 }
