@@ -20,6 +20,7 @@ $productService = new ProductService($db);
 
 // Raccogli i dati dal POST
 $post = $_POST;
+
 $errors = [];
 $data = [
     'product_type_id' => trim($post['product_type_id'] ?? ''),
@@ -32,12 +33,9 @@ $data = [
     'availability'    => trim($post['availability'] ?? ''),
     'description'     => trim($post['description'] ?? ''),
 ];
-$product_id = isset($post['product_id']) && ctype_digit($post['product_id']) ? (int)$post['product_id'] : null;
+$product_id = isset($post['product_id']) && ctype_digit($post['product_id']) ? (int)$post['product_id'] : '';
 
-// Validazione
-if ($data['product_type_id'] === '') {
-    $errors['product_type_id'] = 'Tipo prodotto obbligatorio.';
-}
+
 if ($data['short_name'] === '' || mb_strlen($data['short_name']) > 128) {
     $errors['short_name'] = 'Nome breve obbligatorio e massimo 128 caratteri.';
 }
@@ -81,9 +79,9 @@ if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ER
 // SE ERRORI, mostra di nuovo il form con i dati e gli errori
 if ($errors) {
     $data['image_url'] = $image_path ?: '';
-    PageBuilder::show('modifica.php?id='.$product_id, [
+    PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id' => $product_id,
+        'product_id' => $product_id??'',
         'errors' => $errors,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options' => $productService->renderFormatOptions($data['format']),
@@ -95,17 +93,17 @@ if ($errors) {
 }
 
 // NESSUN ERRORE: inserisci o aggiorna
-if ($product_id) {
-    $productService->updateProduct($product_id, [
-        ...$data,
-        'image_path' => $image_path,
-    ]);
-} else {
-    $productService->insertProduct([
-        ...$data,
-        'image_path' => $image_path,
-    ]);
-}
+//if ($product_id) {
+//    $productService->updateProduct($product_id, [
+//        ...$data,
+//        'image_path' => $image_path,
+//    ]);
+//} else {
+//    $productService->insertProduct([
+//        ...$data,
+//        'image_path' => $image_path,
+//    ]);
+//}
 
 header('Location: /prodotti.php?msg=success');
 exit;
