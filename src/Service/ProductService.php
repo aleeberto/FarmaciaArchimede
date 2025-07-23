@@ -210,4 +210,105 @@ class ProductService
         }
         return $html;
     }
+
+
+    /**
+     * Inserisce un nuovo prodotto nel database.
+     * Restituisce l'ID appena creato.
+     *
+     * @param array $data
+     *  - product_type_id
+     *  - short_name
+     *  - name
+     *  - manufacturer
+     *  - aic_code
+     *  - format
+     *  - price
+     *  - availability
+     *  - description
+     *  - image_path (opzionale)
+     * @return int
+     */
+    public function insertProduct(array $data): int
+    {
+        $conn = $this->db->connect();
+        $sql = "INSERT INTO products
+        (product_type_id, short_name, name, manufacturer, aic_code, format, price, availability, description, image_path)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+
+        if (! $stmt) {
+            throw new RuntimeException('Errore preparazione: ' . $conn->error);
+        }
+
+        // Imposta l'image_path se non presente (può essere null)
+        $imagePath = $data['image_path'] ?? null;
+
+        $stmt->bind_param(
+            'issssssiss',
+            $data['product_type_id'],
+            $data['short_name'],
+            $data['name'],
+            $data['manufacturer'],
+            $data['aic_code'],
+            $data['format'],
+            $data['price'],
+            $data['availability'],
+            $data['description'],
+            $imagePath
+        );
+
+        if (! $stmt->execute()) {
+            throw new RuntimeException('Errore esecuzione: ' . $stmt->error);
+        }
+
+        return $conn->insert_id;
+    }
+
+    /**
+     * Aggiorna un prodotto esistente.
+     * @param int $id
+     * @param array $data
+     * @return bool true se almeno una riga modificata
+     */
+    public function updateProduct(int $id, array $data): bool
+    {
+        $conn = $this->db->connect();
+        $sql = "UPDATE products SET
+                    product_type_id = ?,
+                    short_name      = ?,
+                    name            = ?,
+                    manufacturer    = ?,
+                    aic_code        = ?,
+                    format          = ?,
+                    price           = ?,
+                    availability    = ?,
+                    description     = ?,
+                    image_path      = ?
+                WHERE product_id = ?";
+        $stmt = $conn->prepare($sql);
+        if (! $stmt) {
+            throw new \RuntimeException('Errore preparazione: ' . $conn->error);
+        }
+        $imagePath = $data['image_path'] ?? null;
+        $stmt->bind_param(
+            'issssssissi',
+            $data['product_type_id'],
+            $data['short_name'],
+            $data['name'],
+            $data['manufacturer'],
+            $data['aic_code'],
+            $data['format'],
+            $data['price'],
+            $data['availability'],
+            $data['description'],
+            $imagePath,
+            $id
+        );
+        if (! $stmt->execute()) {
+            throw new \RuntimeException('Errore esecuzione: ' . $stmt->error);
+        }
+        return $stmt->affected_rows > 0;
+    }
+
 }
