@@ -10,7 +10,8 @@ use App\Service\ProductService;
 Auth::requireLogin();
 Auth::requireAdmin();
 
-$db = Database::getInstance(
+// Connessione al DB
+$db             = Database::getInstance(
     getenv('MARIADB_HOST')     ?: 'mariadb',
     getenv('MARIADB_USER')     ?: 'admin',
     getenv('MARIADB_PASSWORD') ?: 'admin',
@@ -18,92 +19,204 @@ $db = Database::getInstance(
 );
 $productService = new ProductService($db);
 
-// Raccogli i dati dal POST
-$post = $_POST;
-
-$errors = [];
-$data = [
-    'product_type_id' => trim($post['product_type_id'] ?? ''),
-    'short_name'      => trim($post['short_name'] ?? ''),
-    'name'            => trim($post['name'] ?? ''),
-    'manufacturer'    => trim($post['manufacturer'] ?? ''),
-    'aic_code'        => strtoupper(trim($post['aic_code'] ?? '')),
-    'format'          => trim($post['format'] ?? ''),
-    'price'           => trim($post['price'] ?? ''),
-    'availability'    => trim($post['availability'] ?? ''),
-    'description'     => trim($post['description'] ?? ''),
-];
-$product_id = isset($post['product_id']) && ctype_digit($post['product_id']) ? (int)$post['product_id'] : '';
-
-
-if ($data['short_name'] === '' || mb_strlen($data['short_name']) > 128) {
-    $errors['short_name'] = 'Nome breve obbligatorio e massimo 128 caratteri.';
-}
-if ($data['name'] === '' || mb_strlen($data['name']) > 128) {
-    $errors['name'] = 'Nome completo obbligatorio e massimo 128 caratteri.';
-}
-if ($data['manufacturer'] === '' || mb_strlen($data['manufacturer']) > 100) {
-    $errors['manufacturer'] = 'Produttore obbligatorio e massimo 100 caratteri.';
-}
-if (!preg_match('/^[A-Z0-9]{10}$/', $data['aic_code'])) {
-    $errors['aic_code'] = 'Codice AIC non valido (10 caratteri alfanumerici).';
-}
-$formati_validi = ['compresse','capsule','sciroppo','gocce','pomata','crema','spray','polvere','soluzione','gel','granulato','cerotto','altro'];
-if (!in_array($data['format'], $formati_validi, true)) {
-    $errors['format'] = 'Formato non valido.';
-}
-if (!is_numeric($data['price']) || (float)$data['price'] <= 0) {
-    $errors['price'] = 'Prezzo obbligatorio e maggiore di 0.';
-}
-if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
-    $errors['availability'] = 'Disponibilità obbligatoria e non negativa.';
+// Recupera product_id da GET o POST
+$product_id = null;
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && ctype_digit($_GET['id'])) {
+    $product_id = (int) $_GET['id'];
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id']) && ctype_digit($_POST['product_id'])) {
+    $product_id = (int) $_POST['product_id'];
 }
 
-// Gestione immagine
-$image_path = null;
-if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
-    $tmp = $_FILES['image_file']['tmp_name'];
-    $name = basename($_FILES['image_file']['name']);
-    $target = __DIR__ . '/../images/' . $name;
-    if (move_uploaded_file($tmp, $target)) {
-        $image_path = '/images/' . $name;
+// === FASE GET: mostra il form per inserimento o modifica ===
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if ($product_id) {
+        $prod = $productService->getProductByID($product_id);
+        if (!$prod) {
+            $_SESSION['flash_message'] = [
+                'type'    => 'error',
+                'message' => 'Prodotto non trovato.',
+            ];
+            header('Location: /prodotti.php');
+            exit;
+        }
+        $data = [
+            'product_type_id' => $prod->productTypeId,
+            'short_name'      => $prod->shortName,
+            'name'            => $prod->name,
+            'manufacturer'    => $prod->manufacturer,
+            'aic_code'        => $prod->aicCode,
+            'format'          => $prod->format,
+            'price'           => $prod->price,
+            'availability'    => $prod->availability,
+            'description'     => $prod->description,
+        ];
+        $image_path = $prod->imagePath;
     } else {
-        $errors['image_file'] = 'Errore durante il caricamento dell\'immagine.';
+        $data = array_fill_keys([
+            'product_type_id','short_name','name','manufacturer',
+            'aic_code','format','price','availability','description'
+        ], '');
+        $image_path = '';
     }
-} elseif ($product_id) {
-    // Se in modifica e nessuna nuova immagine caricata, tieni quella già presente
-    $prod = $productService->getProductByID($product_id);
-    $image_path = $prod ? $prod->imagePath : '';
-}
 
-// SE ERRORI, mostra di nuovo il form con i dati e gli errori
-if ($errors) {
-    $data['image_url'] = $image_path ?: '';
     PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id' => $product_id??'',
-        'errors' => $errors,
+        'product_id'           => $product_id ?: '',
+        'form_action'          => '/modifica.php?id='.$product_id,
+        'errors'               => [],
+        'image_url'            => $image_path,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
-        'format_options' => $productService->renderFormatOptions($data['format']),
-        'meta_title' => $product_id ? 'Modifica Prodotto' : 'Inserisci Nuovo Prodotto',
-        'page_mode' => $product_id ? 'Modifica' : 'Inserisci',
-        'submit_label' => $product_id ? 'Modifica' : 'Inserisci',
+        'format_options'       => $productService->renderFormatOptions($data['format']),
+        'meta_title'           => $product_id ? 'Modifica Prodotto' : 'Inserisci Nuovo Prodotto',
+        'page_mode'            => $product_id ? 'Modifica'         : 'Inserisci',
+        'submit_label'         => $product_id ? 'Modifica'         : 'Inserisci',
     ]);
     exit;
 }
 
-// NESSUN ERRORE: inserisci o aggiorna
-//if ($product_id) {
-//    $productService->updateProduct($product_id, [
-//        ...$data,
-//        'image_path' => $image_path,
-//    ]);
-//} else {
-//    $productService->insertProduct([
-//        ...$data,
-//        'image_path' => $image_path,
-//    ]);
-//}
+// === FASE POST: raccogli dati da form ===
+$post = $_POST;
+$data = [
+    'product_type_id' => trim($post['product_type_id'] ?? ''),
+    'short_name'      => trim($post['short_name']      ?? ''),
+    'name'            => trim($post['name']            ?? ''),
+    'manufacturer'    => trim($post['manufacturer']    ?? ''),
+    'aic_code'        => strtoupper(trim($post['aic_code'] ?? '')),
+    'format'          => trim($post['format']          ?? ''),
+    'price'           => trim($post['price']           ?? ''),
+    'availability'    => trim($post['availability']    ?? ''),
+    'description'     => trim($post['description']     ?? ''),
+];
 
-header('Location: /prodotti.php?msg=success');
+// Gestione immagine preliminare
+$image_path = '';
+if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+    $tmp    = $_FILES['image_file']['tmp_name'];
+    $name   = basename($_FILES['image_file']['name']);
+    $target = __DIR__ . '/../images/' . $name;
+    if (move_uploaded_file($tmp, $target)) {
+        $image_path = '/images/' . $name;
+    }
+} elseif ($product_id) {
+    $prod       = $productService->getProductByID($product_id);
+    $image_path = $prod?->imagePath ?: '';
+}
+
+// === VALIDAZIONE DATI ===
+$errorKeys = [
+    'product_type_id','short_name','name','manufacturer',
+    'aic_code','format','price','availability','image_file'
+];
+$errors = array_fill_keys($errorKeys, '');
+
+// 1) Tipo prodotto: obbligatorio e numerico
+if ($data['product_type_id'] === '' || !ctype_digit($data['product_type_id'])) {
+    $errors['product_type_id'] = 'Tipo prodotto obbligatorio.';
+}
+
+// 2) Nome breve: 1–128 caratteri
+$len = strlen($data['short_name']);
+if ($len === 0 || $len > 128) {
+    $errors['short_name'] = 'Nome breve obbligatorio e massimo 128 caratteri.';
+}
+
+// 3) Nome completo: 1–128 caratteri
+$len = strlen($data['name']);
+if ($len === 0 || $len > 128) {
+    $errors['name'] = 'Nome completo obbligatorio e massimo 128 caratteri.';
+}
+
+// 4) Produttore: 1–100 caratteri
+$len = strlen($data['manufacturer']);
+if ($len === 0 || $len > 100) {
+    $errors['manufacturer'] = 'Produttore obbligatorio e massimo 100 caratteri.';
+}
+
+// 5) Codice AIC: esattamente 10 caratteri A–Z o 0–9
+if (!preg_match('/^[A-Z0-9]{10}$/', $data['aic_code'])) {
+    $errors['aic_code'] = 'Codice AIC non valido (10 caratteri A–Z o 0–9).';
+}
+
+// 5-bis) Unicità codice AIC (eseguo solo se il formato è valido)
+if ($errors['aic_code'] === ''
+    && $productService->existsAicCode($data['aic_code'], $product_id)
+) {
+    $errors['aic_code'] = 'Questo codice AIC esiste già per un altro prodotto.';
+}
+
+// 6) Formato: tra quelli validi
+$formati_validi = [
+    'compresse','capsule','sciroppo','gocce','pomata',
+    'crema','spray','polvere','soluzione','gel',
+    'granulato','cerotto','altro'
+];
+if (!in_array($data['format'], $formati_validi, true)) {
+    $errors['format'] = 'Formato non valido.';
+}
+
+// 7) Prezzo: numerico e > 0
+if (!is_numeric($data['price']) || (float)$data['price'] <= 0) {
+    $errors['price'] = 'Prezzo obbligatorio e maggiore di 0.';
+}
+
+// 8) Disponibilità: intero ≥ 0
+if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
+    $errors['availability'] = 'Disponibilità obbligatoria e non negativa.';
+}
+
+// 9) Errore upload immagine: mostro solo se c'è un fallimento diverso da "nessun file"
+if (isset($_FILES['image_file'])
+    && $_FILES['image_file']['error'] !== UPLOAD_ERR_OK
+    && $_FILES['image_file']['error'] !== UPLOAD_ERR_NO_FILE
+) {
+    $errors['image_file'] = 'Errore durante il caricamento dell\'immagine.';
+}
+
+
+$hasErrors = false;
+foreach ($errors as $msg) {
+    if ($msg !== '') {
+        $hasErrors = true;
+        break;
+    }
+}
+
+if ($hasErrors) {
+    PageBuilder::show('modifica.php', [
+        ...$data,
+        'id'           => $product_id ?: '',
+        'form_action'          => '/modifica.php?id='.$product_id,
+        'errors'               => $errors,
+        'image_url'            => $image_path,
+        'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
+        'format_options'       => $productService->renderFormatOptions($data['format']),
+        'meta_title'           => $product_id ? 'Modifica Prodotto' : 'Inserisci Nuovo Prodotto',
+        'page_mode'            => $product_id ? 'Modifica'         : 'Inserisci',
+        'submit_label'         => $product_id ? 'Modifica'         : 'Inserisci',
+    ]);
+    exit;
+}
+
+// === SALVATAGGIO e REDIRECT ===
+if ($product_id) {
+    $productService->updateProduct($product_id, [
+        ...$data,
+        'image_path' => $image_path,
+    ]);
+    $_SESSION['flash_message'] = [
+        'type'    => 'success',
+        'message' => "Hai correttamente modificato il prodotto}",
+    ];
+} else {
+    $productService->insertProduct([
+        ...$data,
+        'image_path' => $image_path,
+    ]);
+    $_SESSION['flash_message'] = [
+        'type'    => 'success',
+        'message' => "Hai correttamente inserito un nuovo prodotto",
+    ];
+}
+
+header('Location: /prodotti.php');
 exit;

@@ -105,6 +105,8 @@ class PageBuilder
             $templateName = pathinfo(ltrim($templateName, '/\\'), PATHINFO_FILENAME);
         }
 
+
+
         echo $self->build($templateName, $parameters);
     }
 
@@ -142,6 +144,32 @@ class PageBuilder
      * @throws RuntimeException In caso di errori nel caricamento o nella navigazione.
      * @return string Markup HTML finale.
      */
+
+
+    public static function getFlashMessage(): string
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['flash_message'])) {
+            return '';
+        }
+
+        $type    = $_SESSION['flash_message']['type'];    // 'success' o 'error'
+        $message = $_SESSION['flash_message']['message'];
+
+        unset($_SESSION['flash_message']);
+
+        $tpl = self::getInstance()->loadTemplate('common/alert.html');
+        $tpl->insertAll([
+            'type'    => $type,
+            'message' => htmlspecialchars($message),
+        ]);
+        return $tpl->build();
+    }
+
+
     public function build(string $templateName, array $parameters = []): string
     {
         $uriPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
@@ -164,8 +192,13 @@ class PageBuilder
         $main->insert('content', $contentHtml);
         $main->insert('footer',  $footerHtml);
 
+        // ✅ Messaggio flash automatico
+        $main->insert('alert', self::getFlashMessage());
+
+        // Inserisci i parametri rimanenti
         $main->insertAll($parameters);
 
         return $main->build();
     }
+
 }

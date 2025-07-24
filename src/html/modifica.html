@@ -56,7 +56,7 @@
         <form id="product-form"
               class="product-form"
               method="post"
-              action=""
+              action="{{ form_action }}"
               enctype="multipart/form-data"
               novalidate
               aria-labelledby="form-title">
@@ -276,7 +276,7 @@
 
             <!-- Pulsanti -->
             <div class="form-actions">
-                <button type="submit">Salva prodotto</button>
+                <button type="submit">{{ submit_label }}</button>
                 <button type="reset">Annulla</button>
             </div>
         </form>

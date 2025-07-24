@@ -10,7 +10,10 @@ class ProductDTO
     public string $name;
     public string $manufacturer;
     public string $aicCode;
-    public string $productType;      // nome tipo prodotto (es. Medicinale)
+
+    public int $productTypeId;       // ✅ ID del tipo prodotto (es. 1)
+    public string $productType;      // nome tipo prodotto (es. "Medicinale")
+
     public string $format;           // es. 'compresse', 'crema', ecc.
     public float $price;
     public int $availability;
@@ -24,4 +27,3 @@ class ProductDTO
             : 'OUT OF STOCK';
     }
 }
-

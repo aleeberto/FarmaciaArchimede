@@ -121,18 +121,18 @@ class ProductService
     private function mapRowToDTO(array $row): ProductDTO
     {
         $dto = new ProductDTO();
-        $dto->id           = (int)$row['product_id'];
-        $dto->shortName    = (string)$row['short_name'];
-        $dto->name         = (string)$row['name'];
-        $dto->manufacturer = (string)$row['manufacturer'];
-        $dto->aicCode      = (string)$row['aic_code'];
-        // productType qui serve solo per DTO, non per il select
-        $dto->productType  = (string)$row['product_type'];
-        $dto->format       = (string)$row['format'];
-        $dto->price        = (float)$row['price'];
-        $dto->availability = (int)$row['availability'];
-        $dto->description  = (string)$row['description'];
-        $dto->imagePath    = '/assets/img/' . $row['image_path'];
+        $dto->id             = (int)$row['product_id'];
+        $dto->shortName      = (string)$row['short_name'];
+        $dto->name           = (string)$row['name'];
+        $dto->manufacturer   = (string)$row['manufacturer'];
+        $dto->aicCode        = (string)$row['aic_code'];
+        $dto->productTypeId  = (int)$row['product_type_id'];
+        $dto->productType    = (string)$row['product_type'];
+        $dto->format         = (string)$row['format'];
+        $dto->price          = (float)$row['price'];
+        $dto->availability   = (int)$row['availability'];
+        $dto->description    = (string)$row['description'];
+        $dto->imagePath      = '/assets/img/' . $row['image_path'];
         return $dto;
     }
 
@@ -310,5 +310,39 @@ class ProductService
         }
         return $stmt->affected_rows > 0;
     }
+
+    public function existsAicCode(string $aicCode, ?int $excludeId = null): bool
+    {
+        $conn = $this->db->connect();
+
+        $sql    = 'SELECT COUNT(*) AS cnt FROM products WHERE aic_code = ?';
+        $types  = 's';
+        $params = [$aicCode];
+
+        if ($excludeId !== null) {
+            $sql   .= ' AND product_id <> ?';
+            $types .= 'i';
+            $params[] = $excludeId;
+        }
+
+        $stmt = $conn->prepare($sql);
+        if (! $stmt) {
+            throw new \RuntimeException('Errore prepare in existsAicCode: ' . $conn->error);
+        }
+
+        $stmt->bind_param($types, ...$params);
+
+        $stmt->execute();
+
+        $row = $stmt->get_result()->fetch_assoc();
+        if (! $row) {
+            throw new \RuntimeException('Errore recupero risultato in existsAicCode');
+        }
+
+        // 8) Se cnt > 0 significa che esiste già
+        return ((int)$row['cnt']) > 0;
+    }
+
+
 
 }
