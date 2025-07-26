@@ -34,15 +34,18 @@
 <nav aria-label="breadcrumb" class="breadcrumb">
     Ti trovi in:
     <ol>
-        <li><a href="/index.php" lang="it">Prodotti</a></li>
+        <li><a href="/">Home</a></li>
+        <li><a href="/prodotti.php">Prodotti</a></li>
+        {{ breadcrumb_product }}
         <li aria-current="page">{{ page_mode }}</li>
     </ol>
 </nav>
 
 <main id="main-content" role="main" tabindex="-1">
-    <h1>{{ meta_title }}</h1>
+    <h1>{{ page_mode }}</h1>
 
     <div class="main-content">
+        <component>alert</component>
         <form id="product-form"
               class="product-form"
               method="post"
@@ -146,6 +149,7 @@
             <div class="form-control">
                 <label for="product-aic">
                     Codice AIC<span aria-hidden="true">*</span>
+<!--                    aggiungere abbreviazione-->
                 </label>
                 <input type="text"
                        id="product-aic"

@@ -19,6 +19,13 @@ $db             = Database::getInstance(
 );
 $productService = new ProductService($db);
 
+// Chiavi di errore
+$errorKeys = [
+    'product_type_id','short_name','name','manufacturer',
+    'aic_code','format','price','availability','image_file'
+];
+$errors = array_fill_keys($errorKeys, '');
+
 // Recupera product_id da GET o POST
 $product_id = null;
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && ctype_digit($_GET['id'])) {
@@ -50,32 +57,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'availability'    => $prod->availability,
             'description'     => $prod->description,
         ];
-        // in Phase GET il service restituisce già il path completo
-        $image_path = $prod->imagePath;
+        $previewImageUrl = $prod->imagePath;
     } else {
         $data = array_fill_keys([
             'product_type_id','short_name','name','manufacturer',
             'aic_code','format','price','availability','description'
         ], '');
-        $image_path = '';
+        $previewImageUrl = '';
     }
+
+    $breadcrumb_product = $product_id
+        ? sprintf(
+            '<li><a href="/prodotto.php?id=%s">%s</a></li>',
+            htmlspecialchars($product_id, ENT_QUOTES),
+            htmlspecialchars($data['short_name'], ENT_QUOTES)
+        )
+        : '';
 
     PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id'           => $product_id ?: '',
-        'form_action'          => '/modifica.php?id=' . $product_id,
-        'errors'               => [],
-        'image_url'            => $image_path,
+        'product_id'         => $product_id ?: '',
+        'breadcrumb_product' => $breadcrumb_product,
+        'form_action'        => '/modifica.php?id=' . $product_id,
+        'errors'             => $errors,
+        'image_url'          => $previewImageUrl,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options'       => $productService->renderFormatOptions($data['format']),
-        'meta_title'           => $product_id ? 'Modifica Prodotto' : 'Inserisci Nuovo Prodotto',
-        'page_mode'            => $product_id ? 'Modifica'         : 'Inserisci',
-        'submit_label'         => $product_id ? 'Modifica'         : 'Inserisci',
+        'meta_title'         => ($product_id ? 'Modifica' : 'Inserisci') . ' | Prodotti',
+        'page_mode'          => $product_id ? 'Modifica'   : 'Inserisci',
+        'submit_label'       => $product_id ? 'Modifica'   : 'Inserisci',
     ]);
     exit;
 }
 
-// === FASE POST: raccogli dati da form ===
+// === FASE POST: raccolta dati da form ===
 $post = $_POST;
 $data = [
     'product_type_id' => trim($post['product_type_id'] ?? ''),
@@ -89,92 +104,80 @@ $data = [
     'description'     => trim($post['description']     ?? ''),
 ];
 
-// === GESTIONE IMMAGINE UNIFICATA ===
-// fallback: estrai solo il nome file dal percorso corrente (se in modifica)
+// gestione immagine (nome casuale)
 if ($product_id) {
     $prod = $productService->getProductByID($product_id);
-    // se $prod->imagePath = '/assets/img/frobengola.webp', basename restituisce 'frobengola.webp'
-    $image_path = $prod?->imagePath ? basename($prod->imagePath) : '';
+    $image_path = $prod->imagePath ? basename($prod->imagePath) : '';
 } else {
     $image_path = '';
 }
 
 if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
-    $tmp  = $_FILES['image_file']['tmp_name'];
-    $name = basename($_FILES['image_file']['name']);
-    $target = __DIR__ . '/../public/assets/img/' . $name;
+    $tmp          = $_FILES['image_file']['tmp_name'];
+    $originalName = $_FILES['image_file']['name'];
+    // Estrai estensione (senza il punto)
+    $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+    // Genera un nome casuale di 32 caratteri esadecimali
+    try {
+        $randomName = bin2hex(random_bytes(16)) . '.' . $ext;
+    } catch (Exception $e) {
+        // Fallback a uniqid() se random_bytes non disponibile
+        $randomName = uniqid('img_', true) . '.' . $ext;
+    }
+    $target = __DIR__ . '/../public/assets/img/' . $randomName;
 
     if (move_uploaded_file($tmp, $target)) {
-        // salvo SEMPRE solo il nome del file
-        $image_path = $name;
+        $image_path = $randomName;
     } else {
         $errors['image_file'] = 'Errore durante lo spostamento dell\'immagine.';
     }
 }
 
-// === VALIDAZIONE DATI ===
-$errorKeys = [
-    'product_type_id','short_name','name','manufacturer',
-    'aic_code','format','price','availability','image_file'
-];
-$errors = array_fill_keys($errorKeys, '');
+$previewImageUrl = $image_path ? '/assets/img/' . $image_path : '';
 
+// === VALIDAZIONE DATI ===
 // 1) Tipo prodotto
 if ($data['product_type_id'] === '' || !ctype_digit($data['product_type_id'])) {
-    $errors['product_type_id'] = 'Tipo prodotto obbligatorio.';
+    $errors['product_type_id'] = 'Seleziona il tipo di prodotto.';
 }
-
 // 2) Nome breve
 $len = strlen($data['short_name']);
 if ($len === 0 || $len > 128) {
-    $errors['short_name'] = 'Nome breve obbligatorio e massimo 128 caratteri.';
+    $errors['short_name'] = 'Inserisci un nome breve, composto al massimo da 128 caratteri.';
 }
-
 // 3) Nome completo
 $len = strlen($data['name']);
 if ($len === 0 || $len > 128) {
-    $errors['name'] = 'Nome completo obbligatorio e massimo 128 caratteri.';
+    $errors['name'] = 'Inserisci il nome completo del prodotto, composto al massimo da 128 caratteri.';
 }
-
 // 4) Produttore
 $len = strlen($data['manufacturer']);
 if ($len === 0 || $len > 100) {
-    $errors['manufacturer'] = 'Produttore obbligatorio e massimo 100 caratteri.';
+    $errors['manufacturer'] = 'Inserisci il nome completo del produttore, composto al massimo da 100 caratteri.';
 }
-
-// 5) Codice AIC (9 cifre)
+// 5) Codice AIC
 if (!preg_match('/^[0-9]{9}$/', $data['aic_code'])) {
-    $errors['aic_code'] = 'Codice AIC non valido (9 cifre numeriche).';
+    $errors['aic_code'] = 'Inserisci un codice AIC valido, composto esattamente da 9 cifre numeriche.';
 }
-
 // 5-bis) Unicità AIC
-if ($errors['aic_code'] === ''
-    && $productService->existsAicCode($data['aic_code'], $product_id)
-) {
-    $errors['aic_code'] = 'Questo codice AIC esiste già per un altro prodotto.';
+if ($errors['aic_code'] === '' && $productService->existsAicCode($data['aic_code'], $product_id)) {
+    $errors['aic_code'] = 'Il codice AIC inserito è già presente in un altro prodotto.';
 }
-
 // 6) Formato
-$formati_validi = [
-    'compresse','capsule','sciroppo','gocce','pomata',
-    'crema','spray','polvere','soluzione','gel',
-    'granulato','cerotto','altro'
-];
+$formati_validi = ['compresse','capsule','sciroppo','gocce','pomata','crema','spray','polvere','soluzione','gel','granulato','cerotto','altro'];
 if (!in_array($data['format'], $formati_validi, true)) {
-    $errors['format'] = 'Formato non valido.';
+    $errors['format'] = 'Seleziona il formato del prodotto.';
 }
-
 // 7) Prezzo
 if (!is_numeric($data['price']) || (float)$data['price'] <= 0) {
-    $errors['price'] = 'Prezzo obbligatorio e maggiore di 0.';
+    $errors['price'] = 'Inserisci il prezzo del prodotto, indicando un valore numerico maggiore di zero.';
 }
-
 // 8) Disponibilità
 if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
-    $errors['availability'] = 'Disponibilità obbligatoria e non negativa.';
+    $errors['availability'] = 'Inserisci la quantità disponibile del prodotto, indicando un numero intero uguale o superiore a zero.';
 }
 
-// Controllo errori
+// verifica errori
 $hasErrors = false;
 foreach ($errors as $msg) {
     if ($msg !== '') {
@@ -184,17 +187,30 @@ foreach ($errors as $msg) {
 }
 
 if ($hasErrors) {
+    $breadcrumb_product = $product_id
+        ? sprintf(
+            '<li><a href="/prodotto.php?id=%s">%s</a></li>',
+            htmlspecialchars($product_id, ENT_QUOTES),
+            htmlspecialchars($data['short_name'], ENT_QUOTES)
+        )
+        : '';
+
+    $_SESSION['flash_message'] = [
+        'type'    => 'error',
+        'message' => 'Alcuni dati inseriti non sono corretti. Verifica i campi evidenziati e invia nuovamente il modulo.',
+    ];
     PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id'           => $product_id ?: '',
-        'form_action'          => '/modifica.php?id=' . $product_id,
-        'errors'               => $errors,
-        'image_url'            => $image_path,
+        'product_id'         => $product_id ?: '',
+        'breadcrumb_product' => $breadcrumb_product,
+        'form_action'        => '/modifica.php?id=' . $product_id,
+        'errors'             => $errors,
+        'image_url'          => $previewImageUrl,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options'       => $productService->renderFormatOptions($data['format']),
-        'meta_title'           => $product_id ? 'Modifica Prodotto' : 'Inserisci Nuovo Prodotto',
-        'page_mode'            => $product_id ? 'Modifica'         : 'Inserisci',
-        'submit_label'         => $product_id ? 'Modifica'         : 'Inserisci',
+        'meta_title'         => ($product_id ? 'Modifica' : 'Inserisci') . ' | Prodotti',
+        'page_mode'          => $product_id ? 'Modifica'   : 'Inserisci',
+        'submit_label'       => $product_id ? 'Modifica'   : 'Inserisci',
     ]);
     exit;
 }
@@ -207,7 +223,7 @@ if ($product_id) {
     ]);
     $_SESSION['flash_message'] = [
         'type'    => 'success',
-        'message' => "Hai correttamente modificato il prodotto",
+        'message' => 'Il prodotto è stato aggiornato correttamente.',
     ];
 } else {
     $productService->insertProduct([
@@ -216,9 +232,11 @@ if ($product_id) {
     ]);
     $_SESSION['flash_message'] = [
         'type'    => 'success',
-        'message' => "Hai correttamente inserito un nuovo prodotto",
+        'message' => 'Il nuovo prodotto è stato inserito correttamente.',
     ];
+    header('Location: /prodotti.php');
+    exit;
 }
 
-header('Location: /prodotti.php');
+header('Location: /modifica.php?id=' . $product_id);
 exit;
