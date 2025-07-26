@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'availability'    => $prod->availability,
             'description'     => $prod->description,
         ];
+        // in Phase GET il service restituisce già il path completo
         $image_path = $prod->imagePath;
     } else {
         $data = array_fill_keys([
@@ -62,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     PageBuilder::show('modifica.php', [
         ...$data,
         'product_id'           => $product_id ?: '',
-        'form_action'          => '/modifica.php?id='.$product_id,
+        'form_action'          => '/modifica.php?id=' . $product_id,
         'errors'               => [],
         'image_url'            => $image_path,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
@@ -88,18 +89,27 @@ $data = [
     'description'     => trim($post['description']     ?? ''),
 ];
 
-// Gestione immagine preliminare
-$image_path = '';
+// === GESTIONE IMMAGINE UNIFICATA ===
+// fallback: estrai solo il nome file dal percorso corrente (se in modifica)
+if ($product_id) {
+    $prod = $productService->getProductByID($product_id);
+    // se $prod->imagePath = '/assets/img/frobengola.webp', basename restituisce 'frobengola.webp'
+    $image_path = $prod?->imagePath ? basename($prod->imagePath) : '';
+} else {
+    $image_path = '';
+}
+
 if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
-    $tmp    = $_FILES['image_file']['tmp_name'];
-    $name   = basename($_FILES['image_file']['name']);
-    $target = __DIR__ . '/../images/' . $name;
+    $tmp  = $_FILES['image_file']['tmp_name'];
+    $name = basename($_FILES['image_file']['name']);
+    $target = __DIR__ . '/../public/assets/img/' . $name;
+
     if (move_uploaded_file($tmp, $target)) {
-        $image_path = '/images/' . $name;
+        // salvo SEMPRE solo il nome del file
+        $image_path = $name;
+    } else {
+        $errors['image_file'] = 'Errore durante lo spostamento dell\'immagine.';
     }
-} elseif ($product_id) {
-    $prod       = $productService->getProductByID($product_id);
-    $image_path = $prod?->imagePath ?: '';
 }
 
 // === VALIDAZIONE DATI ===
@@ -109,42 +119,42 @@ $errorKeys = [
 ];
 $errors = array_fill_keys($errorKeys, '');
 
-// 1) Tipo prodotto: obbligatorio e numerico
+// 1) Tipo prodotto
 if ($data['product_type_id'] === '' || !ctype_digit($data['product_type_id'])) {
     $errors['product_type_id'] = 'Tipo prodotto obbligatorio.';
 }
 
-// 2) Nome breve: 1–128 caratteri
+// 2) Nome breve
 $len = strlen($data['short_name']);
 if ($len === 0 || $len > 128) {
     $errors['short_name'] = 'Nome breve obbligatorio e massimo 128 caratteri.';
 }
 
-// 3) Nome completo: 1–128 caratteri
+// 3) Nome completo
 $len = strlen($data['name']);
 if ($len === 0 || $len > 128) {
     $errors['name'] = 'Nome completo obbligatorio e massimo 128 caratteri.';
 }
 
-// 4) Produttore: 1–100 caratteri
+// 4) Produttore
 $len = strlen($data['manufacturer']);
 if ($len === 0 || $len > 100) {
     $errors['manufacturer'] = 'Produttore obbligatorio e massimo 100 caratteri.';
 }
 
-// 5) Codice AIC: esattamente 10 caratteri A–Z o 0–9
-if (!preg_match('/^[A-Z0-9]{10}$/', $data['aic_code'])) {
-    $errors['aic_code'] = 'Codice AIC non valido (10 caratteri A–Z o 0–9).';
+// 5) Codice AIC (9 cifre)
+if (!preg_match('/^[0-9]{9}$/', $data['aic_code'])) {
+    $errors['aic_code'] = 'Codice AIC non valido (9 cifre numeriche).';
 }
 
-// 5-bis) Unicità codice AIC (eseguo solo se il formato è valido)
+// 5-bis) Unicità AIC
 if ($errors['aic_code'] === ''
     && $productService->existsAicCode($data['aic_code'], $product_id)
 ) {
     $errors['aic_code'] = 'Questo codice AIC esiste già per un altro prodotto.';
 }
 
-// 6) Formato: tra quelli validi
+// 6) Formato
 $formati_validi = [
     'compresse','capsule','sciroppo','gocce','pomata',
     'crema','spray','polvere','soluzione','gel',
@@ -154,25 +164,17 @@ if (!in_array($data['format'], $formati_validi, true)) {
     $errors['format'] = 'Formato non valido.';
 }
 
-// 7) Prezzo: numerico e > 0
+// 7) Prezzo
 if (!is_numeric($data['price']) || (float)$data['price'] <= 0) {
     $errors['price'] = 'Prezzo obbligatorio e maggiore di 0.';
 }
 
-// 8) Disponibilità: intero ≥ 0
+// 8) Disponibilità
 if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
     $errors['availability'] = 'Disponibilità obbligatoria e non negativa.';
 }
 
-// 9) Errore upload immagine: mostro solo se c'è un fallimento diverso da "nessun file"
-if (isset($_FILES['image_file'])
-    && $_FILES['image_file']['error'] !== UPLOAD_ERR_OK
-    && $_FILES['image_file']['error'] !== UPLOAD_ERR_NO_FILE
-) {
-    $errors['image_file'] = 'Errore durante il caricamento dell\'immagine.';
-}
-
-
+// Controllo errori
 $hasErrors = false;
 foreach ($errors as $msg) {
     if ($msg !== '') {
@@ -184,8 +186,8 @@ foreach ($errors as $msg) {
 if ($hasErrors) {
     PageBuilder::show('modifica.php', [
         ...$data,
-        'id'           => $product_id ?: '',
-        'form_action'          => '/modifica.php?id='.$product_id,
+        'product_id'           => $product_id ?: '',
+        'form_action'          => '/modifica.php?id=' . $product_id,
         'errors'               => $errors,
         'image_url'            => $image_path,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
@@ -205,7 +207,7 @@ if ($product_id) {
     ]);
     $_SESSION['flash_message'] = [
         'type'    => 'success',
-        'message' => "Hai correttamente modificato il prodotto}",
+        'message' => "Hai correttamente modificato il prodotto",
     ];
 } else {
     $productService->insertProduct([

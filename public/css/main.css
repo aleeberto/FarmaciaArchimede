@@ -394,15 +394,13 @@ footer #sum {
     border: 0;
 }
 
-/* default: nascosto */
+/* Messaggi di errore: nascosti di default, visibili solo se contengono testo */
 .error-msg {
     display: none;
     color: red;
     font-size: 0.9em;
     margin-top: 0.25em;
 }
-
-/* se non è vuoto (cioè c'è testo), mostralo */
 .error-msg:not(:empty) {
-    display: block; /* o inline-block, come ti serve */
+    display: block;
 }
