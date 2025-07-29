@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Core;
+
 use App\Service\AuthService;
 use App\View\FooterBuilder;
 use App\View\HeadBuilder;
@@ -45,7 +46,8 @@ class PageBuilder
             session_start();
         }
 
-        $db    = Database::getInstance(
+        // Inizializza il servizio di autenticazione
+        $db = Database::getInstance(
             getenv('MARIADB_HOST') ?: 'mariadb',
             getenv('MARIADB_USER') ?: 'admin',
             getenv('MARIADB_PASSWORD') ?: 'admin',
@@ -53,6 +55,7 @@ class PageBuilder
         );
         $this->auth = new AuthService($db);
 
+        // Configura il percorso ai template
         $configuredPath = realpath(__DIR__ . '/../html');
         if ($configuredPath === false) {
             throw new RuntimeException('Directory template non trovata');
@@ -74,6 +77,16 @@ class PageBuilder
     }
 
     /**
+     * Espone il servizio di autenticazione per l'HeaderBuilder.
+     *
+     * @return AuthService
+     */
+    public function getAuthService(): AuthService
+    {
+        return $this->auth;
+    }
+
+    /**
      * Determina il template da usare, unisce i parametri e stampa la pagina.
      *
      * @param string|null $templateName Nome del template (senza estensione), dedotto dal file PHP se null.
@@ -82,16 +95,16 @@ class PageBuilder
      */
     public static function show(
         ?string $templateName = null,
-        array   $parameters   = []
+        array $parameters = []
     ): void {
         $self = self::getInstance();
 
-        // Deduce il nome del template dal file chiamante se non fornito
         if ($templateName === null) {
             $templateName = pathinfo($_SERVER['SCRIPT_FILENAME'], PATHINFO_FILENAME);
         } else {
             $templateName = pathinfo(ltrim($templateName, '/\\'), PATHINFO_FILENAME);
         }
+
 
 
         echo $self->build($templateName, $parameters);
@@ -129,17 +142,47 @@ class PageBuilder
      * @param string $templateName Nome del template (senza estensione).
      * @param array  $parameters   Parametri da sostituire all'interno del template.
      * @throws RuntimeException In caso di errori nel caricamento o nella navigazione.
-     * @return string             Markup HTML finale.
+     * @return string Markup HTML finale.
      */
-    public function build(
-        string $templateName,
-        array  $parameters   = []
-    ): string {
+
+
+    public static function getFlashMessage(): string
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['flash_message'])) {
+            return '';
+        }
+
+        $type    = $_SESSION['flash_message']['type'];    // 'success' o 'error'
+        $message = $_SESSION['flash_message']['message'];
+
+        unset($_SESSION['flash_message']);
+
+        $tpl = self::getInstance()->loadTemplate('common/alert.html');
+        $tpl->insertAll([
+            'type'    => $type,
+            'message' => htmlspecialchars($message),
+        ]);
+        return $tpl->build();
+    }
+
+
+    public function build(string $templateName, array $parameters = []): string
+    {
         $uriPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
         $uriPath = $uriPath === '/index.php' ? '/' : $uriPath;
 
+        $meta = [
+            'meta_title'       => $parameters['meta_title']       ?? '',
+            'meta_description' => $parameters['meta_description'] ?? '',
+            'meta_keywords'    => $parameters['meta_keywords']    ?? '',
+        ];
+
         $main        = $this->loadTemplate("{$templateName}.html");
-        $headHtml    = (new HeadBuilder($this))->build();
+        $headHtml    = (new HeadBuilder($this))->build($meta);
         $headerHtml  = (new HeaderBuilder($this, $uriPath))->build();
         $contentHtml = $main->build();
         $footerHtml  = (new FooterBuilder($this))->build();
@@ -149,8 +192,13 @@ class PageBuilder
         $main->insert('content', $contentHtml);
         $main->insert('footer',  $footerHtml);
 
+        // ✅ Messaggio flash automatico
+        $main->insert('alert', self::getFlashMessage());
+
+        // Inserisci i parametri rimanenti
         $main->insertAll($parameters);
 
         return $main->build();
     }
+
 }

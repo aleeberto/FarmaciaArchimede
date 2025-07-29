@@ -395,13 +395,16 @@ footer #sum {
 }
 
 
-
-
-
-
-
-/*TODO TODO TODO*/
-
+/* Messaggi di errore: nascosti di default, visibili solo se contengono testo */
+.error-msg {
+    display: none;
+    color: red;
+    font-size: 0.9em;
+    margin-top: 0.25em;
+}
+.error-msg:not(:empty) {
+    display: block;
+}
 
 /* Bottoni di azione nella tabella */
 table button {

@@ -47,6 +47,9 @@ $params = [
     'availability' => $product->getAvailability(),
     'price'        => number_format($product->price, 2, ',', '.') . '€',
     'image'        => "<img src=\"{$src}\" alt=\"{$alt}\">",
+    'meta_title'       => $product->shortName . ' | Prodotti',
+    'meta_description' => 'Descrizione specifica per questa pagina',
+    'meta_keywords'    => 'parola1, parola2, parola3'
 ];
 
 PageBuilder::show($_SERVER['SCRIPT_NAME'], $params);

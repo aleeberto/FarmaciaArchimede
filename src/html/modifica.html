@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <component>head</component>
+    <style>
+        /* Stili per accessibilità */
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+        .skip-link {
+            position: absolute;
+            top: -40px; left: 0;
+            background: #000; color: #fff;
+            padding: 8px;
+            z-index: 100;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+
+    </style>
+</head>
+<body class="no-print">
+<a href="#main-content" class="skip-link">Salta al contenuto principale</a>
+<header role="banner">
+    <component>header</component>
+</header>
+
+<nav aria-label="breadcrumb" class="breadcrumb">
+    Ti trovi in:
+    <ol>
+        <li><a href="/">Home</a></li>
+        <li><a href="/prodotti.php">Prodotti</a></li>
+        {{ breadcrumb_product }}
+        <li aria-current="page">{{ page_mode }}</li>
+    </ol>
+</nav>
+
+<main id="main-content" role="main" tabindex="-1">
+    <h1>{{ page_mode }}</h1>
+
+    <div class="main-content">
+        <component>alert</component>
+        <form id="product-form"
+              class="product-form"
+              method="post"
+              action="{{ form_action }}"
+              enctype="multipart/form-data"
+              novalidate
+              aria-labelledby="form-title">
+
+            <h2 id="form-title" class="sr-only">Compila i dati del prodotto</h2>
+
+            <!-- ID nascosto -->
+            <input type="hidden"
+                   id="product_id"
+                   name="product_id"
+                   value="{{ product_id }}">
+
+            <!-- Tipo prodotto -->
+            <div class="form-control">
+                <label for="product-type" class="form-label">
+                    Tipo prodotto<span aria-hidden="true">*</span>
+                </label>
+                <select id="product-type"
+                        name="product_type_id"
+                        required
+                        aria-required="true"
+                        aria-describedby="error-product-type">
+                    {{ product_type_options }}
+                </select>
+                <p id="error-product-type"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.product_type_id }}
+                </p>
+            </div>
+
+            <!-- Nome breve -->
+            <div class="form-control">
+                <label for="product-short-name">
+                    Nome breve<span aria-hidden="true">*</span>
+                </label>
+                <input type="text"
+                       id="product-short-name"
+                       name="short_name"
+                       required
+                       aria-required="true"
+                       maxlength="128"
+                       aria-describedby="error-short-name"
+                       value="{{ short_name }}">
+                <p id="error-short-name"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.short_name }}
+                </p>
+            </div>
+
+            <!-- Nome completo -->
+            <div class="form-control">
+                <label for="product-name">
+                    Nome completo<span aria-hidden="true">*</span>
+                </label>
+                <input type="text"
+                       id="product-name"
+                       name="name"
+                       required
+                       aria-required="true"
+                       maxlength="128"
+                       aria-describedby="error-name"
+                       value="{{ name }}">
+                <p id="error-name"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.name }}
+                </p>
+            </div>
+
+            <!-- Produttore -->
+            <div class="form-control">
+                <label for="product-manufacturer">
+                    Produttore<span aria-hidden="true">*</span>
+                </label>
+                <input type="text"
+                       id="product-manufacturer"
+                       name="manufacturer"
+                       required
+                       aria-required="true"
+                       maxlength="100"
+                       aria-describedby="error-manufacturer"
+                       value="{{ manufacturer }}">
+                <p id="error-manufacturer"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.manufacturer }}
+                </p>
+            </div>
+
+            <!-- Codice AIC -->
+            <div class="form-control">
+                <label for="product-aic">
+                    Codice AIC<span aria-hidden="true">*</span>
+<!--                    aggiungere abbreviazione-->
+                </label>
+                <input type="text"
+                       id="product-aic"
+                       name="aic_code"
+                       required
+                       aria-required="true"
+                       maxlength="10"
+                       pattern="[A-Z0-9]{10}"
+                       aria-describedby="error-aic-code"
+                       value="{{ aic_code }}">
+                <p id="error-aic-code"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.aic_code }}
+                </p>
+            </div>
+
+            <!-- Formato -->
+            <div class="form-control">
+                <label for="product-format">
+                    Formato<span aria-hidden="true">*</span>
+                </label>
+                <select id="product-format"
+                        name="format"
+                        required
+                        aria-required="true"
+                        aria-describedby="error-format">
+                    {{ format_options }}
+                </select>
+                <p id="error-format"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.format }}
+                </p>
+            </div>
+
+            <!-- Prezzo -->
+            <div class="form-control">
+                <label for="product-price">
+                    Prezzo (€)<span aria-hidden="true">*</span>
+                </label>
+                <input type="number"
+                       id="product-price"
+                       name="price"
+                       step="0.01"
+                       min="0.01"
+                       required
+                       aria-required="true"
+                       aria-describedby="error-price"
+                       value="{{ price }}">
+                <p id="error-price"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.price }}
+                </p>
+            </div>
+
+            <!-- Disponibilità -->
+            <div class="form-control">
+                <label for="product-availability">
+                    Disponibilità<span aria-hidden="true">*</span>
+                </label>
+                <input type="number"
+                       id="product-availability"
+                       name="availability"
+                       min="0"
+                       required
+                       aria-required="true"
+                       aria-describedby="error-availability"
+                       value="{{ availability }}">
+                <p id="error-availability"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.availability }}
+                </p>
+            </div>
+
+            <!-- Descrizione -->
+            <div class="form-control">
+                <label for="product-description">
+                    Descrizione
+                </label>
+                <textarea id="product-description"
+                          name="description"
+                          rows="4"
+                          aria-describedby="help-description">{{ description }}</textarea>
+            </div>
+
+            <!-- Anteprima immagine -->
+            <div class="form-control">
+                <label>Anteprima immagine</label>
+                <img src="{{ image_url }}"
+                     alt="Anteprima prodotto">
+            </div>
+
+            <!-- Caricamento immagine -->
+            <div class="form-control">
+                <label for="product-image">
+                    Carica immagine
+                </label>
+                <input type="file"
+                       id="product-image"
+                       name="image_file"
+                       accept="image/*"
+                       aria-describedby="error-image-file">
+                <p id="error-image-file"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.image_file }}
+                </p>
+            </div>
+
+            <!-- Pulsanti -->
+            <div class="form-actions">
+                <button type="submit">{{ submit_label }}</button>
+                <button type="reset">Annulla</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<component>footer</component>
+<script src="/js/validate_fields.js"></script>
+</body>
+</html>

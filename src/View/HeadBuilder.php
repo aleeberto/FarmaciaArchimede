@@ -3,33 +3,34 @@
 namespace App\View;
 
 use App\Core\PageBuilder;
+use RuntimeException;
 
-/**
- * Costruisce la sezione head del documento.
- */
 class HeadBuilder
 {
     private PageBuilder $builder;
 
-    /**
-     * HeadBuilder constructor.
-     *
-     * @param PageBuilder $builder Istanza di PageBuilder per il rendering del template.
-     */
     public function __construct(PageBuilder $builder)
     {
         $this->builder = $builder;
     }
 
     /**
-     * Genera l'HTML della sezione head a partire dal template 'head.html'.
-     *
-     * @return string HTML della sezione head.
+     * @param array $meta Associativo con chiavi 'meta_title', 'meta_description', 'meta_keywords'
+     * @return string
      */
-    public function build(): string
+    public function build(array $meta = []): string
     {
         $tpl = $this->builder->loadTemplate('common/head.html');
+
+        // Imposta valori di default se non passati
+        $defaults = [
+            'meta_title'       => 'Farmacia Archimede',
+            'meta_description' => 'Il meglio per la tua salute.',
+            'meta_keywords'    => 'farmacia, salute, benessere'
+        ];
+        $data = array_merge($defaults, array_intersect_key($meta, $defaults));
+
+        $tpl->insertAll($data);
         return $tpl->build();
     }
 }
-
