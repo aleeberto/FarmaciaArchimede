@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Service\AuthService;
+use App\Core\Model\UserDTO;
 
 /**
  * Facade per la gestione della sessione e dell'autenticazione.

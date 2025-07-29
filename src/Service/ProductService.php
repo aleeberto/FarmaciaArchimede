@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service;
@@ -211,7 +212,6 @@ class ProductService
         return $html;
     }
 
-
     /**
      * Inserisce un nuovo prodotto nel database.
      * Restituisce l'ID appena creato.
@@ -241,7 +241,6 @@ class ProductService
             throw new RuntimeException('Errore preparazione: ' . $conn->error);
         }
 
-        // Imposta l'image_path se non presente (può essere null)
         $imagePath = $data['image_path'] ?? null;
 
         $stmt->bind_param(
@@ -339,10 +338,6 @@ class ProductService
             throw new \RuntimeException('Errore recupero risultato in existsAicCode');
         }
 
-        // 8) Se cnt > 0 significa che esiste già
         return ((int)$row['cnt']) > 0;
     }
-
-
-
 }

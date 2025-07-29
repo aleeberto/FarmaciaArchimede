@@ -23,6 +23,15 @@
             top: 0;
         }
 
+        .error-msg {
+            display: none;
+            color: red;
+            margin-top: 4px;
+            font-size: 0.9em;
+        }
+        .error-msg.visible {
+            display: block;
+        }
     </style>
 </head>
 <body class="no-print">
@@ -149,7 +158,6 @@
             <div class="form-control">
                 <label for="product-aic">
                     Codice AIC<span aria-hidden="true">*</span>
-<!--                    aggiungere abbreviazione-->
                 </label>
                 <input type="text"
                        id="product-aic"
@@ -246,8 +254,9 @@
             <div class="form-control">
                 <label>Anteprima immagine</label>
                 <img src="{{ image_url }}"
-                     alt="Anteprima prodotto">
-            </div>
+                     alt="Anteprima prodotto"
+                     style="max-width:150px">\
+n            </div>
 
             <!-- Caricamento immagine -->
             <div class="form-control">

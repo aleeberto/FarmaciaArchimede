@@ -11,7 +11,7 @@ Auth::requireLogin();
 Auth::requireAdmin();
 
 // Connessione al DB
-$db             = Database::getInstance(
+$db = Database::getInstance(
     getenv('MARIADB_HOST')     ?: 'mariadb',
     getenv('MARIADB_USER')     ?: 'admin',
     getenv('MARIADB_PASSWORD') ?: 'admin',
@@ -115,13 +115,10 @@ if ($product_id) {
 if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
     $tmp          = $_FILES['image_file']['tmp_name'];
     $originalName = $_FILES['image_file']['name'];
-    // Estrai estensione (senza il punto)
     $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-    // Genera un nome casuale di 32 caratteri esadecimali
     try {
         $randomName = bin2hex(random_bytes(16)) . '.' . $ext;
     } catch (Exception $e) {
-        // Fallback a uniqid() se random_bytes non disponibile
         $randomName = uniqid('img_', true) . '.' . $ext;
     }
     $target = __DIR__ . '/../public/assets/img/' . $randomName;
@@ -136,48 +133,38 @@ if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ER
 $previewImageUrl = $image_path ? '/assets/img/' . $image_path : '';
 
 // === VALIDAZIONE DATI ===
-// 1) Tipo prodotto
 if ($data['product_type_id'] === '' || !ctype_digit($data['product_type_id'])) {
     $errors['product_type_id'] = 'Seleziona il tipo di prodotto.';
 }
-// 2) Nome breve
 $len = strlen($data['short_name']);
 if ($len === 0 || $len > 128) {
     $errors['short_name'] = 'Inserisci un nome breve, composto al massimo da 128 caratteri.';
 }
-// 3) Nome completo
 $len = strlen($data['name']);
 if ($len === 0 || $len > 128) {
     $errors['name'] = 'Inserisci il nome completo del prodotto, composto al massimo da 128 caratteri.';
 }
-// 4) Produttore
 $len = strlen($data['manufacturer']);
 if ($len === 0 || $len > 100) {
     $errors['manufacturer'] = 'Inserisci il nome completo del produttore, composto al massimo da 100 caratteri.';
 }
-// 5) Codice AIC
 if (!preg_match('/^[0-9]{9}$/', $data['aic_code'])) {
     $errors['aic_code'] = 'Inserisci un codice AIC valido, composto esattamente da 9 cifre numeriche.';
 }
-// 5-bis) Unicità AIC
 if ($errors['aic_code'] === '' && $productService->existsAicCode($data['aic_code'], $product_id)) {
     $errors['aic_code'] = 'Il codice AIC inserito è già presente in un altro prodotto.';
 }
-// 6) Formato
 $formati_validi = ['compresse','capsule','sciroppo','gocce','pomata','crema','spray','polvere','soluzione','gel','granulato','cerotto','altro'];
 if (!in_array($data['format'], $formati_validi, true)) {
     $errors['format'] = 'Seleziona il formato del prodotto.';
 }
-// 7) Prezzo
 if (!is_numeric($data['price']) || (float)$data['price'] <= 0) {
     $errors['price'] = 'Inserisci il prezzo del prodotto, indicando un valore numerico maggiore di zero.';
 }
-// 8) Disponibilità
 if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
     $errors['availability'] = 'Inserisci la quantità disponibile del prodotto, indicando un numero intero uguale o superiore a zero.';
 }
 
-// verifica errori
 $hasErrors = false;
 foreach ($errors as $msg) {
     if ($msg !== '') {
