@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Core\Database;
 use App\Core\Template;
+use App\Core\Model\UserDTO;
+use App\Service\AuthService;
 use RuntimeException;
 
 class AreaPersonaleService
@@ -19,37 +21,51 @@ class AreaPersonaleService
 
     public function getAreaPersonaleData(): array
     {
-        $user = $this->auth->getUser();
-        if (!$user) {
+        $userDTO = $this->auth->getUser();
+        if (!$userDTO instanceof UserDTO) {
             throw new RuntimeException("Utente non autenticato.");
         }
 
-        if ($user['is_admin']) {
-            return $this->getAdminData();
-        } else {
-            return $this->getUserData($user['user_id']);
+        if ($userDTO->isAdmin()) {
+            return $this->getAdminData($userDTO);
         }
+
+        return $this->getUserData($userDTO);
     }
 
-    private function getAdminData(): array
+    private function getAdminData(UserDTO $userDTO): array
     {
         return [
-            'user' => $this->auth->getUser(),
-            'user_section_display' => 'none',
+            'user' => [
+                'user_id'    => $userDTO->getId(),
+                'email'      => $userDTO->getEmail(),
+                'first_name' => $userDTO->getFirstName(),
+                'last_name'  => $userDTO->getLastName(),
+                'tax_code'   => $userDTO->getTaxCode(),
+                'is_admin'   => true,
+            ],
+            'user_section_display'  => 'none',
             'admin_section_display' => 'block',
-            'all_orders' => $this->renderOrdersComponent(),
+            'all_orders'   => $this->renderOrdersComponent(),
             'all_products' => $this->renderProductsComponent(),
-            'all_users' => $this->renderUsersComponent(),
+            'all_users'    => $this->renderUsersComponent(),
         ];
     }
 
-    private function getUserData(int $userId): array
+    private function getUserData(UserDTO $userDTO): array
     {
         return [
-            'user' => $this->auth->getUser(),
-            'user_section_display' => 'block',
+            'user' => [
+                'user_id'    => $userDTO->getId(),
+                'email'      => $userDTO->getEmail(),
+                'first_name' => $userDTO->getFirstName(),
+                'last_name'  => $userDTO->getLastName(),
+                'tax_code'   => $userDTO->getTaxCode(),
+                'is_admin'   => false,
+            ],
+            'user_section_display'  => 'block',
             'admin_section_display' => 'none',
-            'user_orders' => $this->renderUserOrdersComponent($userId),
+            'user_orders' => $this->renderUserOrdersComponent($userDTO->getId()),
         ];
     }
 
