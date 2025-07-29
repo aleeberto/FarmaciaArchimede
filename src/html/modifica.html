@@ -158,9 +158,9 @@
                        aria-required="true"
                        maxlength="10"
                        pattern="[A-Z0-9]{10}"
-                       aria-describedby="error-aic"
+                       aria-describedby="error-aic-code"
                        value="{{ aic_code }}">
-                <p id="error-aic"
+                <p id="error-aic-code"
                    class="error-msg"
                    role="alert"
                    aria-live="assertive">
@@ -277,6 +277,6 @@
 </main>
 
 <component>footer</component>
-
+<script src="/js/validate_fields.js"></script>
 </body>
 </html>
