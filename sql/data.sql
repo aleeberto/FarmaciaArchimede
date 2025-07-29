@@ -5,7 +5,7 @@ INSERT INTO product_types (name, description) VALUES
     ('Integratore', 'Integratori alimentari e vitamine');
 
 -- admin psw: admin
--- user psw: utente
+-- user psw: user
 INSERT INTO users (email, password_hash, first_name, last_name, tax_code, is_admin) VALUES
     ('utente@utente.it', '$2y$10$TJlHK4WwImhBPZJOxLNL9OpKBprVfhgkWQIgFk7.JIodi3O.P2AYO', 'utente', 'utente', 'utenteutente', 0),
     ('admin@admin.it', '$2y$10$wXGiAL4FkgpSeUeMWc9pzeRlW/5API01q4YPGPCjSKVrbQLtSJhEK', 'admin', 'admin', 'adminadmin', 1);
