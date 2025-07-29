@@ -432,7 +432,6 @@ body #product-details > p {
 #product-price {
     font-size: 1.6em;
     font-weight: bold;
-    margin-left: 10px;
 }
 
 #qty-input, #add-to-cart {
