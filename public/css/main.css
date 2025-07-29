@@ -394,6 +394,7 @@ footer #sum {
     border: 0;
 }
 
+
 /* Messaggi di errore: nascosti di default, visibili solo se contengono testo */
 .error-msg {
     display: none;
@@ -403,4 +404,52 @@ footer #sum {
 }
 .error-msg:not(:empty) {
     display: block;
+}
+
+/* Bottoni di azione nella tabella */
+table button {
+  padding: 6px 10px;
+  margin: 0 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+/* Bottone Modifica */
+.btn-edit {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #0056b3;
+}
+
+/* Bottone Elimina */
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #a71d2a;
+}
+
+/* Tabella stile generale */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f5f5f5;
 }

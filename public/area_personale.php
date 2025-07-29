@@ -6,9 +6,11 @@ use App\Core\Database;
 use App\Core\PageBuilder;
 use App\Service\AuthService;
 use App\Core\Auth;
+use App\Service\AreaPersonaleService;
 
 Auth::requireLogin();
 
+// 1. Inizializza DB e AuthenticationService
 $db  = Database::getInstance(
     getenv('MARIADB_HOST') ?: 'mariadb',
     getenv('MARIADB_USER') ?: 'admin',
@@ -17,11 +19,9 @@ $db  = Database::getInstance(
 );
 $auth = new AuthService($db);
 
-$user = Auth::user();
+// 3. Recupera dati aggiuntivi dell’area personale
+$areaService = new AreaPersonaleService($auth, $db);
+$data        = $areaService->getAreaPersonaleData();
 
-PageBuilder::show('area_personale', [
-    'user' => $user,
-    'meta_title'       => 'Area Personale | Farmacia Archimede',
-    'meta_description' => 'Descrizione specifica per questa pagina',
-    'meta_keywords'    => 'parola1, parola2, parola3'
-]);
+// Mostra la pagina
+PageBuilder::show('area_personale', $data);

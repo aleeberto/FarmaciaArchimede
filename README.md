@@ -2,6 +2,11 @@
 
 Progetto per il corso Tecnologie Web. L'ambiente di sviluppo è basato su Docker in modo da non dover installare manualmente web server e database.
 
+## Password
+
+utente@utente.it 123utente
+admin@admin.it 123admin
+
 ## Todo
 
 ### FrontEnd
