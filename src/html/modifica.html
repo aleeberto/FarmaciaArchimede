@@ -32,7 +32,6 @@
         .error-msg.visible {
             display: block;
         }
-
     </style>
 </head>
 <body class="no-print">
@@ -44,19 +43,22 @@
 <nav aria-label="breadcrumb" class="breadcrumb">
     Ti trovi in:
     <ol>
-        <li><a href="/index.php" lang="it">Prodotti</a></li>
+        <li><a href="/">Home</a></li>
+        <li><a href="/prodotti.php">Prodotti</a></li>
+        {{ breadcrumb_product }}
         <li aria-current="page">{{ page_mode }}</li>
     </ol>
 </nav>
 
 <main id="main-content" role="main" tabindex="-1">
-    <h1>{{ meta_title }}</h1>
+    <h1>{{ page_mode }}</h1>
 
     <div class="main-content">
+        <component>alert</component>
         <form id="product-form"
-              class="product-form flex-container"
+              class="product-form"
               method="post"
-              action="/products/save"
+              action="{{ form_action }}"
               enctype="multipart/form-data"
               novalidate
               aria-labelledby="form-title">
@@ -65,7 +67,7 @@
 
             <!-- ID nascosto -->
             <input type="hidden"
-                   id="product-id"
+                   id="product_id"
                    name="product_id"
                    value="{{ product_id }}">
 
@@ -164,9 +166,9 @@
                        aria-required="true"
                        maxlength="10"
                        pattern="[A-Z0-9]{10}"
-                       aria-describedby="error-aic"
+                       aria-describedby="error-aic-code"
                        value="{{ aic_code }}">
-                <p id="error-aic"
+                <p id="error-aic-code"
                    class="error-msg"
                    role="alert"
                    aria-live="assertive">
@@ -253,8 +255,8 @@
                 <label>Anteprima immagine</label>
                 <img src="{{ image_url }}"
                      alt="Anteprima prodotto"
-                     style="max-width:150px">
-            </div>
+                     style="max-width:150px">\
+n            </div>
 
             <!-- Caricamento immagine -->
             <div class="form-control">
@@ -276,7 +278,7 @@
 
             <!-- Pulsanti -->
             <div class="form-actions">
-                <button type="submit">Salva prodotto</button>
+                <button type="submit">{{ submit_label }}</button>
                 <button type="reset">Annulla</button>
             </div>
         </form>
@@ -284,6 +286,6 @@
 </main>
 
 <component>footer</component>
-
+<script src="/js/validate_fields.js"></script>
 </body>
 </html>

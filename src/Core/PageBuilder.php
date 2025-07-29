@@ -41,12 +41,10 @@ class PageBuilder
      */
     private function __construct()
     {
-        // Avvia la sessione se non presente
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // Inizializza il servizio di autenticazione
         $db = Database::getInstance(
             getenv('MARIADB_HOST') ?: 'mariadb',
             getenv('MARIADB_USER') ?: 'admin',
@@ -55,7 +53,6 @@ class PageBuilder
         );
         $this->auth = new AuthService($db);
 
-        // Configura il percorso ai template
         $configuredPath = realpath(__DIR__ . '/../html');
         if ($configuredPath === false) {
             throw new RuntimeException('Directory template non trovata');
@@ -66,7 +63,7 @@ class PageBuilder
     /**
      * Restituisce l'istanza singleton di PageBuilder, creandola se necessario.
      *
-     * @return PageBuilder Istanza singleton di PageBuilder.
+     * @return PageBuilder
      */
     public static function getInstance(): PageBuilder
     {
@@ -89,8 +86,8 @@ class PageBuilder
     /**
      * Determina il template da usare, unisce i parametri e stampa la pagina.
      *
-     * @param string|null $templateName Nome del template (senza estensione), dedotto dal file PHP se null.
-     * @param array       $parameters   Array associativo di parametri da passare al template.
+     * @param string|null $templateName
+     * @param array       $parameters
      * @return void
      */
     public static function show(
@@ -111,7 +108,7 @@ class PageBuilder
     /**
      * Restituisce il percorso assoluto alla directory dei template.
      *
-     * @return string Percorso base dei template.
+     * @return string
      */
     public function getBasePath(): string
     {
@@ -121,9 +118,9 @@ class PageBuilder
     /**
      * Carica e restituisce un Template a partire dal nome del file.
      *
-     * @param string $name Nome del file template (con estensione).
+     * @param string $name
      * @throws RuntimeException Se il file non è leggibile.
-     * @return Template      Istanza del template caricato.
+     * @return Template
      */
     public function loadTemplate(string $name): Template
     {
@@ -135,12 +132,39 @@ class PageBuilder
     }
 
     /**
+     * Ottiene e rende il messaggio flash, se presente.
+     *
+     * @return string
+     */
+    public static function getFlashMessage(): string
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['flash_message'])) {
+            return '';
+        }
+
+        $type    = $_SESSION['flash_message']['type'];    // 'success' o 'error'
+        $message = $_SESSION['flash_message']['message'];
+        unset($_SESSION['flash_message']);
+
+        $tpl = self::getInstance()->loadTemplate('common/alert.html');
+        $tpl->insertAll([
+            'type'    => $type,
+            'message' => htmlspecialchars($message),
+        ]);
+        return $tpl->build();
+    }
+
+    /**
      * Costruisce il markup HTML completo unendo head, header, contenuto e footer.
      *
-     * @param string $templateName Nome del template (senza estensione).
-     * @param array  $parameters   Parametri da sostituire all'interno del template.
-     * @throws RuntimeException In caso di errori nel caricamento o nella navigazione.
-     * @return string Markup HTML finale.
+     * @param string $templateName
+     * @param array  $parameters
+     * @throws RuntimeException
+     * @return string
      */
     public function build(string $templateName, array $parameters = []): string
     {
@@ -163,7 +187,7 @@ class PageBuilder
         $main->insert('header',  $headerHtml);
         $main->insert('content', $contentHtml);
         $main->insert('footer',  $footerHtml);
-
+        $main->insert('alert',   self::getFlashMessage());
         $main->insertAll($parameters);
 
         return $main->build();

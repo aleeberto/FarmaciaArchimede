@@ -5,7 +5,12 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Core\Database;
 use App\Core\PageBuilder;
 use App\Service\AuthService;
+use App\Core\Auth;
+use App\Service\AreaPersonaleService;
 
+Auth::requireLogin();
+
+// 1. Inizializza DB e AuthenticationService
 $db  = Database::getInstance(
     getenv('MARIADB_HOST') ?: 'mariadb',
     getenv('MARIADB_USER') ?: 'admin',
@@ -14,10 +19,9 @@ $db  = Database::getInstance(
 );
 $auth = new AuthService($db);
 
-if (!$auth->isLogged()) {
-    header('Location: /login.php?error=not_logged');
-    exit;
-}
+// 3. Recupera dati aggiuntivi dell’area personale
+$areaService = new AreaPersonaleService($auth, $db);
+$data        = $areaService->getAreaPersonaleData();
 
-$user = $auth->getUser();
-PageBuilder::show('area_personale', ['user' => $user]);
+// Mostra la pagina
+PageBuilder::show('area_personale', $data);
