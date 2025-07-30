@@ -20,13 +20,13 @@
             <h1>Login</h1>
             <form action="/login.php" method="POST">
                 <p>Accedi alla tua area personale</p>
-        
+
                 <label for="email">Email:</label>
-                <input id="email" type="email" name="email" placeholder="youremail@example.com" required>
-        
+                <input id="email" type="email" name="email" placeholder="mariorossi@dominio.it" value="{{ old.email }}" required>
+
                 <label for="password">Password:</label>
-                <input id="password" type="password" name="password" placeholder="password" required>
-        
+                <input id="password" type="password" name="password" required>
+
                 <div class="form-buttons">
                     <a href="signup.php" class="register-link">Registrati</a>
                     <button type="submit">Accedi</button>

@@ -32,11 +32,15 @@ class LoginService
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $error = $_GET['error'] ?? '';
-            PageBuilder::show('login', ['error' => $error,
+            $oldEmail = $_GET['email'] ?? '';
+
+            PageBuilder::show('login', [
+                'error'            => $error,
+                'old'              => ['email' => $oldEmail],
                 'meta_title'       => 'Accedi | Farmacia Archimede',
                 'meta_description' => 'Descrizione specifica per questa pagina',
-                'meta_keywords'    => 'parola1, parola2, parola3']
-                );
+                'meta_keywords'    => 'parola1, parola2, parola3',
+            ]);
             exit;
         }
 

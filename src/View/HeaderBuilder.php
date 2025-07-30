@@ -40,9 +40,9 @@ class HeaderBuilder
 
         $html = preg_replace_callback($pattern, function(array $m) {
             $liTag = $m[1];
-            if (preg_match('/\\bclass="([^\"]*)"/', $liTag, $cls)) {
+            if (preg_match('/\bclass="([^"]*)"/', $liTag, $cls)) {
                 $liTag = preg_replace(
-                    '/\\bclass="([^\"]*)"/',
+                    '/\bclass="([^"]*)"/',
                     'class="'.trim($cls[1].' active').'"',
                     $liTag
                 );
@@ -52,13 +52,28 @@ class HeaderBuilder
             return $liTag . $m[2];
         }, $html);
 
+        // Rendi il link della voce attiva non cliccabile e non tabbabile
+        $html = preg_replace_callback(
+            '#<li\b([^>]*)class="([^"]*active[^"]*)"\s*>\s*<a\b([^>]*href="[^"]+"[^>]*)>(.*?)</a>\s*</li>#is',
+            function(array $m) {
+                list(, $liAttrs, $classes, $aAttrs, $label) = $m;
+                // Aggiunge tabindex e aria-disabled se mancanti
+                if (!preg_match('/\btabindex\b/', $aAttrs)) {
+                    $aAttrs .= ' tabindex="-1" aria-disabled="true"';
+                }
+                return "<li{$liAttrs}class=\"{$classes}\">"
+                    . "<a{$aAttrs}>{$label}</a>"
+                    . "</li>";
+            },
+            $html
+        );
+
         // Se l'utente è autenticato, sostituisce 'Accedi' con il suo nome
         $user = $this->builder->getAuthService()->getUser();
         if ($user) {
-            // Prende il nome dall'UserDTO
             $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
             $html = preg_replace(
-                '#<li>\s*<a\s+href="login.php">Accedi</a>\s*</li>#i',
+                '#<li>\s*<a\b[^>]*href="login\.php"[^>]*>.*?Accedi.*?</a>\s*</li>#is',
                 '<li><a href="area_personale.php">' . $username . '</a></li>',
                 $html
             );
