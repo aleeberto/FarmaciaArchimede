@@ -30,8 +30,9 @@ class LoginService
             exit;
         }
 
+        // Se è GET, mostro la form
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $error = $_GET['error'] ?? '';
+            $error    = $_GET['error'] ?? '';
             $oldEmail = $_GET['email'] ?? '';
 
             PageBuilder::show('login', [
@@ -44,14 +45,25 @@ class LoginService
             exit;
         }
 
+        // Se è POST, provo a loggare
         $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '';
         $pwd   = $_POST['password'] ?? '';
 
         if ($this->auth->login($email, $pwd)) {
+            // login ok → redirect all’area personale
             header('Location: /area_personale.php');
-        } else {
-            header('Location: /login.php?error=credentials');
+            exit;
         }
+
+        // login KO → ricarico la form subito, passando error e old email
+        PageBuilder::show('login', [
+            'error'            => 'credentials',
+            'old'              => ['email' => $email],
+            'meta_title'       => 'Accedi | Farmacia Archimede',
+            'meta_description' => 'Descrizione specifica per questa pagina',
+            'meta_keywords'    => 'parola1, parola2, parola3',
+        ]);
         exit;
     }
+
 }

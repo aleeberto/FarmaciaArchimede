@@ -68,15 +68,23 @@ class HeaderBuilder
             $html
         );
 
-        // Se l'utente è autenticato, sostituisce 'Accedi' con il suo nome
+        // 3) Se l'utente è autenticato, sostituisci 'Accedi' con il suo nome mantenendo l’SVG
         $user = $this->builder->getAuthService()->getUser();
         if ($user) {
             $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
-            $html = preg_replace(
-                '#<li>\s*<a\b[^>]*href="login\.php"[^>]*>.*?Accedi.*?</a>\s*</li>#is',
-                '<li><a href="area_personale.php">' . $username . '</a></li>',
-                $html
-            );
+
+            $loginPattern = '#<li>\s*<a([^>]*)href=["\']/?login\.php["\']([^>]*)>(.*?)</a>\s*</li>#is';
+            $html = preg_replace_callback($loginPattern, function(array $m) use ($username) {
+                // $m[1] = attributi prima di href; $m[2] = attributi dopo href; $m[3] = contenuto interno (SVG + testo)
+                $before = $m[1];
+                $after  = $m[2];
+                $inner  = $m[3];
+                // sostituisco solo la parola "Accedi" nel contenuto interno
+                $newInner = str_replace('Accedi', $username, $inner);
+                return '<li><a' . $before . ' href="/area_personale.php"' . $after . '>'
+                    . $newInner
+                    . '</a></li>';
+            }, $html, 1);
         }
 
         return $html;
