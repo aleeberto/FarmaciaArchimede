@@ -1,67 +1,28 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
-    <component>head</component>
+    {{ head }}
 </head>
-
 <body class="no-print">
+{{ header }}
 
-    <component>header</component>
+<main>
+    <h1>Area personale</h1>
 
-    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
-        <ol>
-            <li><a href="/index.php" lang="it">Home</a></li>
-            <li aria-current="page">Area personale</li>
-        </ol>
-    </nav>
+    <ul>
+        <li><a href="?section=dati">I miei dati</a></li>
+        <li><a href="?section=ordini">I miei ordini</a></li>
 
-    <main>
-   
-        <h1>Benvenuto, <component>user.first_name</component> <component>user.last_name</component>!</h1>
+        {{ admin_section }}s
+        <li><a href="?section=gestione_prodotti">Gestione Prodotti</a></li>
+        <li><a href="?section=gestione_ordini">Gestione Ordini</a></li>
+        <li><a href="?section=gestione_utenti">Gestione Utenti</a></li>
+        {{ /admin_section }}
 
-        <!-- Sezione per utente normale -->
-        <div id="user-section" style="display: <component>user_section_display</component>;">
-            <section>
-                <h2>I tuoi dati</h2>
-                <ul>
-                    <li><strong>Email:</strong> <component>user.email</component></li>
-                    <li><strong>Codice Fiscale:</strong> <component>user.tax_code</component></li>
-                </ul>
-                <button class="edit-button" type="button">Modifica dati</button>
-            </section>
+        <li><a href="/logout.php">Esci</a></li>
+    </ul>
+</main>
 
-            <section>
-                <h2>I tuoi ordini</h2>
-                <component>user_orders</component>
-            </section>
-        </div>
-
-        <!-- Sezione per admin -->
-        <div id="admin-section" style="display: <component>admin_section_display</component>;">
-            <section>
-                <h2>Gestione Prodotti</h2>
-                <component>all_products</component>
-            </section>
-
-            <section>
-                <h2>Tutti gli ordini</h2>
-                <component>all_orders</component>
-            </section>
-
-            <section>
-                <h2>Utenti Registrati</h2>
-                <component>all_users</component>
-            </section>
-        </div>
-
-        <ul>
-            <li><a href="/logout.php">Esci</a></li>
-        </ul>
-    </main>
-
-    <component>footer</component>
-
+{{ footer }}
 </body>
-
 </html>

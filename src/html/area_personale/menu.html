@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    {{ head }}
+</head>
+<body class="no-print">
+{{ header }}
+
+<main>
+    <nav aria-label="breadcrumb" class="breadcrumb">
+        Ti trovi in:
+        <ol>
+            {{ breadcrumb }}
+        </ol>
+    </nav>
+
+    <h1>Area personale</h1>
+    <ul>
+        <li><a href="?section=dati">I miei dati</a></li>
+        <li><a href="?section=ordini">I miei ordini</a></li>
+
+        {{ admin_section }}
+        <li class="has-submenu">
+            <a href="?section=gestione">Amministrazione ▾</a>
+        </li>
+        {{ /admin_section }}
+
+        <li><a href="/logout.php">Esci</a></li>
+    </ul>
+</main>
+
+{{ footer }}
+</body>
+</html>

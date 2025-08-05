@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <component>head</component>
+    {{ head }}
     <style>
         /* Stili per accessibilità */
         .sr-only {
@@ -37,7 +37,7 @@
 <body class="no-print">
 <a href="#main-content" class="skip-link">Salta al contenuto principale</a>
 <header role="banner">
-    <component>header</component>
+    {{ header }}
 </header>
 
 <nav aria-label="breadcrumb" class="breadcrumb">
@@ -54,7 +54,7 @@
     <h1>{{ page_mode }}</h1>
 
     <div class="main-content">
-        <component>alert</component>
+        {{ alert }}
         <form id="product-form"
               class="product-form"
               method="post"
@@ -285,7 +285,7 @@ n            </div>
     </div>
 </main>
 
-<component>footer</component>
+{{ footer }}
 <script src="/js/validate_fields.js"></script>
 </body>
 </html>
