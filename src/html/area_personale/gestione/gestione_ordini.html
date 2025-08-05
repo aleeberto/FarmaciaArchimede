@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    {{ head }}
+</head>
+<body class="no-print">
+{{ header }}
+
+<main>
+    <nav aria-label="breadcrumb" class="breadcrumb">
+    Ti trovi in:
+    <ol>
+        {{ breadcrumb }}
+    </ol>
+    </nav>
+
+    <h1>Gestione Ordini</h1>
+    {{ all_orders }}
+    <p><a href="?section=gestione">← Torna ad Amministrazione</a></p>
+</main>
+
+{{ footer }}
+</body>
+</html>

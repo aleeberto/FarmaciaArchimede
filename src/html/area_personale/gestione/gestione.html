@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    {{ head }}
+</head>
+<body class="no-print">
+{{ header }}
+
+<main>
+    <nav aria-label="breadcrumb" class="breadcrumb">
+        Ti trovi in:
+        <ol>
+            {{ breadcrumb }}
+        </ol>
+    </nav>
+
+    <h1>Amministrazione</h1>
+    <ul>
+        <li><a href="?section=gestione_prodotti">Gestione Prodotti</a></li>
+        <li><a href="?section=gestione_ordini">Gestione Ordini</a></li>
+        <li><a href="?section=gestione_utenti">Gestione Utenti</a></li>
+    </ul>
+    <p><a href="?">← Torna al menu</a></p>
+</main>
+
+{{ footer }}
+</body>
+</html>
