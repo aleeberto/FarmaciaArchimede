@@ -6,51 +6,50 @@ use App\Core\PageBuilder;
 
 /**
  * Costruisce l'header della pagina con menu e selezione percorso corrente.
+ * In safe mode evita qualunque accesso ad Auth/DB.
  */
 class HeaderBuilder
 {
     private PageBuilder $builder;
     private string $currentPath;
+    private bool $safe;
 
     /**
      * @param PageBuilder $builder     Istanza di PageBuilder per il rendering del template.
      * @param string      $currentPath Percorso corrente della pagina (es. '/contatti.php').
+     * @param bool        $safe        Se true, non usa Auth/DB.
      */
-    public function __construct(PageBuilder $builder, string $currentPath = '/')
+    public function __construct(PageBuilder $builder, string $currentPath = '/', bool $safe = false)
     {
         $this->builder     = $builder;
-        $this->currentPath = $currentPath;
+        $this->currentPath = $currentPath ?: '/';
+        $this->safe        = $safe;
     }
 
     /**
      * Genera l'HTML dell'header, aggiungendo la classe 'active' alla voce di menu corrispondente
-     * al percorso corrente e sostituendo 'Accedi' con il nome dell'utente autenticato.
-     *
-     * @return string HTML dell'header modificato.
+     * al percorso corrente e sostituendo 'Accedi' con il nome dell'utente autenticato (solo se non in safe mode).
      */
     public function build(): string
     {
-        // Carica template header
+
         $html = $this->builder->loadTemplate('common/header.html')->build();
 
-        // Prima: sostituisci 'Accedi' con 'Area Personale' se autenticato
-        $user = $this->builder->getAuthService()->getUser();
-        if ($user) {
-            $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
-
-            $loginPattern = '#<li>\s*<a([^>]*)href=["\']/?login\.php["\']([^>]*)>(.*?)</a>\s*</li>#is';
-            $html = preg_replace_callback($loginPattern, function(array $m) use ($username) {
-                $before = $m[1];
-                $after  = $m[2];
-                $inner  = $m[3];
-                $newInner = str_replace('Accedi', $username, $inner);
-                return '<li><a' . $before . ' href="/area_personale.php"' . $after . '>'
-                    . $newInner
-                    . '</a></li>';
-            }, $html, 1);
+        if (!$this->safe) {
+            $user = $this->builder->getAuthService()?->getUser();
+            if ($user) {
+                $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
+                $loginPattern = '#<li>\s*<a([^>]*)href=["\']/?login\.php["\']([^>]*)>(.*?)</a>\s*</li>#is';
+                $html = preg_replace_callback($loginPattern, function(array $m) use ($username) {
+                    $before = $m[1]; $after  = $m[2]; $inner  = $m[3];
+                    $newInner = str_replace('Accedi', $username, $inner);
+                    return '<li><a' . $before . ' href="/area_personale.php"' . $after . '>'
+                        . $newInner . '</a></li>';
+                }, $html, 1);
+            }
         }
 
-        // Poi: imposta voce 'active' in base al percorso
+        // Imposta voce 'active' in base al percorso
         $relPath = ltrim($this->currentPath, '/');
         $p = preg_quote($relPath, '#');
         $pattern = '#(<li\b[^>]*>)(\s*<a\s+href="/?'.$p.'"[^>]*>)#i';
@@ -86,5 +85,4 @@ class HeaderBuilder
 
         return $html;
     }
-
 }

@@ -601,3 +601,7 @@ header nav ul.flex-container > li:last-child > a {
 #hamburger-toggle {
     display: none;
 }
+
+.page-nav .prev {
+    color: red;
+}
