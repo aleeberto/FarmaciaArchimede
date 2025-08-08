@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="it">
-<component>head</component>
+{{ head }}
 <body class="no-print">
 
-<component>header</component>
+{{ header }}
 
 <nav aria-label="breadcrumb" class="breadcrumb">
     Ti trovi in:
@@ -17,7 +17,7 @@
     <h1>Prodotti</h1>
 
     <div class="main-content">
-        <component>alert</component>
+        {{ alert }}
 
         <!-- FORM FILTRI DINAMICO -->
         <form id="filterForm" action="prodotti.php" method="get">
@@ -29,7 +29,7 @@
                             type="text"
                             name="search"
                             placeholder="Cerca..."
-                            value="<component>searchQuery</component>"
+                            value="{{ searchQuery }}"
                     >
                 </div>
 
@@ -38,22 +38,22 @@
                     <div class="filter-group">
                         <label for="tipologia">Tipologia:</label>
                         <select name="tipologia" id="tipologia">
-                            <component>typeOptions</component>
+                            {{ typeOptions }}
                         </select>
                     </div>
 
                     <fieldset>
                         <legend>Disponibilità:</legend>
                         <label>
-                            <input type="radio" name="disponibilita" value="tutti" <component>checkedTutti</component>>
+                            <input type="radio" name="disponibilita" value="tutti" {{ checkedTutti }}>
                             Tutti
                         </label><br>
                         <label>
-                            <input type="radio" name="disponibilita" value="disponibile" <component>checkedDisponibile</component>>
+                            <input type="radio" name="disponibilita" value="disponibile" {{ checkedDisponibile }}>
                             Disponibile
                         </label><br>
                         <label>
-                            <input type="radio" name="disponibilita" value="esaurito" <component>checkedEsaurito</component>>
+                            <input type="radio" name="disponibilita" value="esaurito" {{ checkedEsaurito }}>
                             Esaurito
                         </label>
                     </fieldset>
@@ -65,19 +65,19 @@
 
         <div id="results-container">
             <div class="pagination-info">
-                <component>info</component>
+                {{ info }}
             </div>
             <div id="prodotti" class="items">
-                <component>items</component>
+                {{ items }}
             </div>
             <div id="pagination-container">
-                <component>pagination</component>
+                {{ pagination }}
             </div>
         </div>
     </div>
 </main>
 
-<component>footer</component>
+{{ footer }}
 <script src="/js/reload_products.js"></script>
 </body>
 </html>

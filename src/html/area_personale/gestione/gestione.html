@@ -7,20 +7,20 @@
 {{ header }}
 
 <main>
-    <h1>Area personale</h1>
+    <nav aria-label="breadcrumb" class="breadcrumb">
+        Ti trovi in:
+        <ol>
+            {{ breadcrumb }}
+        </ol>
+    </nav>
 
+    <h1>Amministrazione</h1>
     <ul>
-        <li><a href="?section=dati">I miei dati</a></li>
-        <li><a href="?section=ordini">I miei ordini</a></li>
-
-        {{ admin_section }}s
         <li><a href="?section=gestione_prodotti">Gestione Prodotti</a></li>
         <li><a href="?section=gestione_ordini">Gestione Ordini</a></li>
         <li><a href="?section=gestione_utenti">Gestione Utenti</a></li>
-        {{ /admin_section }}
-
-        <li><a href="/logout.php">Esci</a></li>
     </ul>
+    <p><a href="?">← Torna al menu</a></p>
 </main>
 
 {{ footer }}

@@ -13,59 +13,71 @@ class AreaPersonaleService
     private \mysqli $mysqli;
     private AuthService $auth;
 
+
     public function __construct(AuthService $auth, Database $db)
     {
-        $this->auth = $auth;
-        $this->mysqli = $db->connect();
+        $this->auth    = $auth;
+        $this->mysqli  = $db->connect();
     }
 
-    public function getAreaPersonaleData(): array
+    /**
+     * Dati base dell’utente
+     */
+    public function getDatiUtente(): array
     {
-        $userDTO = $this->auth->getUser();
-        if (!$userDTO instanceof UserDTO) {
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
             throw new RuntimeException("Utente non autenticato.");
         }
 
-        if ($userDTO->isAdmin()) {
-            return $this->getAdminData($userDTO);
-        }
-
-        return $this->getUserData($userDTO);
-    }
-
-    private function getAdminData(UserDTO $userDTO): array
-    {
         return [
             'user' => [
-                'user_id'    => $userDTO->getId(),
-                'email'      => $userDTO->getEmail(),
-                'first_name' => $userDTO->getFirstName(),
-                'last_name'  => $userDTO->getLastName(),
-                'tax_code'   => $userDTO->getTaxCode(),
-                'is_admin'   => true,
+                'first_name' => $user->getFirstName(),
+                'last_name'  => $user->getLastName(),
+                'email'      => $user->getEmail(),
+                'tax_code'   => $user->getTaxCode(),
             ],
-            'user_section_display'  => 'none',
-            'admin_section_display' => 'block',
-            'all_orders'   => $this->renderOrdersComponent(),
-            'all_products' => $this->renderProductsComponent(),
-            'all_users'    => $this->renderUsersComponent(),
         ];
     }
 
-    private function getUserData(UserDTO $userDTO): array
+    /**
+     * Elenco ordini dell’utente
+     */
+    public function getOrdiniUtente(): array
+    {
+        $user = $this->auth->getUser();
+        return [
+            'user_orders' => $this->renderUserOrdersComponent($user->getId()),
+        ];
+    }
+
+    /**
+     * Elenco prodotti (solo admin)
+     */
+    public function getProdottiAdmin(): array
     {
         return [
-            'user' => [
-                'user_id'    => $userDTO->getId(),
-                'email'      => $userDTO->getEmail(),
-                'first_name' => $userDTO->getFirstName(),
-                'last_name'  => $userDTO->getLastName(),
-                'tax_code'   => $userDTO->getTaxCode(),
-                'is_admin'   => false,
-            ],
-            'user_section_display'  => 'block',
-            'admin_section_display' => 'none',
-            'user_orders' => $this->renderUserOrdersComponent($userDTO->getId()),
+            'all_products' => $this->renderProductsComponent(),
+        ];
+    }
+
+    /**
+     * Elenco ordini (solo admin)
+     */
+    public function getOrdiniAdmin(): array
+    {
+        return [
+            'all_orders' => $this->renderOrdersComponent(),
+        ];
+    }
+
+    /**
+     * Elenco utenti (solo admin)
+     */
+    public function getUtentiAdmin(): array
+    {
+        return [
+            'all_users' => $this->renderUsersComponent(),
         ];
     }
 
@@ -104,7 +116,7 @@ class AreaPersonaleService
             $rows .= "</tr>";
         }
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/all_orders.html');
+        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_orders.html');
         $template = new Template('all_orders', $templateHtml);
         $template->insert('orders_rows', $rows);
         return $template->build();
@@ -141,7 +153,7 @@ class AreaPersonaleService
             $rows .= "</tr>";
         }
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/all_products.html');
+        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_products.html');
         $template = new Template('all_products', $templateHtml);
         $template->insert('products_rows', $rows);
         return $template->build();
@@ -181,7 +193,7 @@ class AreaPersonaleService
             $rows .= "</tr>";
         }
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/all_users.html');
+        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_users.html');
         $template = new Template('all_users', $templateHtml);
         $template->insert('users_rows', $rows);
         return $template->build();
@@ -225,7 +237,7 @@ class AreaPersonaleService
             }
         }
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/areapersonale/user_orders.html');
+        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/user_orders.html');
         $template = new Template('user_orders', $templateHtml);
         $template->insert('user_orders_list', $html);
         return $template->build();

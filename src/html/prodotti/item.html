@@ -1,8 +1,8 @@
-<a href="<component>url_farmaco</component>" aria-label="Visualizza prodotto">
+<a href="{{ url_farmaco }}" aria-label="Visualizza prodotto">
     <div class="item">
-        <div class="product-image"><component>immagine</component></div>
-        <div class="product-name"><component>nome</component></div>
-        <div class="product-price"><component>prezzo</component></div>
+        <div class="product-image">{{ immagine }}</div>
+        <div class="product-name">{{ nome }}</div>
+        <div class="product-price">{{ prezzo }}</div>
         <button type="button" id="add-to-cart">Aggiungi al carrello</button>
     </div>
 </a>

@@ -1,0 +1,158 @@
+/* Versione Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+    /* Layout generale */
+    html, body {
+        padding: 0;
+        margin: 0;
+    }
+
+    /* HEADER: hamburger menu overlay full-page */
+    header {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        z-index: 1001;
+    }
+
+    /* Bottone hamburger */
+    #hamburger-toggle {
+        box-shadow: none;
+        display: block;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        outline: none;
+        z-index: 1002; /* sempre sopra overlay */
+    }
+    #hamburger-toggle svg {
+        width: 30px;
+        height: 30px;
+        fill: var(--primary-text);
+    }
+
+
+    /* Overlay menu */
+    header nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--primary-bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+    /* Mostra nav quando attivo */
+    header nav.open {
+        transform: translateY(0);
+    }
+    header nav ul {
+        flex-direction: column;
+        gap: 1.5em;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        text-align: center;
+    }
+    header nav ul li a {
+        font-size: 1.2em;
+        padding: 0.5em 1em;
+    }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+        margin: 10px;
+        padding: 8px;
+        font-size: 1em;
+    }
+
+    /* FORM DI LOGIN */
+    .login-form {
+        width: 90%;
+        padding: 20px;
+        margin: 20px auto;
+    }
+
+    /* CONTENUTO PRINCIPALE: colonna unica */
+    .main-content {
+        flex-direction: column;
+    }
+
+    /* FILTRI e RISULTATI: filtro sopra i risultati */
+    #filterForm {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    #results-container {
+        width: 100%;
+    }
+
+    /* LISTA PRODOTTI: una colonna */
+    .items {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+    }
+
+    /* DETTAGLIO PRODOTTO */
+    #product-container {
+        max-width: 100%;
+        padding: 0 5px;
+    }
+    #product-details {
+        margin: 20px 0;
+    }
+    .cart-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* FORM DI MODIFICA PRODOTTO */
+    .product-form {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* TABELLE: scroll orizzontale */
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* FOOTER: impilamento colonne */
+    footer .flex-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+/* Ulteriore ottimizzazione per schermi molto piccoli (max-width: 480px) */
+@media (max-width: 480px) {
+    header img {
+        height: 50px;
+    }
+    header nav ul li a {
+        padding: 0.4em 0.8em;
+        font-size: 1em;
+    }
+    .breadcrumb {
+        font-size: 0.95em;
+    }
+    .login-form input,
+    .login-form button,
+    .register-link {
+        font-size: 0.95em;
+        padding: 6px 12px;
+    }
+    .product-price {
+        font-size: 1.1em;
+    }
+}

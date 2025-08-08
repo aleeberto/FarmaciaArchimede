@@ -6,32 +6,48 @@ use App\Core\PageBuilder;
 
 /**
  * Costruisce l'header della pagina con menu e selezione percorso corrente.
+ * In safe mode evita qualunque accesso ad Auth/DB.
  */
 class HeaderBuilder
 {
     private PageBuilder $builder;
     private string $currentPath;
+    private bool $safe;
 
     /**
      * @param PageBuilder $builder     Istanza di PageBuilder per il rendering del template.
      * @param string      $currentPath Percorso corrente della pagina (es. '/contatti.php').
+     * @param bool        $safe        Se true, non usa Auth/DB.
      */
-    public function __construct(PageBuilder $builder, string $currentPath = '/')
+    public function __construct(PageBuilder $builder, string $currentPath = '/', bool $safe = false)
     {
         $this->builder     = $builder;
-        $this->currentPath = $currentPath;
+        $this->currentPath = $currentPath ?: '/';
+        $this->safe        = $safe;
     }
 
     /**
      * Genera l'HTML dell'header, aggiungendo la classe 'active' alla voce di menu corrispondente
-     * al percorso corrente e sostituendo 'Accedi' con il nome dell'utente autenticato.
-     *
-     * @return string HTML dell'header modificato.
+     * al percorso corrente e sostituendo 'Accedi' con il nome dell'utente autenticato (solo se non in safe mode).
      */
     public function build(): string
     {
-        // Carica template header
+
         $html = $this->builder->loadTemplate('common/header.html')->build();
+
+        if (!$this->safe) {
+            $user = $this->builder->getAuthService()?->getUser();
+            if ($user) {
+                $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
+                $loginPattern = '#<li>\s*<a([^>]*)href=["\']/?login\.php["\']([^>]*)>(.*?)</a>\s*</li>#is';
+                $html = preg_replace_callback($loginPattern, function(array $m) use ($username) {
+                    $before = $m[1]; $after  = $m[2]; $inner  = $m[3];
+                    $newInner = str_replace('Accedi', $username, $inner);
+                    return '<li><a' . $before . ' href="/area_personale.php"' . $after . '>'
+                        . $newInner . '</a></li>';
+                }, $html, 1);
+            }
+        }
 
         // Imposta voce 'active' in base al percorso
         $relPath = ltrim($this->currentPath, '/');
@@ -52,12 +68,11 @@ class HeaderBuilder
             return $liTag . $m[2];
         }, $html);
 
-        // Rendi il link della voce attiva non cliccabile e non tabbabile
+        // Rendi il link attivo non cliccabile
         $html = preg_replace_callback(
             '#<li\b([^>]*)class="([^"]*active[^"]*)"\s*>\s*<a\b([^>]*href="[^"]+"[^>]*)>(.*?)</a>\s*</li>#is',
             function(array $m) {
                 list(, $liAttrs, $classes, $aAttrs, $label) = $m;
-                // Aggiunge tabindex e aria-disabled se mancanti
                 if (!preg_match('/\btabindex\b/', $aAttrs)) {
                     $aAttrs .= ' tabindex="-1" aria-disabled="true"';
                 }
@@ -67,25 +82,6 @@ class HeaderBuilder
             },
             $html
         );
-
-        // 3) Se l'utente è autenticato, sostituisci 'Accedi' con il suo nome mantenendo l’SVG
-        $user = $this->builder->getAuthService()->getUser();
-        if ($user) {
-            $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
-
-            $loginPattern = '#<li>\s*<a([^>]*)href=["\']/?login\.php["\']([^>]*)>(.*?)</a>\s*</li>#is';
-            $html = preg_replace_callback($loginPattern, function(array $m) use ($username) {
-                // $m[1] = attributi prima di href; $m[2] = attributi dopo href; $m[3] = contenuto interno (SVG + testo)
-                $before = $m[1];
-                $after  = $m[2];
-                $inner  = $m[3];
-                // sostituisco solo la parola "Accedi" nel contenuto interno
-                $newInner = str_replace('Accedi', $username, $inner);
-                return '<li><a' . $before . ' href="/area_personale.php"' . $after . '>'
-                    . $newInner
-                    . '</a></li>';
-            }, $html, 1);
-        }
 
         return $html;
     }

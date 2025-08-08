@@ -27,3 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.blur();
     });
 });
+
+const btn = document.getElementById('hamburger-toggle');
+const nav = document.querySelector('header nav');
+btn.addEventListener('click', () => {
+    nav.classList.toggle('open');
+});
+
