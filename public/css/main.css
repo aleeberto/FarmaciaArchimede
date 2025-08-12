@@ -15,8 +15,10 @@
     --tertiary-accent-bg: #80d2a3;
 
     /* link */
-    --non-visited-link: #000000;
-    --visited-link: #555555;
+    /* Link armonizzati */
+    --non-visited-link: #1a5e3f; /* verde scuro puro */
+    --visited-link:     #5e4f1a; /* verde oliva/marroncino per distinzione netta */
+    --link-hover-color: #0f3826; /* verde ancora più scuro per hover/focus */
 
     /* bordi e ombre */
     --border-color: rgba(0, 0, 0, 0.2);
@@ -28,17 +30,41 @@
 
 }
 
-/* Tema scuro */
 :root[data-theme="dark"] {
-    --primary-bg: #121212;
-    --primary-text: #ffffff;
-    --non-visited-link: #ffffff;
-    --visited-link: #ffffff;
+    /* Superfici */
+    --primary-bg: #0E1113;           /* fondo principale (≈ #121212 ma più freddo) */
+    --surface-1: #151A1E;            /* blocchi/box base */
+    --surface-2: #1D242A;            /* livelli elevati (card, modali) */
 
-    --border-color: rgba(255, 255, 255, 0.2);
-    --shadow-color: rgba(255, 255, 255, 0.1);
-    --shadow-color-hover: rgba(255, 255, 255, 0.18);
-    --shadow-color-strong: rgba(255, 255, 255, 0.25);
+    /* Testo */
+    --primary-text: #EAEFF2;         /* testo su fondi scuri (≥ 12:1 su primary-bg) */
+    --muted-text: #B9C3CA;           /* testo secondario */
+    --disabled-text: #8B98A1;        /* disabilitato/placeholder */
+
+    /* Accenti (verdi) — pensati come background di breadcrumb, footer, badge */
+    --primary-accent-bg:   #0F2F25;  /* più scuro → migliore contrasto col testo chiaro */
+    --secondary-accent-bg: #2BAA74;  /* pulsanti/CTA su dark */
+    --tertiary-accent-bg:  #1E7E59;  /* hover di pulsanti/CTA */
+
+    /* Link */
+    --non-visited-link: #9BE5BF;     /* link su dark (≥ 7:1 su primary-bg) */
+    --visited-link:     #7AC9A4;     /* visited, distinguibile ma non “sparato” */
+
+    /* Bordi e ombre (su dark le ombre restano scure, non chiare) */
+    --border-color: rgba(255,255,255,0.14);
+    --shadow-color: rgba(0,0,0,0.60);
+    --shadow-color-hover: rgba(0,0,0,0.72);
+    --shadow-color-strong: rgba(0,0,0,0.85);
+
+    /* Stati/feedback */
+    --active-hover-color: #22323A;   /* evidenziazione voci attive/hover */
+    --outline-color: #37D18D;        /* focus ring ≥ 3:1 su qualunque superficie */
+
+    /* Tabelle / badge informativi (facoltativi ma utili) */
+    --info-bg:    #102638;
+    --success-bg: #0E2E24;
+    --warning-bg: #2E260E;
+    --error-bg:   #2E1515;
 }
 
 /* Layout di base */
@@ -67,6 +93,21 @@ input:focus,
 select:focus,
 textarea:focus {
     box-shadow: 0px 2px 3px var(--shadow-color-hover);
+}
+
+a {
+    color: var(--non-visited-link);
+    text-decoration: underline;
+}
+
+a:visited {
+    color: var(--visited-link);
+}
+
+a:hover,
+a:focus {
+    color: var(--secondary-accent-bg);
+    text-decoration: none;
 }
 
 /* HEADER */
@@ -588,6 +629,7 @@ header nav ul.flex-container li.active > a {
     cursor: default;
     text-decoration: none;
     background-color: var(--active-hover-color);
+    color: black;
 }
 
 header nav ul.flex-container > li:last-child > a {
@@ -605,3 +647,4 @@ header nav ul.flex-container > li:last-child > a {
 .page-nav .prev {
     color: red;
 }
+

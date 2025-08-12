@@ -2,37 +2,6 @@
 <html lang="it">
 <head>
     {{ head }}
-    <style>
-        /* Stili per accessibilità */
-        .sr-only {
-            position: absolute;
-            width: 1px; height: 1px;
-            padding: 0; margin: -1px;
-            overflow: hidden;
-            clip: rect(0,0,0,0);
-            border: 0;
-        }
-        .skip-link {
-            position: absolute;
-            top: -40px; left: 0;
-            background: #000; color: #fff;
-            padding: 8px;
-            z-index: 100;
-        }
-        .skip-link:focus {
-            top: 0;
-        }
-
-        .error-msg {
-            display: none;
-            color: red;
-            margin-top: 4px;
-            font-size: 0.9em;
-        }
-        .error-msg.visible {
-            display: block;
-        }
-    </style>
 </head>
 <body class="no-print">
 <a href="#main-content" class="skip-link">Salta al contenuto principale</a>
@@ -63,7 +32,7 @@
               novalidate
               aria-labelledby="form-title">
 
-            <h2 id="form-title" class="sr-only">Compila i dati del prodotto</h2>
+            <h2 id="form-title" class="visually-hidden">Compila i dati del prodotto</h2>
 
             <!-- ID nascosto -->
             <input type="hidden"
@@ -255,8 +224,8 @@
                 <label>Anteprima immagine</label>
                 <img src="{{ image_url }}"
                      alt="Anteprima prodotto"
-                     style="max-width:150px">\
-n            </div>
+                     style="max-width:150px">
+            </div>
 
             <!-- Caricamento immagine -->
             <div class="form-control">
