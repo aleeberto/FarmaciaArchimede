@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    {{ head }}
+</head>
+<body class="no-print">
+<a href="#main-content" class="skip-link">Salta al contenuto principale</a>
+
+{{ header }}
+
+<main id="main-content" role="main" tabindex="-1">
+    <h1>Registrazione</h1>
+
+    <div class="main-content">
+        {{ alert }}
+
+        <form
+              class="auth-form"
+              id="signup-form"
+              method="post"
+              action="/signup.php"
+              novalidate
+              aria-labelledby="form-title">
+
+            <h2 id="form-title" class="visually-hidden">Compila i dati per registrarti</h2>
+
+            <div class="form-control">
+                <label for="first_name">Nome</label>
+                <input id="first_name" name="first_name" type="text" required
+                       aria-required="true" aria-describedby="error-first-name"
+                       value="{{ old.first_name }}">
+                <p id="error-first-name" class="error-msg" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="form-control">
+                <label for="last_name">Cognome</label>
+                <input id="last_name" name="last_name" type="text" required
+                       aria-required="true" aria-describedby="error-last-name"
+                       value="{{ old.last_name }}">
+                <p id="error-last-name" class="error-msg" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="form-control">
+                <label for="tax_code">Codice fiscale</label>
+                <input id="tax_code" name="tax_code" type="text" maxlength="16"
+                       aria-describedby="error-tax-code"
+                       value="{{ old.tax_code }}" required>
+                <p id="error-tax-code" class="error-msg" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="form-control">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required
+                       aria-required="true" aria-describedby="error-email"
+                       value="{{ old.email }}">
+                <p id="error-email" class="error-msg" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="form-control">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required
+                       aria-required="true" aria-describedby="error-password">
+                <p id="error-password" class="error-msg" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="form-control">
+                <label for="password_confirm">Conferma password</label>
+                <input id="password_confirm" name="password_confirm" type="password" required
+                       aria-required="true" aria-describedby="error-password-confirm">
+                <p id="error-password-confirm" class="error-msg" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="form-buttons">
+                <a href="/login.php" class="button-secondary">Hai già un account? Accedi</a>
+                <button type="submit">Registrati</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+{{ footer }}
+<script src="/js/validate_signup.js"></script>
+</body>
+</html>

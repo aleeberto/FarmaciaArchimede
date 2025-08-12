@@ -14,11 +14,10 @@ class Template
     }
 
     /**
-     * Inserisce un valore o un blocco nel template.
-     * Supporta:
-     * - placeholder semplici: {{ id }}
-     * - blocchi con contenuto predefinito:
-     *   {{ id }}...{{ /id }}
+     * Inserisce un valore:
+     * - se esiste il blocco {{ id }}...{{ /id }}, sostituisce quell’intero blocco con $value (1 occorrenza)
+     * - altrimenti, se esiste il placeholder {{ id }}, sostituisce quello (1 occorrenza)
+     * Se $value è array/oggetto, inserisce ricorsivamente "id.k" => v
      */
     public function insert(string $id, string|array|object $value): void
     {
@@ -30,38 +29,28 @@ class Template
             foreach ($value as $k => $v) {
                 $this->insert("{$id}.{$k}", (string)$v);
             }
-            // Rimuove eventuali placeholder semplici residui
-            $this->state = preg_replace(
-                '/\{\{\s*' . preg_quote($id, '/') . '\s*\}\}/',
-                '',
-                $this->state
-            );
+            // ripulisce eventuale placeholder semplice rimasto per l'id radice
+            $this->replaceFirstPlaceholder($id, '');
             return;
         }
 
-        // Pattern blocco: {{ id }} contenuto... {{ /id }}
-        $blockPattern = '/\{\{\s*' . preg_quote($id, '/') . '\s*\}\}.*?\{\{\s*\/' . preg_quote($id, '/') . '\s*\}\}/s';
-        if (preg_match($blockPattern, $this->state)) {
-            // Sostituisce l'intero blocco
-            $this->state = preg_replace(
-                $blockPattern,
-                $value,
-                $this->state
-            );
+        $value = (string)$value;
+        $idRe  = preg_quote($id, '/');
+
+        // 1) prova a rimpiazzare il blocco {{ id }}...{{ /id }}
+        $blockRe = '/\{\{\s*' . $idRe . '\s*\}\}(.*?)\{\{\s*\/\s*' . $idRe . '\s*\}\}/s';
+        if (preg_match($blockRe, $this->state)) {
+            $this->state = preg_replace($blockRe, $value, $this->state, 1);
             return;
         }
 
-        // Sostituisce placeholder {{ id }}
-        $this->state = preg_replace(
-            '/\{\{\s*' . preg_quote($id, '/') . '\s*\}\}/',
-            $value,
-            $this->state
-        );
+        // 2) altrimenti prova col placeholder semplice {{ id }}
+        $phRe = '/\{\{\s*' . $idRe . '\s*\}\}/';
+        if (preg_match($phRe, $this->state)) {
+            $this->state = preg_replace($phRe, $value, $this->state, 1);
+        }
     }
 
-    /**
-     * Inserisce più parametri usando insert()
-     */
     public function insertAll(array $parameters): void
     {
         foreach ($parameters as $id => $value) {
@@ -70,23 +59,46 @@ class Template
     }
 
     /**
-     * Restituisce il contenuto HTML (o testo) presente all'interno di un blocco nel template.
-     * Se il blocco non è trovato, restituisce null.
+     * Ritorna il contenuto interno del blocco {{ id }}...{{ /id }}, oppure null se assente.
      */
     public function getBlockContent(string $id): ?string
     {
-        $pattern = '/\{\{\s*' . preg_quote($id, '/') . '\s*\}\}(.*?)\{\{\s*\/' . preg_quote($id, '/') . '\s*\}\}/s';
-        if (preg_match($pattern, $this->state, $matches)) {
-            return trim($matches[1]);
+        $idRe = preg_quote($id, '/');
+        if (preg_match('/\{\{\s*' . $idRe . '\s*\}\}(.*?)\{\{\s*\/\s*' . $idRe . '\s*\}\}/s', $this->state, $m)) {
+            return $m[1];
         }
         return null;
     }
 
     /**
-     * Restituisce il contenuto processato
+     * Materializza automaticamente:
+     * 1) Tutti i blocchi rimasti: {{ id }}...{{ /id }} -> solo contenuto interno
+     * 2) Rimuove placeholder semplici residui {{ qualcosa }}
+     * 3) Rimuove eventuali chiusure orfane {{ /qualcosa }}
      */
     public function build(): string
     {
-        return $this->state;
+        $out = $this->state;
+
+        // 1) srotola blocchi annidati dal più interno
+        $blockAny = '/\{\{\s*([^\s\/][^}]*)\s*\}\}(.*?)\{\{\s*\/\s*\1\s*\}\}/s';
+        while (preg_match($blockAny, $out)) {
+            $out = preg_replace($blockAny, '$2', $out);
+        }
+
+        // 2) rimuove placeholder semplici rimasti
+        $out = preg_replace('/\{\{\s*[^\/][^}]*\s*\}\}/', '', $out);
+
+        // 3) rimuove eventuali chiusure orfane
+        $out = preg_replace('/\{\{\s*\/[^}]*\}\}/', '', $out);
+
+        return $out;
+    }
+
+    /** Sostituisce la prima occorrenza del placeholder semplice {{ id }} con $value */
+    private function replaceFirstPlaceholder(string $id, string $value): void
+    {
+        $idRe = preg_quote($id, '/');
+        $this->state = preg_replace('/\{\{\s*' . $idRe . '\s*\}\}/', $value, $this->state, 1);
     }
 }

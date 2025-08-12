@@ -15,18 +15,18 @@
     </nav>
 
     <h1>Area personale</h1>
-    <ul>
+    <ul class="area-personale-menu">
         <li><a href="?section=dati">I miei dati</a></li>
         <li><a href="?section=ordini">I miei ordini</a></li>
 
         {{ admin_section }}
         <li class="has-submenu">
-            <a href="?section=gestione">Amministrazione ▾</a>
+            <a href="?section=gestione">Gestisci ▾</a>
         </li>
         {{ /admin_section }}
 
-        <li><a href="/logout.php">Esci</a></li>
     </ul>
+    <p><a href="/logout.php" class="btn-back">Esci</a></p>
 </main>
 
 {{ footer }}

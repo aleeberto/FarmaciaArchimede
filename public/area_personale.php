@@ -32,62 +32,72 @@ $section = $_GET['section'] ?? 'menu';
 // 4. Prepara parametri e breadcrumb
 $params = [];
 $crumbs = ['<a href="/area_personale.php">Home</a>'];
+$isAdmin = $auth->getUser()->isAdmin();
 
 switch ($section) {
     case 'dati':
         $params = $svc->getDatiUtente();
         $crumbs[] = 'I miei dati';
+        $params['meta_title'] = 'I miei dati | Farmacia Archimede';
         $templateName = 'area_personale/dati';
         break;
 
     case 'ordini':
         $params = $svc->getOrdiniUtente();
         $crumbs[] = 'I miei ordini';
+        $params['meta_title'] = 'I miei ordini | Farmacia Archimede';
         $templateName = 'area_personale/ordini';
         break;
 
     case 'gestione':
-        if (! $auth->getUser()->isAdmin()) {
+        if (! $isAdmin) {
             header('Location: /area_personale.php'); exit;
         }
-        $crumbs[] = 'Amministrazione';
+        $crumbs[] = 'Gestisci';
+        $params['meta_title'] = 'Gestisci | Farmacia Archimede';
         $templateName = 'area_personale/gestione/gestione';
         break;
 
     case 'gestione_prodotti':
-        if (! $auth->getUser()->isAdmin()) {
+        if (! $isAdmin) {
             header('Location: /area_personale.php'); exit;
         }
         $params = $svc->getProdottiAdmin();
-        $crumbs[] = '<a href="?section=gestione">Amministrazione</a>';
+        $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
         $crumbs[] = 'Prodotti';
+        $params['meta_title'] = 'Prodotti | Gestisci | Farmacia Archimede';
         $templateName = 'area_personale/gestione/gestione_prodotti';
         break;
 
     case 'gestione_ordini':
-        if (! $auth->getUser()->isAdmin()) {
+        if (! $isAdmin) {
             header('Location: /area_personale.php'); exit;
         }
         $params = $svc->getOrdiniAdmin();
-        $crumbs[] = '<a href="?section=gestione">Amministrazione</a>';
+        $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
+        $params['meta_title'] = 'Ordini | Gestisci | Farmacia Archimede';
         $crumbs[] = 'Ordini';
         $templateName = 'area_personale/gestione/gestione_ordini';
         break;
 
     case 'gestione_utenti':
-        if (! $auth->getUser()->isAdmin()) {
+        if (! $isAdmin) {
             header('Location: /area_personale.php'); exit;
         }
         $params = $svc->getUtentiAdmin();
-        $crumbs[] = '<a href="?section=gestione">Amministrazione</a>';
+        $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
+        $params['meta_title'] = 'Utenti | Gestisci | Farmacia Archimede';
         $crumbs[] = 'Utenti';
         $templateName = 'area_personale/gestione/gestione_utenti';
         break;
 
     default:
         // menu principale
-        $params = ['is_admin' => $auth->getUser()->isAdmin()];
+        $params = [
+            'is_admin'      => $isAdmin,
+        ];
         $templateName = 'area_personale/menu';
+        $params['meta_title'] = 'Area personale | Farmacia Archimede';
         break;
 }
 

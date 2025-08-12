@@ -24,46 +24,46 @@ class LoginService
 
     public function handleRequest(): void
     {
+        // Logout
         if (isset($_GET['logout'])) {
             $this->auth->logout();
             header('Location: /login.php');
             exit;
         }
 
-        // Se è GET, mostro la form
+        // GET → mostra form senza errori
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $error    = $_GET['error'] ?? '';
             $oldEmail = $_GET['email'] ?? '';
 
             PageBuilder::show('login', [
-                'error'            => $error,
-                'old'              => ['email' => $oldEmail],
-                'meta_title'       => 'Accedi | Farmacia Archimede',
-                'meta_description' => 'Descrizione specifica per questa pagina',
-                'meta_keywords'    => 'parola1, parola2, parola3',
+                'error'             => '', // nasconde il blocco di default
+                'old'               => ['email' => $oldEmail],
+                'meta_title'        => 'Accedi | Farmacia Archimede',
+                'meta_description'  => 'Descrizione specifica per questa pagina',
+                'meta_keywords'     => 'parola1, parola2, parola3',
             ]);
             exit;
         }
 
-        // Se è POST, provo a loggare
+        // POST → tenta login
         $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '';
         $pwd   = $_POST['password'] ?? '';
 
         if ($this->auth->login($email, $pwd)) {
-            // login ok → redirect all’area personale
             header('Location: /area_personale.php');
             exit;
         }
 
-        // login KO → ricarico la form subito, passando error e old email
+
+
+        // Login KO → mostra form con blocco errore lasciato visibile
         PageBuilder::show('login', [
-            'error'            => 'credentials',
-            'old'              => ['email' => $email],
-            'meta_title'       => 'Accedi | Farmacia Archimede',
-            'meta_description' => 'Descrizione specifica per questa pagina',
-            'meta_keywords'    => 'parola1, parola2, parola3',
+            // NON passiamo 'error.credentials', così il blocco rimane e mostra l'alert di default
+            'old'               => ['email' => $email],
+            'meta_title'        => 'Accedi | Farmacia Archimede',
+            'meta_description'  => 'Descrizione specifica per questa pagina',
+            'meta_keywords'     => 'parola1, parola2, parola3',
         ]);
         exit;
     }
-
 }

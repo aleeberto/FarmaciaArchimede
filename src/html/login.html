@@ -3,40 +3,40 @@
 {{ head }}
 
 <html lang="it">
-
 <body class="no-print">
 
-    {{ header }}
+{{ header }}
 
-    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
-        <ol>
-            <li><a href="/index.php" lang="it">Home</a></li>
-            <li aria-current="page">Login</li>
-        </ol>
-    </nav>
+<main>
+    <div class="auth-form">
+        <h1>Login</h1>
 
-    <main>
-        <div class="login-form">
-            <h1>Login</h1>
-            <form action="/login.php" method="POST">
-                <p>Accedi alla tua area personale</p>
-
-                <label for="email">Email:</label>
-                <input id="email" type="email" name="email" placeholder="mariorossi@dominio.it" value="{{ old.email }}" required>
-
-                <label for="password">Password:</label>
-                <input id="password" type="password" name="password" required>
-
-                <div class="form-buttons">
-                    <a href="signup.php" class="register-link">Registrati</a>
-                    <button type="submit">Accedi</button>
-                </div>
-            </form>
+        {{ error }}
+        <div class="alert error" role="alert" aria-live="polite">
+            <p>Credenziali non valide. Controlla email e password.</p>
         </div>
-      </main>
+        {{ /error }}
 
-    {{ footer }}
+        <form action="/login.php" method="POST">
+            <p>Accedi alla tua area personale</p>
+
+            <label for="email">Email:</label>
+            <input id="email" type="email" name="email"
+                   placeholder="mariorossi@dominio.it"
+                   value="{{ old.email }}" required>
+
+            <label for="password">Password:</label>
+            <input id="password" type="password" name="password" required>
+
+            <div class="form-buttons">
+                <a href="/signup.php" aria-label="Crea un nuovo account">Crea account</a>
+                <button type="submit">Accedi</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+{{ footer }}
 
 </body>
 </html>
-

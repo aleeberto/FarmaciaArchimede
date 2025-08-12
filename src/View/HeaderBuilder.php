@@ -4,21 +4,12 @@ namespace App\View;
 
 use App\Core\PageBuilder;
 
-/**
- * Costruisce l'header della pagina con menu e selezione percorso corrente.
- * In safe mode evita qualunque accesso ad Auth/DB.
- */
 class HeaderBuilder
 {
     private PageBuilder $builder;
     private string $currentPath;
     private bool $safe;
 
-    /**
-     * @param PageBuilder $builder     Istanza di PageBuilder per il rendering del template.
-     * @param string      $currentPath Percorso corrente della pagina (es. '/contatti.php').
-     * @param bool        $safe        Se true, non usa Auth/DB.
-     */
     public function __construct(PageBuilder $builder, string $currentPath = '/', bool $safe = false)
     {
         $this->builder     = $builder;
@@ -26,63 +17,88 @@ class HeaderBuilder
         $this->safe        = $safe;
     }
 
-    /**
-     * Genera l'HTML dell'header, aggiungendo la classe 'active' alla voce di menu corrispondente
-     * al percorso corrente e sostituendo 'Accedi' con il nome dell'utente autenticato (solo se non in safe mode).
-     */
     public function build(): string
     {
+        // Mappa voci di menu -> path
+        $routes = [
+            'home'      => '/',
+            'prodotti'  => '/prodotti.php',
+            'chi_siamo' => '/chi_siamo.php',
+            'contatti'  => '/contatti.php',
+            // 'login' è gestita separatamente (può diventare /area_personale.php)
+        ];
 
-        $html = $this->builder->loadTemplate('common/header.html')->build();
+        // Determina se l’utente è loggato (solo se non in safe mode)
+        $isLogged = false;
+        $loginLabel = 'Accedi';
+        $loginHref  = '/login.php';
 
         if (!$this->safe) {
             $user = $this->builder->getAuthService()?->getUser();
             if ($user) {
-                $username = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
-                $loginPattern = '#<li>\s*<a([^>]*)href=["\']/?login\.php["\']([^>]*)>(.*?)</a>\s*</li>#is';
-                $html = preg_replace_callback($loginPattern, function(array $m) use ($username) {
-                    $before = $m[1]; $after  = $m[2]; $inner  = $m[3];
-                    $newInner = str_replace('Accedi', $username, $inner);
-                    return '<li><a' . $before . ' href="/area_personale.php"' . $after . '>'
-                        . $newInner . '</a></li>';
-                }, $html, 1);
+                $isLogged   = true;
+                $loginLabel = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
+                $loginHref  = '/area_personale.php';
             }
         }
 
-        // Imposta voce 'active' in base al percorso
-        $relPath = ltrim($this->currentPath, '/');
-        $p = preg_quote($relPath, '#');
-        $pattern = '#(<li\b[^>]*>)(\s*<a\s+href="/?'.$p.'"[^>]*>)#i';
+        // Costruisci classi "active"
+        $active = [
+            'home'      => '',
+            'prodotti'  => '',
+            'chi_siamo' => '',
+            'contatti'  => '',
+            'login'     => '',
+        ];
 
-        $html = preg_replace_callback($pattern, function(array $m) {
-            $liTag = $m[1];
-            if (preg_match('/\bclass="([^"]*)"/', $liTag, $cls)) {
-                $liTag = preg_replace(
-                    '/\bclass="([^"]*)"/',
-                    'class="'.trim($cls[1].' active').'"',
-                    $liTag
-                );
-            } else {
-                $liTag = rtrim($liTag, '>') . ' class="active">';
+        // Normalizza path corrente
+        $curr = '/' . ltrim(parse_url($this->currentPath, PHP_URL_PATH) ?: '/', '/');
+
+        // Attiva la voce corrispondente
+        foreach ($routes as $key => $path) {
+            if ($this->sameRoute($curr, $path)) {
+                $active[$key] = 'active';
+                break;
             }
-            return $liTag . $m[2];
-        }, $html);
+        }
 
-        // Rendi il link attivo non cliccabile
-        $html = preg_replace_callback(
-            '#<li\b([^>]*)class="([^"]*active[^"]*)"\s*>\s*<a\b([^>]*href="[^"]+"[^>]*)>(.*?)</a>\s*</li>#is',
-            function(array $m) {
-                list(, $liAttrs, $classes, $aAttrs, $label) = $m;
-                if (!preg_match('/\btabindex\b/', $aAttrs)) {
-                    $aAttrs .= ' tabindex="-1" aria-disabled="true"';
-                }
-                return "<li{$liAttrs}class=\"{$classes}\">"
-                    . "<a{$aAttrs}>{$label}</a>"
-                    . "</li>";
-            },
-            $html
-        );
+        // Gestione stato "login": attivo se siamo su login.php o area_personale.php
+        if ($this->sameRoute($curr, '/login.php') || $this->sameRoute($curr, '/area_personale.php')) {
+            $active['login'] = 'active';
+        }
 
-        return $html;
+        // Attributi ARIA/tabindex per il link attivo (non cliccabile/focusabile)
+        $loginAria = '';
+        if ($active['login'] === 'active') {
+            $loginAria = 'tabindex="-1" aria-disabled="true"';
+        }
+
+        // Inserisci placeholder nel template
+        $tpl = $this->builder->loadTemplate('common/header.html');
+
+        $tpl->insert('menu.home.class',      $active['home']);
+        $tpl->insert('menu.prodotti.class',  $active['prodotti']);
+        $tpl->insert('menu.chi_siamo.class', $active['chi_siamo']);
+        $tpl->insert('menu.contatti.class',  $active['contatti']);
+        $tpl->insert('menu.login.class',     $active['login']);
+
+        $tpl->insert('login.href',  $loginHref);
+        $tpl->insert('login.label', $loginLabel);
+        $tpl->insert('login.aria',  $loginAria);
+
+        return $tpl->build();
+    }
+
+    /**
+     * Confronto “per rotta”: ignora eventuali slash finali.
+     */
+    private function sameRoute(string $a, string $b): bool
+    {
+        $norm = static function (string $p): string {
+            $p = parse_url($p, PHP_URL_PATH) ?: '/';
+            $p = '/' . ltrim($p, '/');
+            return rtrim($p, '/') ?: '/';
+        };
+        return $norm($a) === $norm($b);
     }
 }
