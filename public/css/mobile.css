@@ -211,6 +211,14 @@
     #add-to-cart {
         margin: 0;
     }
+
+    .auth-form, #signup-form {
+        width: 80%;
+    }
+
+    .auth-form input {
+        width: 90%;
+    }
 }
 
 
