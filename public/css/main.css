@@ -154,9 +154,18 @@ header nav ul li:nth-last-child(2) {
     margin-left: auto;
 }
 
+header.flex-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* logo a sx, nav a dx */
+    padding: 0.5rem 1.5rem;  /* spazio interno a sx e dx */
+    gap: 1rem;               /* distanza uniforme tra logo, hamburger e nav */
+}
+
 input {
     outline-color: var(--outline-color);
 }
+
 
 /* BREADCRUMB */
 .breadcrumb {
@@ -855,4 +864,97 @@ table caption {
 }
 .btn-edit:hover, .btn-edit:focus {
     background: var(--tertiary-accent-bg, #80d2a3);
+}
+
+/* ===== TABELLE AREA PERSONALE ===== */
+table.area-personale-table {
+    width: calc(100% - 40px);
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--primary-bg);
+    font-size: 0.98rem;
+    table-layout: auto;
+    margin: 20px auto;
+}
+
+/* Header appiccicoso */
+table.area-personale-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface-2, #f7f7f7);
+    color: var(--primary-text);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 1px 0 var(--border-color);
+}
+
+/* Celle */
+table.area-personale-table th,
+table.area-personale-table td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    color: var(--primary-text);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Zebra + hover */
+table.area-personale-table tbody tr:nth-child(even) {
+    background: rgba(0,0,0,0.03);
+}
+table.area-personale-table tbody tr:hover {
+    background: var(--active-hover-color);
+}
+
+/* Angoli arrotondati */
+table.area-personale-table thead th:first-child { border-top-left-radius: 14px; }
+table.area-personale-table thead th:last-child  { border-top-right-radius: 14px; }
+table.area-personale-table tbody tr:last-child td:first-child { border-bottom-left-radius: 14px; }
+table.area-personale-table tbody tr:last-child td:last-child  { border-bottom-right-radius: 14px; }
+
+/* Colonne utili */
+table.area-personale-table th.num,
+table.area-personale-table td.num { text-align: right; }
+table.area-personale-table th.center,
+table.area-personale-table td.center { text-align: center; }
+table.area-personale-table td.actions { white-space: nowrap; width: 1%; }
+
+/* Bottoni */
+table.area-personale-table button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    line-height: 1.1;
+}
+
+/* Testo lungo tronca */
+table.area-personale-table td.truncate {
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Caption */
+table.area-personale-table caption {
+    caption-side: top;
+    text-align: left;
+    padding: 8px 0 6px;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+/* Tema scuro */
+:root[data-theme="dark"] table.area-personale-table thead th {
+    background: var(--surface-2, #1D242A);
+    box-shadow: 0 1px 0 var(--border-color);
+}
+:root[data-theme="dark"] table.area-personale-table tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.03);
+}
+
+.logo-svg {
+    display: block;
+    width: 60px;
+    height: auto;
+    margin: 0.25rem 0;     /* spazio verticale */
+    padding: 0;            /* niente padding extra */
 }

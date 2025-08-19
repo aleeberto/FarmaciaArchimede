@@ -188,7 +188,7 @@ class AreaPersonaleService
             $rows .= "<td>" . htmlspecialchars($u['tax_code']) . "</td>";
             $rows .= "<td>{$role}</td>";
             $rows .= "<td>
-                <a class='btn-edit' href='/modifica.php?id=" . (int)$userId . "'>Modifica</a>
+                <a class='btn-edit' href='?area_personale.php?section=dati.php?id=" . (int)$userId . "'>Modifica</a>
                 <button class='btn-delete' data-id='{$userId}'>Elimina</button>
                 </td>";
 
