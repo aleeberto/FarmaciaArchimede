@@ -110,9 +110,10 @@ class AreaPersonaleService
             $rows .= "<td>{$name}</td>";
             $rows .= "<td>{$email}</td>";
             $rows .= "<td>
-                        <button class='btn-edit' data-id='{$orderId}'>Modifica</button>
-                        <button class='btn-delete' data-id='{$orderId}'>Elimina</button>
-                      </td>";
+                <a class='btn-edit' href='/modifica.php?id=" . (int)$orderId . "'>Modifica</a>
+                <button class='btn-delete' data-id='{$orderId}'>Elimina</button>
+                </td>";
+
             $rows .= "</tr>";
         }
 
@@ -147,9 +148,9 @@ class AreaPersonaleService
             $rows .= "<td>" . number_format($p['price'], 2) . "</td>";
             $rows .= "<td>{$p['availability']}</td>";
             $rows .= "<td>
-                        <button class='btn-edit' data-id='{$id}'>Modifica</button>
-                        <button class='btn-delete' data-id='{$id}'>Elimina</button>
-                      </td>";
+                <a class='btn-edit' href='/modifica.php?id=" . (int)$id . "'>Modifica</a>
+                <button class='btn-delete' data-id='{$id}'>Elimina</button>
+                </td>";
             $rows .= "</tr>";
         }
 
@@ -187,9 +188,10 @@ class AreaPersonaleService
             $rows .= "<td>" . htmlspecialchars($u['tax_code']) . "</td>";
             $rows .= "<td>{$role}</td>";
             $rows .= "<td>
-                        <button class='btn-edit' data-id='{$userId}'>Modifica</button>
-                        <button class='btn-delete' data-id='{$userId}'>Elimina</button>
-                      </td>";
+                <a class='btn-edit' href='/modifica.php?id=" . (int)$userId . "'>Modifica</a>
+                <button class='btn-delete' data-id='{$userId}'>Elimina</button>
+                </td>";
+
             $rows .= "</tr>";
         }
 
@@ -222,7 +224,7 @@ class AreaPersonaleService
         $html = '';
 
         if (empty($orders)) {
-            $html = "<p>Non hai ancora effettuato ordini.</p>";
+            $html = "<p class='order-info'>Non hai ancora effettuato ordini.</p>";
         } else {
             foreach ($orders as $order) {
                 $html .= "<article class='order'>";
@@ -263,5 +265,105 @@ class AreaPersonaleService
         }
 
         return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Ritorna il profilo utente completo per la vista "I miei dati".
+     * @return \stdClass|null  Proprietà: user_id, first_name, last_name, email, tax_code
+     */
+    public function getProfiloUtente(int $userId): ?\stdClass
+    {
+        $stmt = $this->mysqli->prepare("
+            SELECT user_id, first_name, last_name, email, tax_code
+            FROM users
+            WHERE user_id = ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare getProfiloUtente: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if (!$res) {
+            throw new \RuntimeException("Errore execute getProfiloUtente: " . $stmt->error);
+        }
+
+        $row = $res->fetch_assoc();
+        if (!$row) {
+            return null;
+        }
+
+        $o = new \stdClass();
+        $o->user_id    = (int)$row['user_id'];
+        $o->first_name = (string)$row['first_name'];
+        $o->last_name  = (string)$row['last_name'];
+        $o->email      = (string)$row['email'];
+        $o->tax_code   = (string)$row['tax_code'];
+        return $o;
+    }
+
+    /**
+     * Aggiorna i dati base del profilo utente.
+     * $data atteso: first_name, last_name, email, tax_code (già validati a monte).
+     */
+    public function updateProfiloUtente(int $userId, array $data): void
+    {
+        $firstName = $data['first_name'] ?? '';
+        $lastName  = $data['last_name']  ?? '';
+        $email     = $data['email']      ?? '';
+        $taxCode   = $data['tax_code']   ?? '';
+
+        $stmt = $this->mysqli->prepare("
+            UPDATE users
+            SET first_name = ?, last_name = ?, email = ?, tax_code = ?
+            WHERE user_id = ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare updateProfiloUtente: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('ssssi', $firstName, $lastName, $email, $taxCode, $userId);
+        if (!$stmt->execute()) {
+            throw new \RuntimeException("Errore execute updateProfiloUtente: " . $stmt->error);
+        }
+
+        // Allinea eventuali dati in sessione se l'AuthService espone un metodo dedicato
+        if (method_exists($this->auth, 'refreshSessionUserData')) {
+            try {
+                $this->auth->refreshSessionUserData($userId);
+            } catch (\Throwable $e) {
+                // Non è bloccante per il salvataggio: logga se hai un logger
+            }
+        }
+    }
+
+    /**
+     * Verifica se l'email è già usata da un altro utente (utile per la validazione server-side).
+     * Ritorna true se esiste un altro utente con la stessa email.
+     */
+    public function emailEsistePerAltroUtente(string $email, int $excludeUserId): bool
+    {
+        $stmt = $this->mysqli->prepare("
+            SELECT 1
+            FROM users
+            WHERE email = ?
+              AND user_id <> ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare emailEsistePerAltroUtente: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('si', $email, $excludeUserId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if (!$res) {
+            throw new \RuntimeException("Errore execute emailEsistePerAltroUtente: " . $stmt->error);
+        }
+
+        return (bool)$res->fetch_row();
     }
 }

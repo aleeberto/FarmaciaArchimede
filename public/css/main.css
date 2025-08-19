@@ -722,3 +722,137 @@ ul.area-personale-menu {
     color: var(--primary-text, #000);
 }
 
+/* Pagina di errore */
+.error-page {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+/* Numero dell’errore in verde acceso */
+.error-page .error-code {
+    font-size: 7rem;
+    font-weight: 700;
+    color: var(--tertiary-accent-bg); /* verde brillante */
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.15);
+    transform: rotate(-3deg);
+}
+
+/* Messaggi di testo */
+.error-page .error-message {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.order-info {
+    margin: auto;
+}
+
+/* ====== TABELLE: wrapper per scroll orizzontale su mobile ====== */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0px 2px 4px var(--shadow-color);
+    background: var(--primary-bg);
+    margin: 16px 0;
+}
+
+/* ====== TABELLA BASE ====== */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--primary-bg);
+    font-size: 0.98rem;
+}
+
+/* Header: appiccicoso, ombra leggera */
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface-2, #f7f7f7);
+    color: var(--primary-text);
+    border-bottom: 1px solid var(--border-color);
+    /* piccola ombra per separare dallo scorrimento */
+    box-shadow: 0 1px 0 var(--border-color);
+}
+
+/* Celle */
+th, td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    color: var(--primary-text);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Angoli arrotondati sulla prima/ultima cella della prima e ultima riga */
+thead th:first-child { border-top-left-radius: 14px; }
+thead th:last-child  { border-top-right-radius: 14px; }
+tbody tr:last-child td:first-child { border-bottom-left-radius: 14px; }
+tbody tr:last-child td:last-child  { border-bottom-right-radius: 14px; }
+
+/* Zebra striping + hover */
+tbody tr:nth-child(even) {
+    background: rgba(0,0,0,0.03);
+}
+tbody tr:hover {
+    background: var(--active-hover-color);
+}
+
+/* Allineamenti utili (usa se vuoi, senza toccare l’HTML) */
+td.num, th.num { text-align: right; }
+td.center, th.center { text-align: center; }
+
+/* Colonne "azioni" più compatte */
+td.actions {
+    white-space: nowrap;
+    width: 1%;
+}
+
+/* Bottoni dentro tabelle: linea base più pulita */
+table button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    line-height: 1.1;
+}
+
+/* Caption leggibile e allineata a sinistra */
+table caption {
+    caption-side: top;
+    text-align: left;
+    padding: 8px 0 6px;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+/* ====== Tema scuro: regolazioni zebra/header ====== */
+:root[data-theme="dark"] thead th {
+    background: var(--surface-2, #1D242A);
+    box-shadow: 0 1px 0 var(--border-color);
+}
+:root[data-theme="dark"] tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.03);
+}
+
+/* ====== Responsività minima ====== */
+@media (max-width: 720px) {
+    table { font-size: 0.94rem; }
+    th, td { padding: 8px 10px; }
+}
+
+.btn-edit {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--secondary-accent-bg, #9ceaac);
+    color: var(--primary-text, #000);
+    text-decoration: none;
+    border: 1px solid var(--border-color, rgba(0,0,0,.2));
+}
+.btn-edit:hover, .btn-edit:focus {
+    background: var(--tertiary-accent-bg, #80d2a3);
+}

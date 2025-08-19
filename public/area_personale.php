@@ -114,6 +114,7 @@ foreach ($crumbs as $i => $crumb) {
     }
 }
 $params['breadcrumb'] = $items;
+$params['is_admin'] = $isAdmin;
 
 // 5. Renderizza con PageBuilder
 PageBuilder::show($templateName, $params);

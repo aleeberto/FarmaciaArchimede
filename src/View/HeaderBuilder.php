@@ -8,13 +8,11 @@ class HeaderBuilder
 {
     private PageBuilder $builder;
     private string $currentPath;
-    private bool $safe;
 
-    public function __construct(PageBuilder $builder, string $currentPath = '/', bool $safe = false)
+    public function __construct(PageBuilder $builder, string $currentPath = '/')
     {
         $this->builder     = $builder;
         $this->currentPath = $currentPath ?: '/';
-        $this->safe        = $safe;
     }
 
     public function build(): string
@@ -25,24 +23,26 @@ class HeaderBuilder
             'prodotti'  => '/prodotti.php',
             'chi_siamo' => '/chi_siamo.php',
             'contatti'  => '/contatti.php',
-            // 'login' è gestita separatamente (può diventare /area_personale.php)
         ];
 
-        // Determina se l’utente è loggato (solo se non in safe mode)
-        $isLogged = false;
+        // Determina stato utente (best-effort)
+        $isLogged   = false;
         $loginLabel = 'Accedi';
         $loginHref  = '/login.php';
 
-        if (!$this->safe) {
+        try {
             $user = $this->builder->getAuthService()?->getUser();
             if ($user) {
                 $isLogged   = true;
                 $loginLabel = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
                 $loginHref  = '/area_personale.php';
             }
+        } catch (\Throwable $e) {
+            // degraded mode: lascia Accedi
+            $isLogged = false;
         }
 
-        // Costruisci classi "active"
+        // Classi active
         $active = [
             'home'      => '',
             'prodotti'  => '',
@@ -51,10 +51,8 @@ class HeaderBuilder
             'login'     => '',
         ];
 
-        // Normalizza path corrente
         $curr = '/' . ltrim(parse_url($this->currentPath, PHP_URL_PATH) ?: '/', '/');
 
-        // Attiva la voce corrispondente
         foreach ($routes as $key => $path) {
             if ($this->sameRoute($curr, $path)) {
                 $active[$key] = 'active';
@@ -62,18 +60,12 @@ class HeaderBuilder
             }
         }
 
-        // Gestione stato "login": attivo se siamo su login.php o area_personale.php
         if ($this->sameRoute($curr, '/login.php') || $this->sameRoute($curr, '/area_personale.php')) {
             $active['login'] = 'active';
         }
 
-        // Attributi ARIA/tabindex per il link attivo (non cliccabile/focusabile)
-        $loginAria = '';
-        if ($active['login'] === 'active') {
-            $loginAria = 'tabindex="-1" aria-disabled="true"';
-        }
+        $loginAria = ($active['login'] === 'active') ? 'tabindex="-1" aria-disabled="true"' : '';
 
-        // Inserisci placeholder nel template
         $tpl = $this->builder->loadTemplate('common/header.html');
 
         $tpl->insert('menu.home.class',      $active['home']);
@@ -89,9 +81,6 @@ class HeaderBuilder
         return $tpl->build();
     }
 
-    /**
-     * Confronto “per rotta”: ignora eventuali slash finali.
-     */
     private function sameRoute(string $a, string $b): bool
     {
         $norm = static function (string $p): string {
