@@ -7,6 +7,12 @@
 {{ header }}
 
 <main>
+    <nav aria-label="breadcrumb" class="breadcrumb">
+        Ti trovi in:
+        <ol>
+            {{ breadcrumb }}
+        </ol>
+    </nav>
     <h1>Gestione Utenti</h1>
     <p><a href="?section=gestione" class="btn-back">← Torna indietro</a></p>
     {{ all_users }}

@@ -88,7 +88,7 @@ switch ($section) {
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
             ]);
-            $crumbs[] = 'I miei dati';
+            $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali'; // il template con il form
             break;
         }
@@ -127,7 +127,7 @@ switch ($section) {
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
             ]);
-            $crumbs[] = 'I miei dati';
+            $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali';
             break;
         }
@@ -205,7 +205,7 @@ switch ($section) {
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
             ]);
-            $crumbs[] = 'I miei dati';
+            $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali';
             break;
         }
@@ -259,7 +259,7 @@ switch ($section) {
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
             ]);
-            $crumbs[] = 'I miei dati';
+            $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali';
             break;
         }
