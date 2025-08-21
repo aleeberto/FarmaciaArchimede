@@ -87,8 +87,9 @@ final class Auth
     {
         $user = self::manager()->getUserDataArray();
         if (!$user || empty($user['is_admin'])) {
-            http_response_code(403);
-            echo 'Accesso negato: permessi insufficienti.';
+            PageBuilder::error(403, [
+                'meta_description' => 'Non hai i permessi per accedere a questa pagina. Torna alla home o effettua il login con un account autorizzato.',
+                'meta_keywords' => 'errore 403, accesso negato, permessi insufficienti, Farmacia Archimede, login richiesto']);
             exit;
         }
     }

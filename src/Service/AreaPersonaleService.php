@@ -27,15 +27,21 @@ class AreaPersonaleService
     {
         $user = $this->auth->getUser();
         if (!$user instanceof UserDTO) {
-            throw new RuntimeException("Utente non autenticato.");
+            throw new \RuntimeException("Utente non autenticato.");
+        }
+
+        // 🔁 Leggi sempre dal DB per evitare dati stantii in sessione
+        $row = $this->getProfiloUtente($user->getId());
+        if ($row === null) {
+            throw new \RuntimeException("Profilo utente non trovato.");
         }
 
         return [
             'user' => [
-                'first_name' => $user->getFirstName(),
-                'last_name'  => $user->getLastName(),
-                'email'      => $user->getEmail(),
-                'tax_code'   => $user->getTaxCode(),
+                'first_name' => $row->first_name,
+                'last_name'  => $row->last_name,
+                'email'      => $row->email,
+                'tax_code'   => $row->tax_code,
             ],
         ];
     }
@@ -366,4 +372,184 @@ class AreaPersonaleService
 
         return (bool)$res->fetch_row();
     }
+
+    /**
+     * Verifica la password di conferma per l’utente corrente.
+     * Usa AuthService se disponibile, altrimenti confronta SHA-256 esadecimale su DB.
+     */
+    public function verifyPassword(string $password): void
+    {
+        if ($password === '') {
+            throw new RuntimeException('Password di conferma mancante.');
+        }
+
+        // 1) Se AuthService espone checkPassword(), usalo
+        if (method_exists($this->auth, 'checkPassword')) {
+            if ($this->auth->checkPassword($password)) {
+                return;
+            }
+            throw new RuntimeException('Password di conferma errata.');
+        }
+
+        // 2) Fallback diretto su DB con password_hash/password_verify
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
+            throw new RuntimeException('Utente non autenticato.');
+        }
+
+        $uid = $user->getId();
+        $stmt = $this->mysqli->prepare('SELECT password_hash FROM users WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new RuntimeException('Errore di sistema (prep verifica password).');
+        }
+        $stmt->bind_param('i', $uid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+
+        if (!$row) {
+            throw new RuntimeException('Utente non trovato.');
+        }
+
+        $expected = $row['password_hash'];
+
+        // >>> qui usi password_verify <<<
+        if (!password_verify($password, $expected)) {
+            throw new RuntimeException('Password di conferma errata.');
+        }
+    }
+
+
+    /**
+     * Cambia la password (verifica prima la corrente).
+     * Salva SHA-256 esadecimale in users.password_hash.
+     */
+    public function changePassword(string $current, string $new): void
+    {
+        if ($current === '' || $new === '') {
+            throw new \RuntimeException('Compila i campi per il cambio password.');
+        }
+        if (strlen($new) < 8) {
+            throw new \RuntimeException('La nuova password deve avere almeno 8 caratteri.');
+        }
+
+        // Verifica current (usa verifyPassword che già fa password_verify)
+        $this->verifyPassword($current);
+
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
+            throw new \RuntimeException('Utente non autenticato.');
+        }
+
+        $uid  = (int)$user->getId();
+        $hash = password_hash($new, PASSWORD_DEFAULT);
+
+        $stmt = $this->mysqli->prepare('UPDATE users SET password_hash = ? WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new \RuntimeException('Errore di sistema (prep update password).');
+        }
+        $stmt->bind_param('si', $hash, $uid);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        if (!$ok) {
+            throw new \RuntimeException('Errore durante l’aggiornamento della password.');
+        }
+    }
+
+    /**
+     * Aggiorna first_name, last_name, email, tax_code.
+     * - normalizza email (trim+lower) e CF (trim+upper)
+     * - controlla unicità email
+     */
+
+    public function updateProfile(array $data): string
+    {
+        // NIENTE mysqli_report() qui: lascia la policy globale com’è
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
+            throw new \RuntimeException('Utente non autenticato.');
+        }
+
+        // Normalizzazione + validazioni
+        $first = trim((string)($data['first_name'] ?? ''));
+        $last  = trim((string)($data['last_name']  ?? ''));
+        $email = strtolower(trim((string)($data['email'] ?? '')));
+        $tax   = strtoupper(trim((string)($data['tax_code'] ?? '')));
+        if ($first === '' || $last === '') throw new \RuntimeException('Nome e cognome sono obbligatori.');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new \RuntimeException('Email non valida.');
+        if (!preg_match('/^[A-Z0-9]{16}$/', $tax)) throw new \RuntimeException('Codice fiscale non valido.');
+
+        $uid = (int)$user->getId();
+
+        // 1) Carica valori correnti (no eccezioni: controlli espliciti)
+        $stmt = $this->mysqli->prepare('SELECT first_name,last_name,email,tax_code FROM users WHERE user_id = ? LIMIT 1');
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep select current).');
+        $stmt->bind_param('i', $uid);
+        if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec select current).');
+        $res = $stmt->get_result();
+        if (!$res) throw new \RuntimeException('Errore sistema (result select current).');
+        $current = $res->fetch_assoc();
+        $stmt->close();
+        if (!$current) throw new \RuntimeException('Utente non trovato.');
+
+        $noOp =
+            (trim((string)$current['first_name']) === $first) &&
+            (trim((string)$current['last_name'])  === $last)  &&
+            (strtolower((string)$current['email']) === $email) &&
+            (strtoupper((string)$current['tax_code']) === $tax);
+
+        if ($noOp) {
+            return 'noop';
+        }
+
+        // 2) Unicità email
+        $stmt = $this->mysqli->prepare('SELECT 1 FROM users WHERE email = ? AND user_id <> ? LIMIT 1');
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep check email).');
+        $stmt->bind_param('si', $email, $uid);
+        if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec check email).');
+        $exists = (bool)$stmt->get_result()->fetch_row();
+        $stmt->close();
+        if ($exists) throw new \RuntimeException('Email già in uso.');
+
+        // 3) UPDATE con gestione errori puntuale
+        $stmt = $this->mysqli->prepare(
+            'UPDATE users SET first_name = ?, last_name = ?, email = ?, tax_code = ? WHERE user_id = ? LIMIT 1'
+        );
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep update).');
+        $stmt->bind_param('ssssi', $first, $last, $email, $tax, $uid);
+
+        try {
+            if (!$stmt->execute()) {
+                // in teoria, con check espliciti, qui non arrivi
+                throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
+            }
+        } catch (\mysqli_sql_exception $e) {
+            // Mappa errori noti e logga gli altri
+            if ((int)$e->getCode() === 1062) {
+                throw new \RuntimeException('Email già in uso.');
+            }
+            // TODO: usa il tuo logger invece di error_log
+            error_log('[updateProfile] SQL error '.$e->getCode().': '.$e->getMessage());
+            throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
+        } finally {
+            $stmt->close();
+        }
+
+        // 4) Riallinea sessione (non deve far fallire il salvataggio)
+
+        try {
+            $this->auth->reloadUserFromDbAndSyncSession();
+        } catch (\Throwable $e) {
+                var_dump('[updateProfile] sync session failed: '.$e->getMessage());
+                // non bloccare l’utente
+        }
+
+
+        return 'updated';
+    }
+
+
+
 }

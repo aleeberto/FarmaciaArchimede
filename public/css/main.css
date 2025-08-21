@@ -211,7 +211,8 @@ input {
 }
 
 #signup-form {
-    width: 40%;
+    width: 100%;
+    margin: auto;
 }
 
 .auth-form h1,
@@ -281,12 +282,16 @@ body main > h1 {
 }
 
 /* FILTER & RESULTS */
-body .main-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
+
+#main-content .main-content {
+    display: grid;
+    gap: 24px;
+
+    max-width: 1100px;  /* limite leggibile */
+    margin: 0 auto;     /* centrato rispetto alla pagina */
+    align-items: start; /* contenuti allineati in alto */
 }
+
 body #filterForm {
     flex: 1;
 }
@@ -408,24 +413,171 @@ body #pagination-container {
 }
 
 /* DETAIL PAGE */
-body #product-container {
-    align-self: center;
+
+#product-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;  /* immagine a sx, dettagli a dx */
+    gap: 32px;
+    align-items: start;
+    width: 100%;
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+#product-image {
+    grid-column: 1;
+}
+#product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 4px var(--shadow-color);
+}
+
+#product-details {
+    grid-column: 2;
     display: flex;
     flex-direction: column;
-    max-width: 70%;
+    gap: 12px;
 }
-body #product-image {
-    flex: 1;
+body #product-details > h2 {
+    margin-bottom: 15px;
     text-align: left;
+    padding-left: 5px;
+    color: var(--primary-text);
 }
-body #product-image img {
+body #product-details > p {
+    text-align: left;
+    border-top: 1px solid var(--border-color);
+    padding: 5px;
+    color: var(--primary-text);
+}
+.cart-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0 15px 10px;
+}
+
+#product-price {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: var(--primary-text);
+}
+
+#qty-input,
+#add-to-cart {
+    margin: 5px 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.93em;
+    border: 1px solid var(--border-color);
+}
+#product-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;  /* immagine a sx, dettagli a dx */
+    gap: 32px;
+    align-items: start;
+    width: 100%;
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+#product-image {
+    grid-column: 1;
+}
+#product-image img {
     max-width: 100%;
+    height: auto;
     display: block;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 4px var(--shadow-color);
 }
-body #product-details {
-    flex: 2;
-    margin: 30px;
-    line-height: 1.5em;
+
+#product-details {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+body #product-details > h2 {
+    margin-bottom: 15px;
+    text-align: left;
+    padding-left: 5px;
+    color: var(--primary-text);
+}
+body #product-details > p {
+    text-align: left;
+    border-top: 1px solid var(--border-color);
+    padding: 5px;
+    color: var(--primary-text);
+}
+.cart-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0 15px 10px;
+}
+
+#product-price {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: var(--primary-text);
+}
+
+#qty-input,
+#add-to-cart {
+    margin: 5px 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.93em;
+    border: 1px solid var(--border-color);
+}
+#product-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;  /* immagine a sx, dettagli a dx */
+    gap: 32px;
+    align-items: start;
+    width: 100%;
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+    background: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+#product-image {
+    grid-column: 1;
+}
+#product-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 4px var(--shadow-color);
+}
+
+#product-details {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 body #product-details > h2 {
     margin-bottom: 15px;
@@ -461,19 +613,196 @@ body #product-details > p {
     border: 1px solid var(--border-color);
 }
 
-/* MODALITÀ EDIT */
-#main-content {
-    align-self: center;
-    max-width: 80%;
+/* Contenitore del form: griglia a due colonne su desktop */
+.product-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    gap: 22px 28px;
+    width: 100%;
+    max-width: 980px;
+    margin: 8px auto 24px;
+    padding: 18px 20px;
+    background: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-.product-form {
+/* Ogni controllo occupa una “cella” della griglia */
+.product-form .form-control {
     display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: space-between;
-    margin: 0 auto;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0; /* fix overflow input lunghi */
 }
+
+/* Etichette */
+.product-form .form-control label,
+.product-form .form-label {
+    font-weight: 600;
+    color: var(--primary-text);
+    line-height: 1.25;
+}
+
+/* Campi testo/select/textarea uniformati */
+.product-form input[type="text"],
+.product-form input[type="number"],
+.product-form input[type="file"],
+.product-form select,
+.product-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    box-shadow: 0 1px 2px var(--shadow-color);
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+/* Focus ring accessibile */
+.product-form input:focus,
+.product-form select:focus,
+.product-form textarea:focus {
+    outline: 3px solid var(--outline-color);
+    outline-offset: 1px;
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0), 0 2px 6px var(--shadow-color-hover);
+}
+
+/* Placeholder leggibile su dark */
+.product-form ::placeholder {
+    color: var(--disabled-text, #888);
+}
+
+/* Messaggi di errore ben visibili e compatti */
+.product-form .error-msg {
+    display: block;               /* sempre riserva spazio */
+    min-height: 1.2em;            /* evita “saltellii” layout */
+    margin-top: -2px;
+    font-size: .92rem;
+    color: #b42318;               /* rosso accessibile */
+}
+:root[data-theme="dark"] .product-form .error-msg {
+    color: #ff6b6b;
+}
+
+/* Riga “descrizione” su tutta larghezza */
+#product-description,
+#product-description + .error-msg,
+#product-image,
+#product-image + .error-msg {
+    /* niente: selettori informativi */
+}
+.product-form textarea#product-description {
+    min-height: 120px;
+    resize: vertical;
+}
+/* Fai “Descrizione” full width */
+#product-description { }
+#product-description { }
+.product-form #product-description { }
+.product-form .form-control:has(#product-description) {
+    grid-column: 1 / -1;
+}
+
+/* Sezione anteprima immagine: card compatta */
+.product-form .form-control:has(img[alt="Anteprima prodotto"]) {
+    align-items: flex-start;
+}
+.product-form img[alt="Anteprima prodotto"] {
+    display: block;
+    max-width: 180px;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    background: var(--primary-bg);
+    padding: 6px;
+}
+
+/* Input file: aspetto pulito */
+.product-form input[type="file"] {
+    padding: 8px;
+}
+.product-form input[type="file"]::-file-selector-button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+.product-form input[type="file"]::-file-selector-button:hover {
+    background: var(--tertiary-accent-bg);
+}
+
+/* Gruppo pulsanti fisso in basso, full-width */
+.product-form .form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 4px;
+}
+
+/* Pulsanti principali */
+.product-form .form-actions button[type="submit"] {
+    background: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.product-form .form-actions button[type="submit"]:hover {
+    background: var(--tertiary-accent-bg);
+    box-shadow: 0 2px 6px var(--shadow-color-hover);
+    transform: translateY(-1px);
+}
+
+/* Pulsante reset “secondario” */
+.product-form .form-actions button[type="reset"] {
+    background: transparent;
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 16px;
+    transition: background-color .2s ease, box-shadow .2s ease;
+}
+.product-form .form-actions button[type="reset"]:hover {
+    background: var(--active-hover-color);
+    box-shadow: 0 2px 6px var(--shadow-color-hover);
+}
+
+/* Campi brevi (prezzo, disponibilità, AIC) più compatti ma elastici */
+#product-price,
+#product-availability,
+#product-aic {
+    max-width: 360px;
+}
+
+/* Selettori grandi (tipo/format) */
+#product-type,
+#product-format {
+    max-width: 100%;
+}
+
+/* Badge asterisco richiesto (accessorio) */
+.product-form label span[aria-hidden="true"] {
+    margin-left: 4px;
+    color: #b42318;
+}
+
+/* Sticky “filter-container” non influenza il form (solo se in pagina prodotti) */
+body.products #filter-container { position: sticky; }
 
 .form-control {
     display: flex;
@@ -662,14 +991,6 @@ header nav ul.flex-container > li:last-child > a {
     color: red;
 }
 
-.alert {
-    border: 1px solid rgba(220, 53, 69, .25);
-    background: rgba(220, 53, 69, .08);
-    padding: 12px 14px;
-    border-radius: 12px;
-    margin: 10px 0 16px;
-}
-.alert.error { border-color: rgba(220, 53, 69, .45); }
 
 ul.area-personale-menu {
     list-style: none;
@@ -957,4 +1278,149 @@ table.area-personale-table caption {
     height: auto;
     margin: 0.25rem 0;     /* spazio verticale */
     padding: 0;            /* niente padding extra */
+}
+
+.personal-form {
+    width: 80%;
+}
+
+/* Lista resa come righe tipo tabella */
+.profile-list {
+    list-style: none;
+    margin: 18px 0;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--primary-bg);
+    overflow: hidden;       /* arrotondamento sugli angoli */
+}
+
+/* Ogni riga: etichetta fissa a sinistra, valore fluido a destra */
+.profile-list li {
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    line-height: 1.45;
+    color: var(--primary-text);
+    /* niente ombre, look “tabellare” */
+}
+.profile-list li:last-child {
+    border-bottom: none;
+}
+
+/* Etichetta su una colonna a larghezza fissa */
+.profile-list li strong {
+    display: inline-block;
+    min-width: 200px;        /* colonna etichetta */
+    max-width: 260px;
+    margin: 0;               /* azzera margini precedenti */
+    font-weight: 600;
+    opacity: .9;
+    white-space: nowrap;     /* niente a capo per l’etichetta */
+}
+
+/* Valore: resta inline dopo l’etichetta, con gestione overflow */
+.profile-list li strong + * {
+    /* Se in futuro racchiudi i valori in uno span, questo stile li prenderà */
+}
+.profile-list li {
+    overflow-wrap: anywhere; /* evita overflow su email/lunghi */
+    text-wrap: pretty;       /* migliore spezzatura (browser support moderno) */
+}
+
+
+
+/* Qualsiasi .alert dentro .main-content occupa entrambe le colonne */
+#main-content .main-content .alert {
+    grid-column: 1 / -1;
+    width: min(90%, 780px);
+    margin: 20px auto;
+}
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    width: 80%;
+    max-width: 780px;
+    padding: 14px 18px;
+
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.4;
+
+    box-shadow: 0 2px 6px var(--shadow-color);
+    border: 1px solid transparent;
+}
+
+/* Icona generica dentro alert */
+.alert::before {
+    flex-shrink: 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* --- SUCCESSO --- */
+.alert.success {
+    background-color: rgba(40, 167, 69, .12);
+    border-color: rgba(40, 167, 69, .4);
+    color: #0f5132;
+}
+
+/* --- ERRORE --- */
+.alert.error {
+    background-color: rgba(220, 53, 69, .12);
+    border-color: rgba(220, 53, 69, .4);
+    color: #842029;
+}
+
+.alert.info {
+    background-color: rgba(13, 110, 253, .12);  /* blu chiaro */
+    border-color: rgba(13, 110, 253, .4);       /* blu più scuro */
+    color: #084298;                             /* testo blu intenso */
+}
+
+/* Layout pagina prodotti */
+body.products .main-content {
+    display: grid;
+    grid-template-columns: 280px 1fr; /* form stretto a sx, risultati ampi a dx */
+    gap: 24px;
+
+    width: 100%;          /* occupa tutta la larghezza disponibile */
+    max-width: 1400px;    /* limite leggibile su schermi larghi */
+    margin: 20px auto;    /* centrato orizzontalmente */
+    align-items: start;
+}
+
+/* Colonna sinistra (form) */
+body.products #filterForm {
+    grid-column: 1;
+    width: 100%; /* si adatta alla colonna */
+}
+body.products #filter-container {
+    background: var(--primary-bg);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0px 2px 4px var(--shadow-color);
+    position: sticky;
+    top: 20px;        /* resta visibile mentre scrolli */
+    align-self: start;
+}
+
+/* Colonna destra (risultati) */
+body.products #results-container {
+    grid-column: 2;
+    width: 100%;
+}
+
+#profile-edit-form {
+    width: 90%;
+}
+
+#personal-details {
+    margin: auto;
 }

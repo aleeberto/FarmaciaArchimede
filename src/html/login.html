@@ -11,11 +11,7 @@
     <div class="auth-form">
         <h1>Login</h1>
 
-        {{ error }}
-        <div class="alert error" role="alert" aria-live="polite">
-            <p>Credenziali non valide. Controlla email e password.</p>
-        </div>
-        {{ /error }}
+        {{ alert }}
 
         <form action="/login.php" method="POST">
             <p>Accedi alla tua area personale</p>

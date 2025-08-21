@@ -97,9 +97,8 @@ class PageBuilder
 
         http_response_code($code);
         $parameters["meta_title"] = "Errore $code | Farmacia Archimede";
-        $parameters["meta_description"] = "";
         self::show((string)$code, ['error_code' => $code] + $parameters);
-        // azzera l'istanza per evitare stati sporchi tra richieste
+
         self::$instance = null;
         exit;
     }
