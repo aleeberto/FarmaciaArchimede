@@ -443,15 +443,33 @@ body #product-details > p {
     color: var(--primary-text);
 }
 
-#qty-input,
-#add-to-cart {
-    margin: 5px 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.93em;
+#qty-input {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
     border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 6px 12px;
+    text-align: center;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+#qty-input:focus {
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+}
+
+#add-to-cart {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#add-to-cart:hover,
+#add-to-cart:focus {
+    background-color: var(--tertiary-accent-bg);
+    transform: scale(1.05);
+}
 /* MODALITÀ EDIT */
 #main-content {
     align-self: center;
@@ -722,3 +740,140 @@ ul.area-personale-menu {
     color: var(--primary-text, #000);
 }
 
+/* CONTATTI PAGE STYLES TODO TODO TODO*/
+/* CONTATTI PAGE STYLES */
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 20px;
+    margin-bottom: 30px;
+}
+
+.contact-card {
+    background-color: var(--primary-accent-bg);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 3px 3px var(--shadow-color);
+}
+
+.contact-content {
+    margin-top: 15px;
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.contact-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    color: var(--non-visited-link);
+}
+
+.contact-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Resto del CSS rimane invariato */
+.opening-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.opening-table th,
+.opening-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+}
+
+.opening-table th {
+    background-color: var(--secondary-accent-bg);
+}
+
+.text-info {
+    padding: 10px;
+    background-color: var(--tertiary-accent-bg);
+    border-radius: 15px;
+    margin-top: 15px;
+}
+
+.map-container {
+    grid-column: span 2;
+}
+
+.accessibility-list {
+    list-style: none;
+    padding: 0;
+}
+
+.accessibility-list li {
+    margin-bottom: 8px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.accessibility-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 5px;
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-container {
+        grid-column: span 1;
+    }
+}
+
+
+body #tipologia,
+body #search-box input,
+body input[type="submit"] {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 5px 10px;
+    font-size: 0.95em;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+body #tipologia:focus,
+body #search-box input:focus,
+body input[type="submit"]:focus {
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 2px var(--outline-color);
+    outline: none;
+}
+
+/* Hover per submit e search input se vuoi un effetto simile ai bottoni */
+body input[type="submit"]:hover,
+body #search-box input:hover {
+    background-color: var(--secondary-accent-bg);
+    cursor: pointer;
+}
+
+/* Option del select */
+body #tipologia option {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+}
