@@ -39,8 +39,8 @@ class LoginService
                 'error'             => '', // nasconde il blocco di default
                 'old'               => ['email' => $oldEmail],
                 'meta_title'        => 'Accedi | Farmacia Archimede',
-                'meta_description'  => 'Descrizione specifica per questa pagina',
-                'meta_keywords'     => 'parola1, parola2, parola3',
+                'meta_description'  => 'Pagina di Login all area personale della Farmacia Archimede',
+                'meta_keywords'     => 'login, farmacia, archimede, area personale, registrazione',
             ]);
             exit;
         }

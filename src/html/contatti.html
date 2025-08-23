@@ -1,25 +1,133 @@
 <!DOCTYPE html>
-
 <html lang="it">
-
 {{ head }}
 
 <body class="no-print">
-
     {{ header }}
 
-    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+    <nav aria-label="Percorso di navigazione" class="breadcrumb">
         <ol>
-            <li><a href="/index.php" lang="it">Home</a></li>
+            <li><a href="/index.php">Home</a></li>
             <li aria-current="page">Contatti</li>
         </ol>
     </nav>
 
-    <main>
-        <h1>Contatti</h1>
+    <main id="main-content">
+        <h1>Contatta la Farmacia Archimede</h1>
+        
+        <div class="contact-grid">
+            <section aria-labelledby="contact-info" class="contact-card">
+                <h2 id="contact-info">Informazioni di Contatto</h2>
+                
+                <div class="contact-content">
+                    <h3>Dove siamo</h3>
+                    <address>
+                        Farmacia Archimede<br>
+                        Via Galileo Galilei 1123<br>
+                        10129 Torino (TO)<br>
+                        Italia
+                    </address>
+                    
+                    <h3>Contatti diretti</h3>
+                    <ul class="contact-list">
+                        <li class="contact-item">
+                            <span class="contact-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24">
+                                    <path d="M20.487 17.14L16.422 13.252C16.052 12.908 15.473 12.873 15.06 13.164L13.188 14.492C11.04 13.164 10.418 11.476 9.82 9.924L11.236 8.052C11.553 7.6 11.527 7.02 11.164 6.6L7.104 2.86C6.724 2.42 6.121 2.38 5.693 2.772L3.49 4.788C3.021 5.22 2.868 5.888 3.108 6.492C4.23 9.208 6.323 12.784 10.02 16.38C13.717 19.976 17.318 21.964 20.042 23.004C20.667 23.22 21.357 23.076 21.81 22.62L23.86 20.692C24.28 20.292 24.248 19.7 23.78 19.34L20.487 17.14Z" fill="currentColor"/>
+                                </svg>
+                            </span>
+                            <a href="tel:+390114567890">123 4567 890</a>
+                        </li>
+                        <li class="contact-item">
+                            <span class="contact-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24">
+                                    <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <a href="mailto:info@farmaciaarchimede.it">info@farmaciaarchimede.it</a>
+                        </li>
+                        <li class="contact-item">
+                            <span class="contact-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24">
+                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M2 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2V2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <a href="mailto:farmacia.archimede@pec.it">farmacia.archimede@pec.it</a>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section aria-labelledby="opening-hours" class="contact-card">
+                <h2 id="opening-hours">Orari di Apertura</h2>
+                <div class="contact-content">
+                    <p id="sum" class="visually-hidden">orario di apertura della farmacia divisa in colonne che definiscono i giorni della settimana e le righe che definiscono gli orari di apertura</p>
+                    <table class="opening-table" aria-describedby="sum">
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <th scope="col" abbr="Lun-Ven">Lunedì-Venerdì</th>
+                                <th scope="col" abbr="Sab">Sabato</th>
+                                <th scope="col" abbr="Dom">Domenica</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row" abbr="8-12">08:00-12:00</th>
+                                <td>aperto</td>
+                                <td>aperto</td>
+                                <td>chiuso</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" abbr="14-19">14:00-19:00</th>
+                                <td>aperto</td>
+                                <td>chiuso</td>
+                                <td>chiuso</td>
+                            </tr>           
+                        </tbody>  
+                    </table>
+                </div>
+                    <p class="text-info">
+                        <strong>Servizio di guardia farmaceutica</strong> disponibile 24/7 per emergenze.
+                    </p>
+                </div>
+            </section>
+            
+            <section aria-labelledby="location-map" class="contact-card map-container">
+                <h2 id="location-map">Come raggiungerci</h2>
+                <div class="contact-content">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2818.693950369628!2d7.684215315542644!3d45.05294497909824!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDXCsDAzJzEwLjYiTiA3wrA0MScwMy4wIkU!5e0!3m2!1sen!2sit!4v1620000000000!5m2!1sen!2sit" 
+                        width="100%" 
+                        height="450" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy"
+                        title="Mappa della posizione della Farmacia Archimede"
+                        aria-label="Mappa interattiva che mostra la posizione della Farmacia Archimede in Via Galileo Galilei 1123, Torino">
+                    </iframe>
+                    <p class="text-info">
+                        La farmacia si trova tra la panchina degli innamorati e il castello del Valentino. A 100 metri a nord rispetto la fermata della metro "Porta Nuova", proseguendo sul marciapiede,
+                        si può arrivare all entrata della farmacia. A 150 metri a sud rispetto la fermata "Porta Vecchia", attraversando la strada e proseguendo a sud dal marciapiede si vedrá l' insegna
+                        della farmacia Proseguendo verso est dall Ospedale San Vito, lungo il marciapiede che si trova all uscita del Pronto Soccorso, alla fine del marciapiede subito dopo il semaforo, 
+                        si trova l entrata della farmacia.
+                    </p>
+                    <div class="text-info">
+                        <h3>Accessibilità</h3>
+                        <ul class="accessibility-list">
+                            <li>Parcheggio riservato ai clienti</li>
+                            <li>Accesso per disabili</li>
+                            <li>Servizio di consegna a domicilio disponibile</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     {{ footer }}
-
 </body>
 </html>

@@ -100,8 +100,8 @@ class ProductPageService
             'checkedDisponibile' => $checkedDisponibile,
             'checkedEsaurito'    => $checkedEsaurito,
             'meta_title'       => 'Prodotti | Farmacia Archimede',
-            'meta_description' => 'Descrizione specifica per questa pagina',
-            'meta_keywords'    => 'parola1, parola2, parola3'
+            'meta_description' => 'Pagina di presentazione dei prodotti disponibili presso la Farmacia Archimede',
+            'meta_keywords'    => 'prodotti, farmacia, archimede, disponibilità'
         ]);
     }
 

@@ -1,25 +1,128 @@
 <!DOCTYPE html>
-
 <html lang="it">
-
 {{ head }}
 
 <body class="no-print">
-
     {{ header }}
 
-    <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
+    <nav aria-label="Percorso di navigazione" class="breadcrumb">
         <ol>
-            <li><a href="/index.php" lang="it">Home</a></li>
+            <li><a href="/index.php">Home</a></li>
             <li aria-current="page">Chi Siamo</li>
         </ol>
     </nav>
 
-    <main>
+    <main id="main-content">
         <h1>Chi Siamo</h1>
+
+        <div class="about-container">
+            <div class="about-intro">
+                <p>Da oltre 30 anni, Farmacia Archimede è un punto di riferimento per la salute e il benessere della nostra comunità. Il nostro team di professionisti qualificati è sempre al tuo servizio con competenza e dedizione.</p>
+            </div>
+
+            <div class="team-grid">
+                <section class="team-member" aria-labelledby="dottor-rossi">
+                    <div class="member-photo">
+                        <img src="/assets/img/team/dottore1.jpg" alt="Dottor Marco Rossi - Farmacista titolare" width="300" height="300">
+                    </div>
+                    <div class="member-info">
+                        <h2 id="dottor-rossi">Dott. Marco Rossi</h2>
+                        <p class="member-role">Farmacista Titolare</p>
+                        <p>Specializzato in farmacia clinica con oltre 25 anni di esperienza. Appassionato di fitoterapia e medicina naturale.</p>
+                        <p class="member-quote">"La salute è un bene prezioso che va preservato ogni giorno"</p>
+                    </div>
+                </section>
+
+                <section class="team-member" aria-labelledby="dottoressa-bianchi">
+                    <div class="member-photo">
+                        <img src="/assets/img/team/dottoressa1.jpg" alt="Dottoressa Anna Bianchi - Farmacista" width="300" height="300">
+                    </div>
+                    <div class="member-info">
+                        <h2 id="dottoressa-bianchi">Dott.ssa Anna Bianchi</h2>
+                        <p class="member-role">Farmacista</p>
+                        <p>Esperta in dermatologia e cosmetica. Si occupa di consulenza personalizzata per la cura della pelle.</p>
+                        <p class="member-quote">"Ascoltare i pazienti è il primo passo per aiutarli veramente"</p>
+                    </div>
+                </section>
+
+                <section class="team-member" aria-labelledby="dottor-verdi">
+                    <div class="member-photo">
+                        <img src="/assets/img/team/dottore2.jpg" alt="Dottor Luca Verdi - Preparatore farmaceutico" width="300" height="300">
+                    </div>
+                    <div class="member-info">
+                        <h2 id="dottor-verdi">Dott. Luca Verdi</h2>
+                        <p class="member-role">Preparatore Farmaceutico</p>
+                        <p>Specializzato in galenica e preparazioni magistrali. Creatore di formulazioni personalizzate per esigenze specifiche.</p>
+                        <p class="member-quote">"Ogni preparazione è un'opera d'arte al servizio della salute"</p>
+                    </div>
+                </section>
+
+                <section class="team-member" aria-labelledby="dottoressa-gialli">
+                    <div class="member-photo">
+                        <img src="/assets/img/team/dottoressa2.jpg" alt="Dott.ssa Alice Gialli - Farmacista" width="300" height="300">
+                    </div>
+                    <div class="member-info">
+                        <h2 id="dottor-verdi">Dott.ssa Alice Gialli </h2>
+                        <p class="member-role">Farmacista</p>
+                        <p>Neolaureata in Chimica e Tecnologie Farmaceutiche, appassionata di ricerca e innovazione. Porta entusiasmo e nuove competenze al servizio della farmacia.</p>
+                        <p class="member-quote">"Porto entusiasmo e voglia di crescere per contribuire al benessere di ogni persona"</p>
+                    </div>
+                </section>
+
+                <section class="team-member" aria-labelledby="dottor-blu">
+                    <div class="member-photo">
+                        <img src="/assets/img/team/dottore3.jpg" alt="Dott. Marco Blu - Farmacista associato" width="300" height="300">
+                    </div>
+                    <div class="member-info">
+                        <h2 id="dottor-blu">Dott. Marco Blu</h2>
+                        <p class="member-role">Farmacista associato</p>
+                        <p>Consolidata esperienza nella gestione del farmaco e nella consulenza al paziente. Sempre aggiornato sulle ultime novità del settore.</p>
+                        <p class="member-quote">"La mia missione è garantire un servizio farmaceutico di qualità, sempre al fianco dei pazienti."</p>
+                    </div>
+                </section>
+
+                <section class="team-member" aria-labelledby="dottoressa-bordeaux">
+                    <div class="member-photo">
+                        <img src="/assets/img/team/dottoressa3.jpg" alt="Dott.ssa Marianna Bordeaux - Farmacista associato" width="300" height="300">
+                    </div>
+                    <div class="member-info">
+                        <h2 id="dottor-verdi">Dott.ssa Marianna Bordeaux</h2>
+                        <p class="member-role">Farmacista associato</p>
+                        <p>Farmacista con anni di esperienza nella consulenza al pubblico e nella gestione delle terapie. Attenta alle esigenze dei pazienti e sempre disponibile ad offrire supporto professionale.</p>
+                        <p class="member-quote">"Ogni giorno metto la mia esperienza al servizio delle persone, con passione e dedizione."</p>
+                    </div>
+                </section>
+            </div>
+
+            <section class="about-values" aria-labelledby="i-nostri-valori">
+                <h2 id="i-nostri-valori">I Nostri Valori</h2>
+                <div class="values-grid">
+                    <div class="value-item">
+                        <h3>Competenza</h3>
+                        <p>Formazione continua e aggiornamento costante per offrire il miglior servizio</p>
+                    </div>
+                    <div class="value-item">
+                        <h3>Disponibilità</h3>
+                        <p>Ascolto e attenzione alle esigenze di ogni paziente</p>
+                    </div>
+                    <div class="value-item">
+                        <h3>Innovazione</h3>
+                        <p>Tecnologia al servizio della salute e del benessere</p>
+                    </div>
+                    <div class="value-item">
+                        <h3>Tradizione</h3>
+                        <p>Esperienza consolidata al servizio della comunità</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="about-cta">
+                <p>Vuoi conoscere meglio il nostro team o hai bisogno di una consulenza?</p>
+                <a href="/contatti.php" class="btn-primary">Contattaci</a>
+            </div>
+        </div>
     </main>
 
     {{ footer }}
-
 </body>
 </html>
