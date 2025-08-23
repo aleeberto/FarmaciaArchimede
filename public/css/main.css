@@ -32,9 +32,9 @@
 
 :root[data-theme="dark"] {
     /* Superfici */
-    --primary-bg: #0E1113;           /* fondo principale (≈ #121212 ma più freddo) */
+    --primary-bg: #2e2b2b;           /* fondo principale (≈ #121212 ma più freddo) */
     --surface-1: #151A1E;            /* blocchi/box base */
-    --surface-2: #1D242A;            /* livelli elevati (card, modali) */
+    --surface-2: #181a1c;            /* livelli elevati (card, modali) */
 
     /* Testo */
     --primary-text: #EAEFF2;         /* testo su fondi scuri (≥ 12:1 su primary-bg) */
@@ -876,4 +876,152 @@ body #search-box input:hover {
 body #tipologia option {
     background-color: var(--primary-bg);
     color: var(--primary-text);
+}
+
+/* WELCOME PAGE STYLES */
+.welcome-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.welcome-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.welcome-section {
+    background-color: var(--primary-accent-bg);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0px 3px 3px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.welcome-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 5px 15px var(--shadow-color-hover);
+}
+
+.welcome-section h2 {
+    color: var(--non-visited-link);
+    margin-bottom: 1rem;
+    font-size: 1.4em;
+}
+
+.welcome-section p {
+    line-height: 1.6;
+    color: var(--primary-text);
+}
+
+.services-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.services-list li {
+    padding: 0.5rem 0;
+    padding-left: 2rem;
+    position: relative;
+    color: var(--primary-text);
+}
+
+.services-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--secondary-accent-bg);
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.welcome-cta {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--secondary-accent-bg);
+    border-radius: 20px;
+    margin-top: 2rem;
+}
+
+.welcome-cta p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1em;
+    color: var(--primary-text);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--tertiary-accent-bg);
+    color: var(--primary-text);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--non-visited-link);
+    border-color: var(--non-visited-link);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--secondary-accent-bg);
+    transform: scale(1.05);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: var(--non-visited-link);
+    color: var(--primary-bg);
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .welcome-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        width: 200px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-container {
+        padding: 10px;
+    }
+    
+    .welcome-section {
+        padding: 20px;
+    }
+    
+    .welcome-cta {
+        padding: 1.5rem;
+    }
 }
