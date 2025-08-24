@@ -65,7 +65,9 @@ class Database
                 $this->connection->set_charset('utf8mb4');
 
             } catch (mysqli_sql_exception $e) {
-                PageBuilder::error(500, ['message' => self::ERR_CONNECTION_FAILED]);
+                PageBuilder::error(500, [
+                'meta_description' => 'Si è verificato un errore interno. Il team di Farmacia Archimede è al lavoro. Torna alla home.',
+                'meta_keywords'    => 'errore 500, problema server, Farmacia Archimede, errore interno, sito farmacia']);
                 exit;
             }
         }

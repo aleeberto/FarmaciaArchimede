@@ -7,9 +7,8 @@ INSERT INTO product_types (name, description) VALUES
 -- admin psw: admin
 -- user psw: user
 INSERT INTO users (email, password_hash, first_name, last_name, tax_code, is_admin) VALUES
-    ('utente@utente.it', '$2y$10$TJlHK4WwImhBPZJOxLNL9OpKBprVfhgkWQIgFk7.JIodi3O.P2AYO', 'utente', 'utente', 'utenteutente', 0),
-    ('user@user.it', '$2y$10$tlY/ZwTi3l2KGE2iJrQmCOppGWRiB0Ws5YQPJABaoo/yQwsGWebdu', 'user', 'user', 'useruser', 1),
-    ('admin@admin.it', '$2y$10$wXGiAL4FkgpSeUeMWc9pzeRlW/5API01q4YPGPCjSKVrbQLtSJhEK', 'admin', 'admin', 'adminadmin', 1);
+    ('utente@utente.it', '$2y$10$TJlHK4WwImhBPZJOxLNL9OpKBprVfhgkWQIgFk7.JIodi3O.P2AYO', 'utente', 'utente', 'BNCLRA95T10F205R', 0),
+    ('admin@admin.it', '$2y$10$wXGiAL4FkgpSeUeMWc9pzeRlW/5API01q4YPGPCjSKVrbQLtSJhEK', 'admin', 'admin', 'RSSFNC80A01H501Y', 1);
 
 INSERT INTO products (product_type_id, short_name, name, manufacturer, aic_code, format, price, availability, description, image_path) VALUES
     (1, 'Aspirina C Antidolorifico e Antinfiammatorio',

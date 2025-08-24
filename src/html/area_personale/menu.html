@@ -17,8 +17,9 @@
     <h1>Area personale</h1>
     <ul class="area-personale-menu">
         <li><a href="?section=dati">I miei dati</a></li>
+        {{ user_section }}
         <li><a href="?section=ordini">I miei ordini</a></li>
-
+        {{ /user_section }}
         {{ admin_section }}
         <li class="has-submenu">
             <a href="?section=gestione">Gestisci ▾</a>

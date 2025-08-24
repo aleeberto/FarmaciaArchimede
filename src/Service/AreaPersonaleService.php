@@ -27,15 +27,21 @@ class AreaPersonaleService
     {
         $user = $this->auth->getUser();
         if (!$user instanceof UserDTO) {
-            throw new RuntimeException("Utente non autenticato.");
+            throw new \RuntimeException("Utente non autenticato.");
+        }
+
+        // 🔁 Leggi sempre dal DB per evitare dati stantii in sessione
+        $row = $this->getProfiloUtente($user->getId());
+        if ($row === null) {
+            throw new \RuntimeException("Profilo utente non trovato.");
         }
 
         return [
             'user' => [
-                'first_name' => $user->getFirstName(),
-                'last_name'  => $user->getLastName(),
-                'email'      => $user->getEmail(),
-                'tax_code'   => $user->getTaxCode(),
+                'first_name' => $row->first_name,
+                'last_name'  => $row->last_name,
+                'email'      => $row->email,
+                'tax_code'   => $row->tax_code,
             ],
         ];
     }
@@ -110,9 +116,10 @@ class AreaPersonaleService
             $rows .= "<td>{$name}</td>";
             $rows .= "<td>{$email}</td>";
             $rows .= "<td>
-                        <button class='btn-edit' data-id='{$orderId}'>Modifica</button>
-                        <button class='btn-delete' data-id='{$orderId}'>Elimina</button>
-                      </td>";
+                <a class='btn-edit' href='/modifica.php?id=" . (int)$orderId . "'>Modifica</a>
+                <button class='btn-delete' data-id='{$orderId}'>Elimina</button>
+                </td>";
+
             $rows .= "</tr>";
         }
 
@@ -147,9 +154,9 @@ class AreaPersonaleService
             $rows .= "<td>" . number_format($p['price'], 2) . "</td>";
             $rows .= "<td>{$p['availability']}</td>";
             $rows .= "<td>
-                        <button class='btn-edit' data-id='{$id}'>Modifica</button>
-                        <button class='btn-delete' data-id='{$id}'>Elimina</button>
-                      </td>";
+                <a class='btn-edit' href='/modifica.php?id=" . (int)$id . "'>Modifica</a>
+                <button class='btn-delete' data-id='{$id}'>Elimina</button>
+                </td>";
             $rows .= "</tr>";
         }
 
@@ -187,9 +194,10 @@ class AreaPersonaleService
             $rows .= "<td>" . htmlspecialchars($u['tax_code']) . "</td>";
             $rows .= "<td>{$role}</td>";
             $rows .= "<td>
-                        <button class='btn-edit' data-id='{$userId}'>Modifica</button>
-                        <button class='btn-delete' data-id='{$userId}'>Elimina</button>
-                      </td>";
+                <a class='btn-edit' href='?area_personale.php?section=dati.php?id=" . (int)$userId . "'>Modifica</a>
+                <button class='btn-delete' data-id='{$userId}'>Elimina</button>
+                </td>";
+
             $rows .= "</tr>";
         }
 
@@ -222,7 +230,7 @@ class AreaPersonaleService
         $html = '';
 
         if (empty($orders)) {
-            $html = "<p>Non hai ancora effettuato ordini.</p>";
+            $html = "<p class='order-info'>Non hai ancora effettuato ordini.</p>";
         } else {
             foreach ($orders as $order) {
                 $html .= "<article class='order'>";
@@ -264,4 +272,284 @@ class AreaPersonaleService
 
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+
+    /**
+     * Ritorna il profilo utente completo per la vista "I miei dati".
+     * @return \stdClass|null  Proprietà: user_id, first_name, last_name, email, tax_code
+     */
+    public function getProfiloUtente(int $userId): ?\stdClass
+    {
+        $stmt = $this->mysqli->prepare("
+            SELECT user_id, first_name, last_name, email, tax_code
+            FROM users
+            WHERE user_id = ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare getProfiloUtente: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if (!$res) {
+            throw new \RuntimeException("Errore execute getProfiloUtente: " . $stmt->error);
+        }
+
+        $row = $res->fetch_assoc();
+        if (!$row) {
+            return null;
+        }
+
+        $o = new \stdClass();
+        $o->user_id    = (int)$row['user_id'];
+        $o->first_name = (string)$row['first_name'];
+        $o->last_name  = (string)$row['last_name'];
+        $o->email      = (string)$row['email'];
+        $o->tax_code   = (string)$row['tax_code'];
+        return $o;
+    }
+
+    /**
+     * Aggiorna i dati base del profilo utente.
+     * $data atteso: first_name, last_name, email, tax_code (già validati a monte).
+     */
+    public function updateProfiloUtente(int $userId, array $data): void
+    {
+        $firstName = $data['first_name'] ?? '';
+        $lastName  = $data['last_name']  ?? '';
+        $email     = $data['email']      ?? '';
+        $taxCode   = $data['tax_code']   ?? '';
+
+        $stmt = $this->mysqli->prepare("
+            UPDATE users
+            SET first_name = ?, last_name = ?, email = ?, tax_code = ?
+            WHERE user_id = ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare updateProfiloUtente: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('ssssi', $firstName, $lastName, $email, $taxCode, $userId);
+        if (!$stmt->execute()) {
+            throw new \RuntimeException("Errore execute updateProfiloUtente: " . $stmt->error);
+        }
+
+        // Allinea eventuali dati in sessione se l'AuthService espone un metodo dedicato
+        if (method_exists($this->auth, 'refreshSessionUserData')) {
+            try {
+                $this->auth->refreshSessionUserData($userId);
+            } catch (\Throwable $e) {
+                // Non è bloccante per il salvataggio: logga se hai un logger
+            }
+        }
+    }
+
+    /**
+     * Verifica se l'email è già usata da un altro utente (utile per la validazione server-side).
+     * Ritorna true se esiste un altro utente con la stessa email.
+     */
+    public function emailEsistePerAltroUtente(string $email, int $excludeUserId): bool
+    {
+        $stmt = $this->mysqli->prepare("
+            SELECT 1
+            FROM users
+            WHERE email = ?
+              AND user_id <> ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            throw new \RuntimeException("Errore prepare emailEsistePerAltroUtente: " . $this->mysqli->error);
+        }
+
+        $stmt->bind_param('si', $email, $excludeUserId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if (!$res) {
+            throw new \RuntimeException("Errore execute emailEsistePerAltroUtente: " . $stmt->error);
+        }
+
+        return (bool)$res->fetch_row();
+    }
+
+    /**
+     * Verifica la password di conferma per l’utente corrente.
+     * Usa AuthService se disponibile, altrimenti confronta SHA-256 esadecimale su DB.
+     */
+    public function verifyPassword(string $password): void
+    {
+        if ($password === '') {
+            throw new RuntimeException('Password di conferma mancante.');
+        }
+
+        // 1) Se AuthService espone checkPassword(), usalo
+        if (method_exists($this->auth, 'checkPassword')) {
+            if ($this->auth->checkPassword($password)) {
+                return;
+            }
+            throw new RuntimeException('Password di conferma errata.');
+        }
+
+        // 2) Fallback diretto su DB con password_hash/password_verify
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
+            throw new RuntimeException('Utente non autenticato.');
+        }
+
+        $uid = $user->getId();
+        $stmt = $this->mysqli->prepare('SELECT password_hash FROM users WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new RuntimeException('Errore di sistema (prep verifica password).');
+        }
+        $stmt->bind_param('i', $uid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+
+        if (!$row) {
+            throw new RuntimeException('Utente non trovato.');
+        }
+
+        $expected = $row['password_hash'];
+
+        // >>> qui usi password_verify <<<
+        if (!password_verify($password, $expected)) {
+            throw new RuntimeException('Password di conferma errata.');
+        }
+    }
+
+
+    /**
+     * Cambia la password (verifica prima la corrente).
+     * Salva SHA-256 esadecimale in users.password_hash.
+     */
+    public function changePassword(string $current, string $new): void
+    {
+        if ($current === '' || $new === '') {
+            throw new \RuntimeException('Compila i campi per il cambio password.');
+        }
+        if (strlen($new) < 8) {
+            throw new \RuntimeException('La nuova password deve avere almeno 8 caratteri.');
+        }
+
+        // Verifica current (usa verifyPassword che già fa password_verify)
+        $this->verifyPassword($current);
+
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
+            throw new \RuntimeException('Utente non autenticato.');
+        }
+
+        $uid  = (int)$user->getId();
+        $hash = password_hash($new, PASSWORD_DEFAULT);
+
+        $stmt = $this->mysqli->prepare('UPDATE users SET password_hash = ? WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new \RuntimeException('Errore di sistema (prep update password).');
+        }
+        $stmt->bind_param('si', $hash, $uid);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        if (!$ok) {
+            throw new \RuntimeException('Errore durante l’aggiornamento della password.');
+        }
+    }
+
+    /**
+     * Aggiorna first_name, last_name, email, tax_code.
+     * - normalizza email (trim+lower) e CF (trim+upper)
+     * - controlla unicità email
+     */
+
+    public function updateProfile(array $data): string
+    {
+        // NIENTE mysqli_report() qui: lascia la policy globale com’è
+        $user = $this->auth->getUser();
+        if (!$user instanceof UserDTO) {
+            throw new \RuntimeException('Utente non autenticato.');
+        }
+
+        // Normalizzazione + validazioni
+        $first = trim((string)($data['first_name'] ?? ''));
+        $last  = trim((string)($data['last_name']  ?? ''));
+        $email = strtolower(trim((string)($data['email'] ?? '')));
+        $tax   = strtoupper(trim((string)($data['tax_code'] ?? '')));
+        if ($first === '' || $last === '') throw new \RuntimeException('Nome e cognome sono obbligatori.');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new \RuntimeException('Email non valida.');
+        if (!preg_match('/^[A-Z0-9]{16}$/', $tax)) throw new \RuntimeException('Codice fiscale non valido.');
+
+        $uid = (int)$user->getId();
+
+        // 1) Carica valori correnti (no eccezioni: controlli espliciti)
+        $stmt = $this->mysqli->prepare('SELECT first_name,last_name,email,tax_code FROM users WHERE user_id = ? LIMIT 1');
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep select current).');
+        $stmt->bind_param('i', $uid);
+        if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec select current).');
+        $res = $stmt->get_result();
+        if (!$res) throw new \RuntimeException('Errore sistema (result select current).');
+        $current = $res->fetch_assoc();
+        $stmt->close();
+        if (!$current) throw new \RuntimeException('Utente non trovato.');
+
+        $noOp =
+            (trim((string)$current['first_name']) === $first) &&
+            (trim((string)$current['last_name'])  === $last)  &&
+            (strtolower((string)$current['email']) === $email) &&
+            (strtoupper((string)$current['tax_code']) === $tax);
+
+        if ($noOp) {
+            return 'noop';
+        }
+
+        // 2) Unicità email
+        $stmt = $this->mysqli->prepare('SELECT 1 FROM users WHERE email = ? AND user_id <> ? LIMIT 1');
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep check email).');
+        $stmt->bind_param('si', $email, $uid);
+        if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec check email).');
+        $exists = (bool)$stmt->get_result()->fetch_row();
+        $stmt->close();
+        if ($exists) throw new \RuntimeException('Email già in uso.');
+
+        // 3) UPDATE con gestione errori puntuale
+        $stmt = $this->mysqli->prepare(
+            'UPDATE users SET first_name = ?, last_name = ?, email = ?, tax_code = ? WHERE user_id = ? LIMIT 1'
+        );
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep update).');
+        $stmt->bind_param('ssssi', $first, $last, $email, $tax, $uid);
+
+        try {
+            if (!$stmt->execute()) {
+                // in teoria, con check espliciti, qui non arrivi
+                throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
+            }
+        } catch (\mysqli_sql_exception $e) {
+            // Mappa errori noti e logga gli altri
+            if ((int)$e->getCode() === 1062) {
+                throw new \RuntimeException('Email già in uso.');
+            }
+            // TODO: usa il tuo logger invece di error_log
+            error_log('[updateProfile] SQL error '.$e->getCode().': '.$e->getMessage());
+            throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
+        } finally {
+            $stmt->close();
+        }
+
+        // 4) Riallinea sessione (non deve far fallire il salvataggio)
+
+        try {
+            $this->auth->reloadUserFromDbAndSyncSession();
+        } catch (\Throwable $e) {
+                var_dump('[updateProfile] sync session failed: '.$e->getMessage());
+                // non bloccare l’utente
+        }
+
+
+        return 'updated';
+    }
+
+
+
 }

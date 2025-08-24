@@ -36,7 +36,7 @@ class LoginService
             $oldEmail = $_GET['email'] ?? '';
 
             PageBuilder::show('login', [
-                'error'             => '', // nasconde il blocco di default
+                'error'             => '',
                 'old'               => ['email' => $oldEmail],
                 'meta_title'        => 'Accedi | Farmacia Archimede',
                 'meta_description'  => 'Pagina di Login all area personale della Farmacia Archimede',
@@ -58,12 +58,16 @@ class LoginService
 
         // Login KO → mostra form con blocco errore lasciato visibile
         PageBuilder::show('login', [
-            // NON passiamo 'error.credentials', così il blocco rimane e mostra l'alert di default
             'old'               => ['email' => $email],
             'meta_title'        => 'Accedi | Farmacia Archimede',
             'meta_description'  => 'Descrizione specifica per questa pagina',
             'meta_keywords'     => 'parola1, parola2, parola3',
         ]);
+
+        $_SESSION['flash_message'] = [
+            'type'    => 'error',
+            'message' => 'Credenziali errate.',
+        ];
         exit;
     }
 }

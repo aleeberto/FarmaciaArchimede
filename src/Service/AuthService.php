@@ -10,50 +10,41 @@ use Exception;
 
 class AuthService
 {
-    private mysqli $db;
+    /** Conserva sia il wrapper Database sia la connessione mysqli */
+    private Database $database;
+    private mysqli $mysqli;
 
     public function __construct(Database $database)
     {
-        // Ottiene la connessione mysqli dal singleton Database
-        $this->db = $database->connect();
+        $this->database = $database;
+        $this->mysqli   = $database->connect();
     }
 
-    /**
-     * Tenta il login con email e password.
-     * Restituisce true se avvenuto con successo, false altrimenti.
-     */
     public function login(string $email, string $password): bool
     {
-        $query = 'SELECT user_id, email, first_name, last_name, tax_code, password_hash, is_admin
-                  FROM users
-                  WHERE email = ?';
-        $stmt = $this->db->prepare($query);
+        $stmt = $this->mysqli->prepare(
+            'SELECT user_id, email, first_name, last_name, tax_code, password_hash, is_admin
+             FROM users WHERE email = ? LIMIT 1'
+        );
         if (!$stmt) {
             throw new Exception('Errore nella preparazione della query di login.');
         }
         $stmt->bind_param('s', $email);
         $stmt->execute();
-
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
+        $res = $stmt->get_result();
+        $row = $res?->fetch_assoc();
         $stmt->close();
 
-        if (!$row) {
+        if (!$row || !password_verify($password, $row['password_hash'])) {
             return false;
         }
 
-        // Verifica password usando password_verify
-        if (!password_verify($password, $row['password_hash'])) {
-            return false;
-        }
-
-        // Crea un UserDTO con i dati
         $userDTO = new UserDTO(
             (int)$row['user_id'],
-            $row['email'],
-            $row['first_name'],
-            $row['last_name'],
-            $row['tax_code'],
+            (string)$row['email'],
+            (string)$row['first_name'],
+            (string)$row['last_name'],
+            (string)$row['tax_code'],
             (bool)$row['is_admin']
         );
 
@@ -61,13 +52,9 @@ class AuthService
             session_start();
         }
         $_SESSION['user'] = $userDTO;
-
         return true;
     }
 
-    /**
-     * Effettua il logout, distruggendo la sessione.
-     */
     public function logout(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -77,9 +64,6 @@ class AuthService
         session_destroy();
     }
 
-    /**
-     * Verifica se esiste un utente loggato.
-     */
     public function isLogged(): bool
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -88,23 +72,18 @@ class AuthService
         return isset($_SESSION['user']) && $_SESSION['user'] instanceof UserDTO;
     }
 
-    /**
-     * Restituisce l'utente loggato (istanza di UserDTO) o null.
-     */
     public function getUser(): ?UserDTO
     {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
         return $_SESSION['user'] ?? null;
     }
 
-    /**
-     * Estrae i dati dell'utente loggato come array.
-     */
     public function getUserDataArray(): ?array
     {
         $user = $this->getUser();
-        if (!$user) {
-            return null;
-        }
+        if (!$user) return null;
         return [
             'user_id'    => $user->getId(),
             'email'      => $user->getEmail(),
@@ -113,5 +92,56 @@ class AuthService
             'tax_code'   => $user->getTaxCode(),
             'is_admin'   => $user->isAdmin(),
         ];
+    }
+
+    public function reloadUserFromDbAndSyncSession(): void
+    {
+        $user = $this->getUser();
+        if (!$user instanceof UserDTO) {
+            return; // non autenticato
+        }
+        $uid = $user->getId();
+
+        // Usa la connessione già pronta
+        $stmt = $this->mysqli->prepare(
+            'SELECT user_id, email, first_name, last_name, tax_code, is_admin
+             FROM users WHERE user_id = ? LIMIT 1'
+        );
+        if (!$stmt) {
+            throw new Exception('Errore sistema (prep reload user).');
+        }
+        $stmt->bind_param('i', $uid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res?->fetch_assoc();
+        $stmt->close();
+
+        if (!$row) {
+            return;
+        }
+
+        // Mantieni lo stesso ordine del costruttore usato nel login
+        $updated = new UserDTO(
+            (int)$row['user_id'],
+            (string)$row['email'],
+            (string)$row['first_name'],
+            (string)$row['last_name'],
+            (string)$row['tax_code'],
+            (bool)$row['is_admin']
+        );
+
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            // (opzionale) verifica path sessioni se hai avuto problemi
+            // if ($p = session_save_path()) { if (!is_dir($p)) { throw new \RuntimeException('Session path inesistente: '.$p); } }
+            session_start();
+        }
+
+        $_SESSION['user'] = $updated;
+
+        // Hardening opzionale
+        if (PHP_SAPI !== 'cli') {
+            session_regenerate_id(true);
+            // session_write_close(); // chiudi se vuoi forzare la scrittura immediata
+        }
     }
 }

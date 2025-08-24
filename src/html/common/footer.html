@@ -11,38 +11,40 @@
         </div>
 
         <div class="footer-box">
-            <li>
-                <div class="copy">Copyright &copy; Farmacia Archimede  2025</div>
-            </li>
+            <div class="copy">Copyright &copy; Farmacia Archimede 2025</div>
         </div>
 
         <div class="footer-box">
-            <p id="sum" class="visually-hidden">orario di apertura della farmacia divisa in colonne che definiscono i giorni della settimana e le righe che definiscono gli orari di apertura</p>
-            <table aria-describedby="sum">
-                <caption><h2>Orari apertura farmacia</h2></caption>
+            <p id="sum" class="visually-hidden">
+                Tabella con gli orari di apertura della farmacia: le colonne rappresentano i giorni,
+                le righe rappresentano le fasce orarie.
+            </p>
+            <table class="opening-hours" aria-describedby="sum">
+                <caption>Orari di apertura della farmacia</caption>
                 <thead>
-                    <tr>
-                        <td></td>
-                        <th scope="col" abbr="Lun-Ven">Lunedì-Venerdì</th>
-                        <th scope="col" abbr="Sab">Sabato</th>
-                        <th scope="col" abbr="Dom">Domenica</th>                    
-                    </tr>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col" abbr="Lun-Ven">Lunedì–Venerdì</th>
+                    <th scope="col" abbr="Sab">Sabato</th>
+                    <th scope="col" abbr="Dom">Domenica</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th scope="row" abbr="8-12">08:00-12:00</th>
-                        <td>aperto</td>
-                        <td>aperto</td>
-                        <td>chiuso</td>
-                    </tr>
-                    <tr>
-                        <th scope="row" abbr="14-19">14:00-19:00</th>
-                        <td>aperto</td>
-                        <td>chiuso</td>
-                        <td>chiuso</td>
-                    </tr>           
-                </tbody>  
+                <tr>
+                    <th scope="row" abbr="8-12">08:00–12:00</th>
+                    <td>aperto</td>
+                    <td>aperto</td>
+                    <td>chiuso</td>
+                </tr>
+                <tr>
+                    <th scope="row" abbr="14-19">14:00–19:00</th>
+                    <td>aperto</td>
+                    <td>chiuso</td>
+                    <td>chiuso</td>
+                </tr>
+                </tbody>
             </table>
         </div>
+
     </div>
 </footer>

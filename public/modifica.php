@@ -133,7 +133,7 @@ if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ER
 $previewImageUrl = $image_path ? '/assets/img/' . $image_path : '';
 
 // === VALIDAZIONE DATI ===
-if ($data['product_type_id'] === '' || !ctype_digit($data['product_type_id'])) {
+if ($data['product_type_id'] === '') {
     $errors['product_type_id'] = 'Seleziona il tipo di prodotto.';
 }
 $len = strlen($data['short_name']);

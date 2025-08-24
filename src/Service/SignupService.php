@@ -6,11 +6,12 @@ namespace App\Service;
 
 use App\Core\Database;
 use App\Core\PageBuilder;
+use App\View\HeaderBuilder;
 use Exception;
 use mysqli;
 use Throwable;
 
-class SignupService
+class SignupService extends HeaderBuilder
 {
     private mysqli $db;
     private AuthService $auth;
