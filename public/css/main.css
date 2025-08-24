@@ -32,9 +32,9 @@
 
 :root[data-theme="dark"] {
     /* Superfici */
-    --primary-bg: #0E1113;           /* fondo principale (≈ #121212 ma più freddo) */
+    --primary-bg: #2e2b2b;           /* fondo principale (≈ #121212 ma più freddo) */
     --surface-1: #151A1E;            /* blocchi/box base */
-    --surface-2: #1D242A;            /* livelli elevati (card, modali) */
+    --surface-2: #181a1c;            /* livelli elevati (card, modali) */
 
     /* Testo */
     --primary-text: #EAEFF2;         /* testo su fondi scuri (≥ 12:1 su primary-bg) */
@@ -538,13 +538,19 @@ body #product-details > p {
     color: var(--primary-text);
 }
 
-#qty-input,
-#add-to-cart {
-    margin: 5px 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.93em;
+#qty-input {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
     border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 6px 12px;
+    text-align: center;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#qty-input:focus {
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
 }
 #product-container {
     display: grid;
@@ -561,6 +567,7 @@ body #product-details > p {
     box-shadow: 0 2px 6px var(--shadow-color);
 }
 
+
 #product-image {
     grid-column: 1;
 }
@@ -571,6 +578,23 @@ body #product-details > p {
     border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: 0 1px 4px var(--shadow-color);
+
+#add-to-cart {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#add-to-cart:hover,
+#add-to-cart:focus {
+    background-color: var(--tertiary-accent-bg);
+    transform: scale(1.05);
+}
+/* MODALITÀ EDIT */
+#main-content {
+    align-self: center;
+    max-width: 80%;
 }
 
 #product-details {
@@ -1423,4 +1447,479 @@ body.products #results-container {
 
 #personal-details {
     margin: auto;
+
+/* CONTATTI PAGE STYLES TODO TODO TODO*/
+/* CONTATTI PAGE STYLES */
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 20px;
+    margin-bottom: 30px;
+}
+
+.contact-card {
+    background-color: var(--primary-accent-bg);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 3px 3px var(--shadow-color);
+}
+
+.contact-content {
+    margin-top: 15px;
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.contact-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    color: var(--non-visited-link);
+}
+
+.contact-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Resto del CSS rimane invariato */
+.opening-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.opening-table th,
+.opening-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+}
+
+.opening-table th {
+    background-color: var(--secondary-accent-bg);
+}
+
+.text-info {
+    padding: 10px;
+    background-color: var(--tertiary-accent-bg);
+    border-radius: 15px;
+    margin-top: 15px;
+}
+
+.map-container {
+    grid-column: span 2;
+}
+
+.accessibility-list {
+    list-style: none;
+    padding: 0;
+}
+
+.accessibility-list li {
+    margin-bottom: 8px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.accessibility-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 5px;
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-container {
+        grid-column: span 1;
+    }
+}
+
+
+body #tipologia,
+body #search-box input,
+body input[type="submit"] {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 5px 10px;
+    font-size: 0.95em;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+body #tipologia:focus,
+body #search-box input:focus,
+body input[type="submit"]:focus {
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 2px var(--outline-color);
+    outline: none;
+}
+
+/* Hover per submit e search input se vuoi un effetto simile ai bottoni */
+body input[type="submit"]:hover,
+body #search-box input:hover {
+    background-color: var(--secondary-accent-bg);
+    cursor: pointer;
+}
+
+/* Option del select */
+body #tipologia option {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+/* WELCOME PAGE STYLES */
+.welcome-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.welcome-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.welcome-section {
+    background-color: var(--primary-accent-bg);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0px 3px 3px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.welcome-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 5px 15px var(--shadow-color-hover);
+}
+
+.welcome-section h2 {
+    color: var(--non-visited-link);
+    margin-bottom: 1rem;
+    font-size: 1.4em;
+}
+
+.welcome-section p {
+    line-height: 1.6;
+    color: var(--primary-text);
+}
+
+.services-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.services-list li {
+    padding: 0.5rem 0;
+    padding-left: 2rem;
+    position: relative;
+    color: var(--primary-text);
+}
+
+.services-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--secondary-accent-bg);
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.welcome-cta {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--secondary-accent-bg);
+    border-radius: 20px;
+    margin-top: 2rem;
+}
+
+.welcome-cta p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1em;
+    color: var(--primary-text);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--tertiary-accent-bg);
+    color: var(--primary-text);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--non-visited-link);
+    border-color: var(--non-visited-link);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--secondary-accent-bg);
+    transform: scale(1.05);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: var(--non-visited-link);
+    color: var(--primary-bg);
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .welcome-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        width: 200px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-container {
+        padding: 10px;
+    }
+    
+    .welcome-section {
+        padding: 20px;
+    }
+    
+    .welcome-cta {
+        padding: 1.5rem;
+    }
+}
+
+/* ABOUT PAGE STYLES */
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.about-intro {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 0 2rem;
+}
+
+.about-intro p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: var(--primary-text);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.team-member {
+    background-color: var(--primary-accent-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0px 3px 3px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 5px 15px var(--shadow-color-hover);
+}
+
+.member-photo {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.member-photo img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--secondary-accent-bg);
+}
+
+.member-info {
+    flex: 1;
+}
+
+.member-info h2 {
+    color: var(--non-visited-link);
+    margin-bottom: 0.5rem;
+    font-size: 1.4em;
+}
+
+.member-role {
+    color: var(--primary-text);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.member-info p:not(.member-role) {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: var(--primary-text);
+}
+
+.member-quote {
+    font-style: italic;
+    color: var(--non-visited-link);
+    border-left: 3px solid var(--secondary-accent-bg);
+    padding-left: 1rem;
+    margin-top: 1rem;
+}
+
+.about-values {
+    margin-bottom: 3rem;
+}
+
+.about-values h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--non-visited-link);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.value-item {
+    background-color: var(--secondary-accent-bg);
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.value-item h3 {
+    color: var(--primary-text);
+    margin-bottom: 1rem;
+    font-size: 1.2em;
+}
+
+.value-item p {
+    color: var(--primary-text);
+    line-height: 1.5;
+}
+
+.about-cta {
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--tertiary-accent-bg);
+    border-radius: 20px;
+}
+
+.about-cta p {
+    margin-bottom: 1.5rem;
+    font-size: 1.1em;
+    color: var(--primary-text);
+}
+
+.btn-primary {
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background-color: var(--non-visited-link);
+    color: var(--primary-bg);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .team-member {
+        padding: 1.5rem;
+    }
+    
+    .member-photo img {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-container {
+        padding: 10px;
+    }
+    
+    .about-intro {
+        padding: 0 1rem;
+    }
+    
+    .team-member {
+        padding: 1rem;
+    }
+    
+    .value-item {
+        padding: 1rem;
+    }
 }

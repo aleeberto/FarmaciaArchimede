@@ -1,23 +1,69 @@
 <!DOCTYPE html>
 <html lang="it">
-
 {{ head }}
 
 <body class="no-print">
     {{ header }}
 
-    <nav aria-label="breadcrumb" class="breadcrumb">
-        <span>Ti trovi in: </span>
+    <nav aria-label="Percorso di navigazione" class="breadcrumb">
         <ol>
-            <li><span aria-current="page" lang="it">Home</span></li>
+            <li aria-current="page">Home</li>
         </ol>
     </nav>
 
     <main id="main-content">
-        <h1>Benvenuto in farmacia Archimede!</h1>
+        <h1>Benvenuti in Farmacia Archimede</h1>
+
+        <div class="welcome-container">            
+            
+            <div class="welcome-content">
+                <section aria-labelledby="innovazione" class="welcome-section">
+                    <h2 id="innovazione">Innovazione al Servizio della Salute</h2>
+                    <p>Da sempre al fianco della nostra comunità, abbiamo scelto di evolvere per offrire un servizio ancora più completo e accessibile a tutti. Il nostro nuovo portale online unisce la tradizione farmaceutica alla tecnologia più avanzata.</p>
+                </section>
+
+                <section aria-labelledby="generazioni" class="welcome-section">
+                    <h2 id="generazioni">Un Ponte tra Generazioni</h2>
+                    <p>Giovani, adulti e anziani: ci rivolgiamo a ogni generazione con attenzione particolare. Per i più giovani, un'esperienza digitale intuitiva e moderna. Per gli anziani, semplicità d'uso e supporto personalizzato.</p>
+                </section>
+
+                <section aria-labelledby="accessibilita" class="welcome-section">
+                    <h2 id="accessibilita">Accessibilità senza Barriere</h2>
+                    <p>Crediamo che la salute sia un diritto di tutti. Per questo il nostro sito è stato progettato seguendo i più rigorosi standard di accessibilità, garantendo una navigazione semplice e intuitiva per persone con diverse abilità visive, motorie e cognitive.</p>
+                </section>
+
+                <section aria-labelledby="team" class="welcome-section">
+                    <h2 id="team">Il Nostro Team</h2>
+                    <p>Il nostro team è composto da professionisti altamente qualificati e appassionati, pronti a supportarti in ogni fase del tuo percorso di salute. Siamo qui per ascoltarti e offrirti le migliori soluzioni per le tue esigenze.</p>
+                </section>
+
+                <section aria-labelledby="prodotti" class="welcome-section">
+                    <h2 id="prodotti">I Nostri Prodotti</h2>
+                    <p>Offriamo una vasta gamma di prodotti farmaceutici e parafarmaceutici, selezionati con cura per garantire la massima qualità e sicurezza. Dalla salute alla bellezza, abbiamo tutto ciò di cui hai bisogno.</p>
+                </section>
+
+                <section aria-labelledby="servizi" class="welcome-section">
+                    <h2 id="servizi">I Nostri Servizi</h2>
+                    <ul class="services-list">
+                        <li>Farmacia online 24/7</li>
+                        <li>Consulenza farmaceutica a distanza</li>
+                        <li>Consegna a domicilio</li>
+                        <li>Prenotazione servizi in farmacia</li>
+                        <li>Supporto per disabilità</li>
+                    </ul>
+                </section>
+
+                <div class="welcome-cta">
+                    <p>Scopri come possiamo aiutarti a prenderti cura della tua salute:</p>
+                    <div class="cta-buttons">
+                        <a href="/prodotti.php" class="btn-primary">Esplora i Prodotti</a>
+                        <a href="/contatti.php" class="btn-secondary">Contattaci</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     {{ footer }}
-
 </body>
 </html>
