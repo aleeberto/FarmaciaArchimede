@@ -60,10 +60,6 @@ class PageBuilder
         return $this->auth;
     }
 
-    public function isDegraded(): bool
-    {
-        return $this->degraded;
-    }
 
     /**
      * Mostra il template richiesto.
