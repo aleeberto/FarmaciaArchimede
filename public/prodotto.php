@@ -46,7 +46,10 @@ $params = [
     'code'         => $product->aicCode,
     'availability' => $product->getAvailability(),
     'price'        => number_format($product->price, 2, ',', '.') . '€',
-    'image'        => "<img src=\"{$src}\" alt=\"{$alt}\">",
+    'image'        => sprintf(
+        '<img src="%s" alt="%s" loading="lazy" decoding="async"/>',
+        htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars($short_name ?? $product->shortName, ENT_QUOTES, 'UTF-8')),
     'meta_title'       => $product->shortName . ' | Prodotti',
     'meta_description' => 'Pagina del prodotto specifico disponibile presso la Farmacia Archimede',
     'meta_keywords'    => 'prodotti, farmacia, archimede, disponibilità'

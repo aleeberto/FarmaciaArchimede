@@ -15,9 +15,10 @@ class Template
 
     /**
      * Inserisce un valore:
-     * - se esiste il blocco {{ id }}...{{ /id }}, sostituisce quell’intero blocco con $value (1 occorrenza)
-     * - altrimenti, se esiste il placeholder {{ id }}, sostituisce quello (1 occorrenza)
-     * Se $value è array/oggetto, inserisce ricorsivamente "id.k" => v
+     * - se esiste il blocco {{ id }}...{{ /id }}, sostituisce **tutti** quei blocchi con $value
+     * - altrimenti, se esiste il placeholder {{ id }}, sostituisce **tutte** le occorrenze
+     * Se $value è array/oggetto, inserisce ricorsivamente "id.k" => v e
+     * rimuove eventuali placeholder residui dell’id radice.
      */
     public function insert(string $id, string|array|object $value): void
     {
@@ -29,25 +30,25 @@ class Template
             foreach ($value as $k => $v) {
                 $this->insert("{$id}.{$k}", (string)$v);
             }
-            // ripulisce eventuale placeholder semplice rimasto per l'id radice
-            $this->replaceFirstPlaceholder($id, '');
+            // rimuove eventuali placeholder semplici rimasti per l'id radice
+            $this->removeAllPlaceholders($id);
             return;
         }
 
         $value = (string)$value;
         $idRe  = preg_quote($id, '/');
 
-        // 1) prova a rimpiazzare il blocco {{ id }}...{{ /id }}
+        // 1) sostituisce **tutti** i blocchi {{ id }}...{{ /id }}
         $blockRe = '/\{\{\s*' . $idRe . '\s*\}\}(.*?)\{\{\s*\/\s*' . $idRe . '\s*\}\}/s';
         if (preg_match($blockRe, $this->state)) {
-            $this->state = preg_replace($blockRe, $value, $this->state, 1);
+            $this->state = preg_replace($blockRe, $value, $this->state);
             return;
         }
 
-        // 2) altrimenti prova col placeholder semplice {{ id }}
+        // 2) sostituisce **tutte** le occorrenze del placeholder semplice {{ id }}
         $phRe = '/\{\{\s*' . $idRe . '\s*\}\}/';
         if (preg_match($phRe, $this->state)) {
-            $this->state = preg_replace($phRe, $value, $this->state, 1);
+            $this->state = preg_replace($phRe, $value, $this->state);
         }
     }
 
@@ -59,7 +60,8 @@ class Template
     }
 
     /**
-     * Ritorna il contenuto interno del blocco {{ id }}...{{ /id }}, oppure null se assente.
+     * Ritorna il contenuto interno del primo blocco {{ id }}...{{ /id }}, oppure null se assente.
+     * (Comportamento invariato)
      */
     public function getBlockContent(string $id): ?string
     {
@@ -95,10 +97,10 @@ class Template
         return $out;
     }
 
-    /** Sostituisce la prima occorrenza del placeholder semplice {{ id }} con $value */
-    private function replaceFirstPlaceholder(string $id, string $value): void
+    /** Rimuove **tutte** le occorrenze del placeholder semplice {{ id }} */
+    private function removeAllPlaceholders(string $id): void
     {
         $idRe = preg_quote($id, '/');
-        $this->state = preg_replace('/\{\{\s*' . $idRe . '\s*\}\}/', $value, $this->state, 1);
+        $this->state = preg_replace('/\{\{\s*' . $idRe . '\s*\}\}/', '', $this->state);
     }
 }

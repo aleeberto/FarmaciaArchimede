@@ -27,6 +27,7 @@
     --shadow-color-strong: rgba(0, 0, 0, 0.25);
     --active-hover-color: #f0f0f0;
     --outline-color: #80d2a3;
+    --focus-ring: #0f3826;
 
 }
 
@@ -55,6 +56,7 @@
     --shadow-color: rgba(0,0,0,0.60);
     --shadow-color-hover: rgba(0,0,0,0.72);
     --shadow-color-strong: rgba(0,0,0,0.85);
+    --focus-ring: #9ceaac;
 
     /* Stati/feedback */
     --active-hover-color: #22323A;   /* evidenziazione voci attive/hover */
@@ -141,7 +143,7 @@ header nav ul li a {
     border-radius: 20px;
     border: 1px solid transparent;
     color: var(--non-visited-link);
-    outline-color: var(--outline-color);
+    outline-color: 3px solid var(--outline-color);
 }
 header nav ul li a:hover,
 header nav ul li a:focus {
@@ -187,10 +189,12 @@ input {
 .breadcrumb ol li {
     font-weight: bold;
 }
-.breadcrumb ol li:not(:last-child)::after {
-    content: " > ";
+
+.separator {
     margin: 0 5px;
+    color: var(--primary-text);
 }
+
 
 /* LOGIN FORM */
 .auth-form {
@@ -586,15 +590,39 @@ th {
 }
 
 /* TOGGLE THEME OVERRIDE senza !important */
-a#theme-toggle,
-a#theme-toggle:hover,
-a#theme-toggle:focus {
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: transparent; /* nessuno sfondo */
+    color: var(--non-visited-link);
     border: none;
     box-shadow: none;
-    background: transparent;
-    outline: none;
+    margin: 0 auto;
+    padding: 0;
+    vertical-align: middle;
 }
 
+.icon-btn .icon-svg{
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+}
+
+.icon-btn:focus{ outline: none; }
+.icon-btn:focus-visible{
+    box-shadow: 0 0 0 3px var(--outline-color);
+    background: var(--outline-color);
+}
+
+a#theme-toggle:focus-visible {
+    outline: 3px solid var(--outline-color);
+    outline-offset: 4px;
+    border-radius: 8px; /* opzionale, coerente con la UI */
+}
 /* TOGGLE THEME ICON */
 a#theme-toggle svg {
     color: var(--non-visited-link);

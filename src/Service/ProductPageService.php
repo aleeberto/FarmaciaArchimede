@@ -50,7 +50,13 @@ class ProductPageService
             $tpl = PageBuilder::getInstance()->loadTemplate('prodotti/item.html');
             $tpl->insertAll([
                 'url_farmaco' => "prodotto.php?id={$p->id}",
-                'immagine'    => "<img src=\"{$p->imagePath}\" alt=\"{$p->description}\" width=\"100\" height=\"100\">",
+                'id' => $p->id,
+                'immagine' => sprintf(
+                    '<img src="%s" alt="%s" width="100" height="100" loading="lazy" decoding="async"/>',
+                    htmlspecialchars($p->imagePath, ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars($p->short_name ?? $p->description, ENT_QUOTES, 'UTF-8')
+                ),
+
                 'nome'        => $p->shortName,
                 'prezzo'      => number_format($p->price, 2, ',', '.') . '€',
             ]);

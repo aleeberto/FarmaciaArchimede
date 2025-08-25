@@ -9,13 +9,20 @@
 
 <nav aria-label="breadcrumb" class="breadcrumb">Ti trovi in:
     <ol>
-        <li><a href="/index.php" lang="it">Home</a></li>
-        <li><a href="/prodotti.php" lang="it">Prodotti</a></li>
+        <li>
+            <a href="/index.php" lang="it">Home</a>
+            <span class="separator" aria-hidden="true">&gt;&gt;</span>
+        </li>
+
+        <li>
+            <a href="/prodotti.php" lang="it">Prodotti</a>
+            <span class="separator" aria-hidden="true">&gt;&gt;</span>
+        </li>
         <li aria-current="page">{{ shortName }}</li>
     </ol>
 </nav>
 
-<main>
+<main id="main-content">
     <h1>{{ shortName }}</h1>
 
     <div id="product-container" class="flex-container">
@@ -27,7 +34,19 @@
                 <h2>{{ name }}</h2>
                 <p id="product-price">{{ price }}</p>
                 <div class="cart-actions">
-                    <input type="number" id="qty-input" name="quantity" value="1" min="1" max="50" style="width: 100px; text-align: center;">
+                    <label for="qty-input" class="visually-hidden">Quantità</label>
+                    <input
+                            type="number"
+                            id="qty-input"
+                            name="quantity"
+                            value="1"
+                            min="1"
+                            max="50"
+                            inputmode="numeric"
+                            aria-describedby="qty-hint"
+                            style="width: 100px; text-align: center;" />
+                    <span id="qty-hint" class="visually-hidden">Seleziona una quantità tra 1 e 50</span>
+
                     <button type="button" id="add-to-cart">Aggiungi al carrello</button>
                 </div>
                 <p><strong>Produttore:</strong> {{ manufacturer }}</p>
