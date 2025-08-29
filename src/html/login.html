@@ -1,31 +1,27 @@
 <!DOCTYPE html>
-
-{{ head }}
-
 <html lang="it">
+{{ head }}
 <body class="no-print">
-
 {{ header }}
-
 <main id="main-content">
     <div class="auth-form">
         <h1>Login</h1>
 
         {{ alert }}
 
-        <form action="/login.php" method="POST">
+        <form action="/login.php" method="post">
             <p>Accedi alla tua area personale</p>
 
             <label for="email">Email:</label>
             <input id="email" type="email" name="email"
                    placeholder="mariorossi@dominio.it"
-                   value="{{ old.email }}" required>
+                   value="{{ old.email }}" required />
 
             <label for="password">Password:</label>
-            <input id="password" type="password" name="password" required>
+            <input id="password" type="password" name="password" required />
 
             <div class="form-buttons">
-                <a href="/signup.php" aria-label="Crea un nuovo account">Crea account</a>
+                <a href="/signup.php" aria-label="Crea account">Crea account</a>
                 <button type="submit">Accedi</button>
             </div>
         </form>

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+// TODO sistemare breadcrumb con >>
 // public/area_personale.php
 // Front-controller per l'Area Personale, con breadcrumb e PageBuilder
 
@@ -59,6 +60,10 @@ switch ($section) {
         $base = $svc->getDatiUtente();        // ['user' => ['first_name','last_name','email','tax_code']]
         $user = $base['user'] ?? [];
 
+        $metaDesc = 'Aggiorna nome, cognome, email e codice fiscale. Modifica password in sicurezza nell’Area Personale di Farmacia Archimede.';
+        $metaKeys = 'area personale, dati utente, modifica profilo, cambio password, sicurezza, farmacia archimede';
+
+
         // Versione "safe" per il template
         $safeUser = [
             'first_name' => $esc($user['first_name'] ?? ''),
@@ -87,6 +92,8 @@ switch ($section) {
                 'errors'     => $errors,
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
+                'meta_description' => $metaDesc,
+                'meta_keywords'    => $metaKeys,
             ]);
             $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali'; // il template con il form
@@ -126,6 +133,8 @@ switch ($section) {
                 'errors'     => $errors,
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
+                'meta_description' => $metaDesc,
+                'meta_keywords'    => $metaKeys,
             ]);
             $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali';
@@ -204,6 +213,8 @@ switch ($section) {
                 'errors'     => $errors,
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
+                'meta_description' => $metaDesc,
+                'meta_keywords'    => $metaKeys,
             ]);
             $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali';
@@ -258,6 +269,8 @@ switch ($section) {
                 'errors'     => $errors,
                 'csrf_token' => $csrf,
                 'meta_title' => 'Modifica dati personali | Farmacia Archimede',
+                'meta_description' => $metaDesc,
+                'meta_keywords'    => $metaKeys,
             ]);
             $crumbs[] = 'Modifica dati personali';
             $templateName = 'area_personale/dati_personali';
@@ -269,6 +282,8 @@ switch ($section) {
         $params = $svc->getOrdiniUtente();
         $crumbs[] = 'I miei ordini';
         $params['meta_title'] = 'I miei ordini | Farmacia Archimede';
+        $params['meta_description'] = 'Consulta lo storico ordini, dettagli, stato spedizione e ricevute nell’Area Personale di Farmacia Archimede.';
+        $params['meta_keywords']    = 'ordini, storico acquisti, tracciamento, ricevute, area personale, farmacia archimede';
         $templateName = 'area_personale/ordini';
         break;
     }
@@ -277,6 +292,8 @@ switch ($section) {
         if (!$isAdmin) { header('Location: /area_personale.php'); exit; }
         $crumbs[] = 'Gestisci';
         $params['meta_title'] = 'Gestisci | Farmacia Archimede';
+        $params['meta_description'] = 'Pannello di amministrazione: accesso rapido a prodotti, ordini e utenti della Farmacia Archimede.';
+        $params['meta_keywords']    = 'admin, gestione, prodotti, ordini, utenti, farmacia archimede';
         $templateName = 'area_personale/gestione/gestione';
         break;
     }
@@ -287,6 +304,8 @@ switch ($section) {
         $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
         $crumbs[] = 'Prodotti';
         $params['meta_title'] = 'Prodotti | Gestisci | Farmacia Archimede';
+        $params['meta_description'] = 'Gestione prodotti: crea, modifica, filtra e aggiorna disponibilità e prezzi nel catalogo Farmacia Archimede.';
+        $params['meta_keywords']    = 'gestione prodotti, catalogo, prezzi, disponibilità, farmacia archimede';
         $templateName = 'area_personale/gestione/gestione_prodotti';
         break;
     }
@@ -297,6 +316,8 @@ switch ($section) {
         $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
         $crumbs[] = 'Ordini';
         $params['meta_title'] = 'Ordini | Gestisci | Farmacia Archimede';
+        $params['meta_description'] = 'Gestione ordini: verifica pagamenti, stati, evasioni e resi dei clienti della Farmacia Archimede.';
+        $params['meta_keywords']    = 'gestione ordini, pagamenti, farmacia archimede';
         $templateName = 'area_personale/gestione/gestione_ordini';
         break;
     }
@@ -307,6 +328,8 @@ switch ($section) {
         $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
         $crumbs[] = 'Utenti';
         $params['meta_title'] = 'Utenti | Gestisci | Farmacia Archimede';
+        $params['meta_description'] = 'Gestione utenti: visualizza e aggiorna profili, ruoli e attività degli account registrati.';
+        $params['meta_keywords']    = 'gestione utenti, profili, ruoli, account, attività, farmacia archimede';
         $templateName = 'area_personale/gestione/gestione_utenti';
         break;
     }
@@ -315,9 +338,12 @@ switch ($section) {
         // Menu principale
         $params = [
             'is_admin'  => $isAdmin,
+            'meta_description' => 'Accedi a dati personali, ordini e, se admin, strumenti di gestione della Farmacia Archimede.',
+            'meta_keywords'    => 'area personale, profilo, ordini, admin, gestione, farmacia archimede',
         ];
         $templateName = 'area_personale/menu';
         $params['meta_title'] = 'Area personale | Farmacia Archimede';
+
         break;
     }
 }

@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    {{ head }}
-</head>
+{{ head }}
 <body class="no-print">
-<a href="#main-content" class="skip-link">Salta al contenuto principale</a>
-
 {{ header }}
-
-<main id="main-content" role="main" tabindex="-1">
+<main id="main-content" tabindex="-1">
     <div class="main-content">
         {{ alert }}
         <form
@@ -23,17 +18,16 @@
 
             <div class="form-control">
                 <label for="first_name">Nome</label>
-                <input id="first_name" name="first_name" type="text" required
-                       aria-required="true" aria-describedby="error-first-name"
-                       value="{{ old.first_name }}">
+                <input id="first_name" name="first_name" type="text" required aria-describedby="error-first-name"
+                       value="{{ old.first_name }}" />
                 <p id="error-first-name" class="error-msg" role="alert" aria-live="assertive"></p>
             </div>
 
             <div class="form-control">
                 <label for="last_name">Cognome</label>
                 <input id="last_name" name="last_name" type="text" required
-                       aria-required="true" aria-describedby="error-last-name"
-                       value="{{ old.last_name }}">
+                       aria-describedby="error-last-name"
+                       value="{{ old.last_name }}" />
                 <p id="error-last-name" class="error-msg" role="alert" aria-live="assertive"></p>
             </div>
 
@@ -41,29 +35,29 @@
                 <label for="tax_code">Codice fiscale</label>
                 <input id="tax_code" name="tax_code" type="text" maxlength="16"
                        aria-describedby="error-tax-code"
-                       value="{{ old.tax_code }}" required>
+                       value="{{ old.tax_code }}" required />
                 <p id="error-tax-code" class="error-msg" role="alert" aria-live="assertive"></p>
             </div>
 
             <div class="form-control">
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" required
-                       aria-required="true" aria-describedby="error-email"
-                       value="{{ old.email }}">
+                       aria-describedby="error-email"
+                       value="{{ old.email }}" />
                 <p id="error-email" class="error-msg" role="alert" aria-live="assertive"></p>
             </div>
 
             <div class="form-control">
                 <label for="password">Password</label>
                 <input id="password" name="password" type="password" required
-                       aria-required="true" aria-describedby="error-password">
+                       aria-describedby="error-password" />
                 <p id="error-password" class="error-msg" role="alert" aria-live="assertive"></p>
             </div>
 
             <div class="form-control">
                 <label for="password_confirm">Conferma password</label>
                 <input id="password_confirm" name="password_confirm" type="password" required
-                       aria-required="true" aria-describedby="error-password-confirm">
+                       aria-describedby="error-password-confirm" />
                 <p id="error-password-confirm" class="error-msg" role="alert" aria-live="assertive"></p>
             </div>
 
