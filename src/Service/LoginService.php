@@ -14,60 +14,59 @@ class LoginService
     public function __construct()
     {
         $db = Database::getInstance(
-            getenv('MARIADB_HOST') ?: 'mariadb',
-            getenv('MARIADB_USER') ?: 'admin',
+            getenv('MARIADB_HOST')     ?: 'mariadb',
+            getenv('MARIADB_USER')     ?: 'admin',
             getenv('MARIADB_PASSWORD') ?: 'admin',
-            getenv('MARIADB_DATABASE') ?: 'pharmacy_archimede'
+            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
         );
         $this->auth = new AuthService($db);
     }
 
     public function handleRequest(): void
     {
-        // Logout
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
+        // === Logout (PRG) ===
         if (isset($_GET['logout'])) {
             $this->auth->logout();
             header('Location: /login.php');
             exit;
         }
 
-        // GET → mostra form senza errori
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $oldEmail = $_GET['email'] ?? '';
+        // === POST → tenta login, poi SEMPRE redirect (PRG) ===
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '';
+            $pwd   = $_POST['password'] ?? '';
 
-            PageBuilder::show('login', [
-                'error'             => '',
-                'old'               => ['email' => $oldEmail],
-                'meta_title'        => 'Accedi | Farmacia Archimede',
-                'meta_description'  => 'Pagina di Login all area personale della Farmacia Archimede',
-                'meta_keywords'     => 'login, farmacia, archimede, area personale, registrazione',
-            ]);
+            if ($this->auth->login($email, $pwd)) {
+                // Successo → vai all’area personale
+                header('Location: /area_personale.php');
+                exit;
+            }
+
+            // Fallimento → imposta flash + old values in session
+            $_SESSION['flash_message'] = [
+                'type'    => 'error',
+                'message' => 'Credenziali errate.',
+            ];
+            $_SESSION['old'] = ['email' => $email];
+
+            // GET pulita
+            header('Location: /login.php');
             exit;
         }
 
-        // POST → tenta login
-        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '';
-        $pwd   = $_POST['password'] ?? '';
+        $old = $_SESSION['old'] ?? ['email' => ''];
+        unset($_SESSION['old']); // pulizia dopo lettura
 
-        if ($this->auth->login($email, $pwd)) {
-            header('Location: /area_personale.php');
-            exit;
-        }
-
-
-
-        // Login KO → mostra form con blocco errore lasciato visibile
         PageBuilder::show('login', [
-            'old'               => ['email' => $email],
+            'old'               => $old,
             'meta_title'        => 'Accedi | Farmacia Archimede',
-            'meta_description'  => 'Descrizione specifica per questa pagina',
-            'meta_keywords'     => 'parola1, parola2, parola3',
+            'meta_description'  => 'Pagina di Login all’area personale di Farmacia Archimede.',
+            'meta_keywords'     => 'login, farmacia archimede, area personale, registrazione',
         ]);
-
-        $_SESSION['flash_message'] = [
-            'type'    => 'error',
-            'message' => 'Credenziali errate.',
-        ];
         exit;
     }
 }

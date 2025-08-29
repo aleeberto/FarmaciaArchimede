@@ -1,13 +1,14 @@
-<table class="area-personale-table">
+<table class="area-personale-table" role="table">
+  <caption class="visually-hidden">Elenco prodotti gestibili dall’amministratore</caption>
   <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nome</th>
-      <th>Produttore</th>
-      <th>Prezzo (€)</th>
-      <th>Disponibilità</th>
-      <th>Azioni</th>
-    </tr>
+  <tr>
+    <th scope="col">ID</th>
+    <th scope="col">Nome</th>
+    <th scope="col">Produttore</th>
+    <th scope="col">Prezzo (€)</th>
+    <th scope="col">Disponibilità</th>
+    <th scope="col">Azioni</th>
+  </tr>
   </thead>
   <tbody>
   {{ products_rows }}

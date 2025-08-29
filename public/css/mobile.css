@@ -238,6 +238,12 @@
         width: 90%;
     }
 
+    .error-page {
+        margin: 12px 10px;
+        padding: 1.75rem 1rem;
+        border-radius: 16px;
+    }
+
     about-container {
         padding: 10px;
     }

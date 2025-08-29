@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (!$prod) {
             $_SESSION['flash_message'] = [
                 'type'    => 'error',
-                'message' => 'Prodotto non trovato.',
+                'message' => 'Il prodotto richiesto non è stato trovato.',
             ];
             header('Location: /prodotti.php');
             exit;

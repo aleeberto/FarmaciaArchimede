@@ -1,0 +1,16 @@
+<tr id="row-product-{{ id }}">
+    <td>{{ id }}</td>
+    <td>{{ name }}</td>
+    <td>{{ manufacturer }}</td>
+    <td>{{ price }}</td>
+    <td>{{ availability }}</td>
+    <td>
+        <a class="btn-edit" href="/modifica.php?id={{ id }}">Modifica</a>
+        <form class="delete-form" action="/delete.php" method="POST" data-row="#row-product-{{ id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf }}">
+            <input type="hidden" name="type" value="product">
+            <input type="hidden" name="id" value="{{ id }}">
+            <button type="submit" class="btn-delete">Elimina</button>
+        </form>
+    </td>
+</tr>

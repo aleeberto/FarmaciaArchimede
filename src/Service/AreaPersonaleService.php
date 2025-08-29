@@ -20,6 +20,31 @@ class AreaPersonaleService
         $this->mysqli  = $db->connect();
     }
 
+    private function readTpl(string $relativePath): string
+    {
+        $file = __DIR__ . '/../html/' . ltrim($relativePath, '/');
+        $html = @file_get_contents($file);
+        if ($html === false) {
+            throw new \RuntimeException("Template non trovato: {$relativePath}");
+        }
+        return $html;
+    }
+
+    /**
+     * Renderizza un “row template” sostituendo un array associativo di valori.
+     * Usa htmlspecialchars per sicurezza dove serve (già pronto per HTML).
+     */
+    private function renderRow(string $tpl, array $data): string
+    {
+        $t = new Template('row', $tpl);
+        foreach ($data as $k => $v) {
+            // di default escape per testo; se passi HTML “sicuro”, escapa a monte e qui usa così com’è
+            $t->insert($k, (string)$v);
+        }
+        return $t->build();
+    }
+
+
     /**
      * Dati base dell’utente
      */
@@ -131,40 +156,55 @@ class AreaPersonaleService
 
     private function renderProductsComponent(): string
     {
+        // 1) Query
         $sql = "
-            SELECT product_id, name, manufacturer, price, availability
-            FROM products
-            ORDER BY name ASC
-        ";
+        SELECT product_id, name, manufacturer, price, availability
+        FROM products
+        ORDER BY name ASC
+    ";
 
         $result = $this->mysqli->query($sql);
         if (!$result) {
             throw new \RuntimeException("Errore query prodotti: " . $this->mysqli->error);
         }
-
         $products = $result->fetch_all(MYSQLI_ASSOC);
-        $rows = '';
 
-        foreach ($products as $p) {
-            $id = $p['product_id'];
-            $rows .= "<tr>";
-            $rows .= "<td>{$id}</td>";
-            $rows .= "<td>" . htmlspecialchars($p['name']) . "</td>";
-            $rows .= "<td>" . htmlspecialchars($p['manufacturer']) . "</td>";
-            $rows .= "<td>" . number_format($p['price'], 2) . "</td>";
-            $rows .= "<td>{$p['availability']}</td>";
-            $rows .= "<td>
-                <a class='btn-edit' href='/modifica.php?id=" . (int)$id . "'>Modifica</a>
-                <button class='btn-delete' data-id='{$id}'>Elimina</button>
-                </td>";
-            $rows .= "</tr>";
+        // 2) CSRF per le delete forms
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+        }
+        $csrf = $_SESSION['csrf_token'];
+
+        // 3) Carica template
+        $tableTpl = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_products.html');
+        if ($tableTpl === false) {
+            throw new \RuntimeException("Template non trovato: all_products.html");
+        }
+        $rowTpl = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/_product_row.html');
+        if ($rowTpl === false) {
+            throw new \RuntimeException("Template non trovato: _product_row.html");
         }
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_products.html');
-        $template = new Template('all_products', $templateHtml);
-        $template->insert('products_rows', $rows);
-        return $template->build();
+        // 4) Costruisci righe
+        $rowsHtml = '';
+        foreach ($products as $p) {
+            $row = new Template('product_row', $rowTpl);
+            $row->insert('id',           (string)(int)$p['product_id']);
+            $row->insert('name',         htmlspecialchars($p['name']));
+            $row->insert('manufacturer', htmlspecialchars($p['manufacturer']));
+            $row->insert('price',        number_format((float)$p['price'], 2));
+            $row->insert('availability', (string)(int)$p['availability']);
+            $row->insert('csrf',         $csrf); // per la form di delete nel partial
+            $rowsHtml .= $row->build();
+        }
+
+        // 5) Inserisci nel wrapper
+        $table = new Template('all_products', $tableTpl);
+        $table->insert('products_rows', $rowsHtml);
+
+        return $table->build();
     }
+
 
     private function renderUsersComponent(): string
     {

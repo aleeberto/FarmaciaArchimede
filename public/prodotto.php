@@ -29,6 +29,10 @@ if ($id <= 0) {
 // Fetch the product
 $product = $service->getProductByID($id);
 if (! $product) {
+    $_SESSION['flash_message'] = [
+        'type'    => 'error',
+        'message' => 'Il prodotto richiesto non è stato trovato.',
+    ];
     header('Location: /prodotti.php');
     exit;
 }
