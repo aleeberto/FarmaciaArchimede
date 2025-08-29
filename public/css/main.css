@@ -97,6 +97,23 @@ textarea:focus {
     box-shadow: 0px 2px 3px var(--shadow-color-hover);
 }
 
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 3px var(--outline-color);
+}
+
+input[required],
+select[required],
+textarea[required] {
+    border-left: 4px solid var(--secondary-accent-bg);
+    padding-left: 8px;
+}
+
+
 a {
     color: var(--non-visited-link);
     text-decoration: underline;
@@ -445,8 +462,6 @@ body #product-details > p {
 }
 
 #product-price {
-    font-size: 1.6em;
-    font-weight: bold;
     color: var(--primary-text);
 }
 
@@ -480,27 +495,175 @@ body #product-details > p {
     align-self: center;
 }
 
+/* Contenitore del form */
 .product-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: space-between;
-    margin: 0 auto;
+    --field-gap: 1rem;
+    --block-gap: 2rem;
+    --field-radius: 12px;
+    --field-padding-y: 10px;
+    --field-padding-x: 12px;
+
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--block-gap) var(--field-gap);
+    max-width: 980px;
+    width: 100%;
+    margin: 1rem auto 2rem;
+    padding: 1.5rem;
+    background: var(--primary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-.form-control {
+/* Ogni controllo: di default metà form (6/12) su desktop */
+.product-form .form-control {
     display: flex;
     flex-direction: column;
-    flex: 1 1 45%;
-    min-width: 250px;
-    text-align: left;
+    gap: 0.5rem;
+    grid-column: span 6;
+    min-width: 240px;
 }
 
-.form-control label {
-    margin-bottom: 0.5rem;
+.product-form .form-control--full { grid-column: 1 / -1; }
+
+.product-form .form-control label {
     font-weight: 600;
     color: var(--primary-text);
+    line-height: 1.2;
 }
+
+.product-form .form-control label span[aria-hidden="true"] {
+    margin-left: 0.25em;
+    color: var(--non-visited-link);
+    font-weight: 700;
+}
+
+/* Campi */
+/* Tutti i campi del form con la stessa larghezza */
+.product-form input[type="text"],
+.product-form input[type="number"],
+.product-form input[type="file"],
+.product-form input[type="email"],
+.product-form input[type="password"],
+.product-form select,
+.product-form textarea {
+    display: block;
+    width: 100%;          /* tutti occupano la larghezza del contenitore */
+    max-width: 100%;      /* non possono allungarsi oltre */
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    line-height: 1.4;
+    overflow: hidden;        /* evita che un value lungo allarghi */
+    text-overflow: ellipsis; /* opzionale: tronca con … se troppo lungo */
+}
+
+/* Textarea sempre uniforme */
+.product-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+
+.product-form ::placeholder { opacity: 0.8; color: var(--muted-text, var(--primary-text)); }
+
+.product-form input[type="file"]:focus-visible {
+    outline: none;
+    border-color: var(--outline-color);
+    box-shadow: 0 0 0 3px var(--outline-color);
+}
+
+.product-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.product-form .product-preview {
+    display: block;
+    margin-top: 0.5rem;
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* Azioni del form */
+.product-form .form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* Campi compatti */
+.product-form .form-control--short {
+    flex: 0 1 200px;   /* larghezza max ~200px */
+    max-width: 220px;
+}
+
+/* Centro il blocco nella griglia */
+.product-form .center-field {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;  /* centra etichetta ed errori */
+}
+
+/* Input numerici allineati a destra o centrati */
+.product-form .center-field input {
+    text-align: center;  /* numeri centrati */
+}
+
+
+.product-form .form-actions button[type="submit"] {
+    background: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 10px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: transform .1s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.product-form .form-actions button[type="submit"]:hover,
+.product-form .form-actions button[type="submit"]:focus-visible {
+    background: var(--tertiary-accent-bg);
+    transform: translateY(-1px);
+    outline: none;
+    box-shadow: 0 4px 10px var(--shadow-color-hover);
+}
+
+.product-form .form-actions .button-secondary {
+    background: transparent;
+    color: var(--non-visited-link);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 10px 16px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.product-form .form-actions .button-secondary:hover,
+.product-form .form-actions .button-secondary:focus-visible {
+    background: var(--active-hover-color);
+    outline: none;
+}
+
+/* Accessibilità: focus chiaro anche su link pulsante */
+.product-form .form-actions a.button-secondary:focus-visible {
+    box-shadow: 0 0 0 3px var(--outline-color);
+}
+
+/* Miglior integrazione con layout circostante:
+   l'alert rimane a tutta riga prima del form se dentro .main-content */
+.main-content { display: flex; flex-wrap: wrap; gap: 1rem; }
+.main-content > .alert { flex: 1 1 100%; }
 
 /* FOOTER */
 footer {

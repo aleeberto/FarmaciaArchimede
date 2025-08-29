@@ -19,7 +19,7 @@
             <a href="/prodotti.php">Prodotti</a>
             <span class="separator" aria-hidden="true">&gt;&gt;</span>
         </li>
-            {{ breadcrumb_product }}
+        {{ breadcrumb_product }}
         <span class="separator" aria-hidden="true">&gt;&gt;</span>
         <li aria-current="page">{{ page_mode }}</li>
     </ol>
@@ -45,6 +45,33 @@
                    id="product_id"
                    name="product_id"
                    value="{{ product_id }}">
+
+            <!-- 🔼 Anteprima immagine in alto, a tutta larghezza -->
+            <div class="form-control form-control--full">
+                <label for="product-image">Anteprima immagine</label>
+                <img src="{{ image_url }}"
+                     alt="Anteprima prodotto"
+                     class="product-preview">
+            </div>
+
+            <!-- Upload immagine subito sotto, a tutta larghezza -->
+            <div class="form-control form-control--full">
+                <label for="product-image">Carica immagine</label>
+                <input type="file"
+                       id="product-image"
+                       name="image_file"
+                       accept="image/*"
+                       aria-describedby="help-image error-image-file">
+                <p id="help-image" class="visually-hidden">
+                    Seleziona un file immagine (PNG o JPG).
+                </p>
+                <p id="error-image-file"
+                   class="error-msg"
+                   role="alert"
+                   aria-live="assertive">
+                    {{ errors.image_file }}
+                </p>
+            </div>
 
             <!-- Tipo prodotto -->
             <div class="form-control">
@@ -172,7 +199,7 @@
             </div>
 
             <!-- Prezzo -->
-            <div class="form-control">
+            <div class="form-control form-control--short">
                 <label for="product-price">
                     Prezzo (€)<span aria-hidden="true">*</span>
                 </label>
@@ -194,7 +221,7 @@
             </div>
 
             <!-- Disponibilità -->
-            <div class="form-control">
+            <div class="form-control form-control--short">
                 <label for="product-availability">
                     Disponibilità<span aria-hidden="true">*</span>
                 </label>
@@ -214,8 +241,8 @@
                 </p>
             </div>
 
-            <!-- Descrizione -->
-            <div class="form-control">
+            <!-- Descrizione (a tutta larghezza per comodità) -->
+            <div class="form-control form-control--full">
                 <label for="product-description">
                     Descrizione
                 </label>
@@ -223,38 +250,15 @@
                           name="description"
                           rows="4"
                           aria-describedby="help-description">{{ description }}</textarea>
-            </div>
-
-            <!-- Anteprima immagine -->
-            <div class="form-control">
-                <label>Anteprima immagine</label>
-                <img src="{{ image_url }}"
-                     alt="Anteprima prodotto"
-                     style="max-width:150px">
-            </div>
-
-            <!-- Caricamento immagine -->
-            <div class="form-control">
-                <label for="product-image">
-                    Carica immagine
-                </label>
-                <input type="file"
-                       id="product-image"
-                       name="image_file"
-                       accept="image/*"
-                       aria-describedby="error-image-file">
-                <p id="error-image-file"
-                   class="error-msg"
-                   role="alert"
-                   aria-live="assertive">
-                    {{ errors.image_file }}
+                <p id="help-description" class="visually-hidden">
+                    Inserisci una descrizione breve e informativa del prodotto.
                 </p>
             </div>
 
             <!-- Pulsanti -->
             <div class="form-actions">
                 <a href="/area_personale.php?section=gestione_prodotti" class="button-secondary">Annulla</a>
-                <button type="submit">{{ submit_label }}</button>
+                <button type="submit" aria-label="Salva prodotto">{{ submit_label }}</button>
             </div>
         </form>
     </div>
