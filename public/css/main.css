@@ -1221,6 +1221,180 @@ body #tipologia option {
     transform: scale(1.05);
 }
 
+/* ===== Error Page ===== */
+.error-page {
+    --error-code-color: var(--non-visited-link);
+    --error-text-color: var(--primary-text);
+    --error-bg: var(--primary-accent-bg);
+    --error-border: var(--border-color);
+
+    min-height: calc(100vh - 220px); /* tiene conto di header/footer */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+    padding: 2.5rem 1.25rem;
+    margin: 20px 17px;
+    text-align: center;
+}
+
+/* piccola label sopra al numero */
+.error-page .eyebrow {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--error-text-color);
+}
+
+/* numero grande */
+.error-page .error-code {
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: .02em;
+    color: var(--error-code-color);
+    font-size: clamp(4rem, 12vw, 10rem);
+    margin-top: .25rem;
+}
+
+/* messaggi testuali */
+.error-page .error-message {
+    font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+    color: var(--error-text-color);
+    margin-top: .5rem;
+}
+
+.error-page .error-hint {
+    color: var(--muted-text, var(--primary-text));
+    max-width: 60ch;
+    line-height: 1.6;
+    margin: 0 .5rem 0;
+}
+
+/* azioni */
+.error-page .error-actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.error-page .btn-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .65rem 1.1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 1px solid var(--border-color);
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    font-weight: 600;
+    min-width: 180px;
+    box-shadow: 0 2px 3px var(--shadow-color);
+}
+
+.error-page .btn-home:hover,
+.error-page .btn-home:focus {
+    background-color: var(--tertiary-accent-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-color-hover);
+    outline: none;
+}
+
+.error-page .btn-home:focus-visible {
+    box-shadow: 0 0 0 3px var(--outline-color);
+}
+
+
+/* TABELLE */
+
+.area-personale-table {
+    width: auto;
+    border-collapse: collapse;
+    margin: 20px auto;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    border: 1px solid var(--border-color);
+    box-shadow: 0px 2px 4px var(--shadow-color);
+}
+
+.area-personale-table caption {
+    text-align: left;
+    font-weight: bold;
+    padding: 8px 0;
+    color: var(--primary-text);
+}
+
+.area-personale-table th,
+.area-personale-table td {
+    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.area-personale-table th {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+    font-weight: 600;
+}
+
+.area-personale-table tbody tr:nth-child(even) {
+    background-color: var(--primary-accent-bg);
+}
+
+.area-personale-table tbody tr:hover {
+    background-color: var(--active-hover-color);
+}
+
+.area-personale-table td:focus-within {
+    outline: 3px solid var(--outline-color);
+    outline-offset: -3px;
+}
+
+.area-personale-table .btn-edit,
+.area-personale-table .btn-delete {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 2px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.15s;
+}
+
+.area-personale-table .btn-edit {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+}
+.area-personale-table .btn-edit:hover,
+.area-personale-table .btn-edit:focus-visible {
+    background-color: var(--tertiary-accent-bg);
+    transform: scale(1.05);
+    outline: none;
+}
+
+.area-personale-table .btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+}
+.area-personale-table .btn-delete:hover,
+.area-personale-table .btn-delete:focus-visible {
+    background-color: #a71d2a;
+    transform: scale(1.05);
+    outline: none;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .team-grid {

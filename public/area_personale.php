@@ -322,16 +322,20 @@ switch ($section) {
     }
 }
 
-// 6) Costruzione breadcrumb HTML
-$last = count($crumbs) - 1;
+// 6) Costruzione breadcrumb HTML con separatore >>
+$lastIndex = count($crumbs) - 1;
 $items = '';
+
 foreach ($crumbs as $i => $crumb) {
-    if ($i === $last) {
+    if ($i === $lastIndex) {
+        // Ultimo: solo testo, aria-current
         $items .= '<li aria-current="page">' . strip_tags($crumb) . '</li>';
     } else {
-        $items .= "<li>{$crumb}</li>";
+        // Intermedi: link + separatore visivo non letto dagli screen reader
+        $items .= '<li>' . $crumb . ' <span class="separator" aria-hidden="true">&gt;&gt;</span></li>';
     }
 }
+
 $params['breadcrumb'] = $items;
 $params['is_admin']   = $isAdmin;
 

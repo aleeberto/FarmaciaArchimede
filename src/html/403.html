@@ -5,11 +5,22 @@
 </head>
 <body class="no-print">
 {{ header }}
-<main class="error-page">
-    <div class="error-code">403</div>
-    <p class="error-message">Accesso negato.</p>
-    <p>Non hai i permessi necessari per visualizzare questa pagina.</p>
-    <a href="/">Torna alla home</a>
+<main class="error-page" role="main" aria-labelledby="error-title">
+    <h1 id="error-title" class="visually-hidden">Errore 403 – Accesso negato</h1>
+
+    <p class="eyebrow">Errore 403</p>
+    <div class="error-code" aria-hidden="true">403</div>
+
+    <p class="error-message" aria-live="polite">
+        Accesso negato.
+    </p>
+    <p class="error-hint">
+        Non hai i permessi necessari per visualizzare questa pagina.
+    </p>
+
+    <div class="error-actions">
+        <a class="btn-home" href="/">Torna alla home</a>
+    </div>
 </main>
 {{ footer }}
 </body>
