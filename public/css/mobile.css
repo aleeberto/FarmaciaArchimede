@@ -132,6 +132,23 @@
         flex-direction: column;
         gap: 20px;
     }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-member {
+        padding: 1.5rem;
+    }
+
+    .member-photo img {
+        width: 150px;
+        height: 150px;
+    }
 }
 
 /* Ulteriore ottimizzazione per schermi molto piccoli (max-width: 480px) */
@@ -178,11 +195,12 @@
         padding: 8px;
     }
     .product-name {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;         /* tronca a 2 righe */
-        -webkit-box-orient: vertical;
+        display: block;
         overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
+
     .item > button { width: 100%; }
 
     /* Footer: evita overflow e colonne strette */
@@ -219,6 +237,23 @@
     .auth-form input {
         width: 90%;
     }
+
+    about-container {
+        padding: 10px;
+    }
+
+    .about-intro {
+        padding: 0 1rem;
+    }
+
+    .team-member {
+        padding: 1rem;
+    }
+
+    .value-item {
+        padding: 1rem;
+    }
+
 }
 
 

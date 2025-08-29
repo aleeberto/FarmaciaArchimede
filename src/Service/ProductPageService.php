@@ -54,7 +54,7 @@ class ProductPageService
                 'immagine' => sprintf(
                     '<img src="%s" alt="%s" width="100" height="100" loading="lazy" decoding="async"/>',
                     htmlspecialchars($p->imagePath, ENT_QUOTES, 'UTF-8'),
-                    htmlspecialchars($p->short_name ?? $p->description, ENT_QUOTES, 'UTF-8')
+                    htmlspecialchars($p->short_name ?? $p->shortName, ENT_QUOTES, 'UTF-8')
                 ),
 
                 'nome'        => $p->shortName,
