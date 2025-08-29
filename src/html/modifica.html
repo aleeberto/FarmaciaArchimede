@@ -11,9 +11,16 @@
 <nav aria-label="breadcrumb" class="breadcrumb">
     Ti trovi in:
     <ol>
-        <li><a href="/">Home</a></li>
-        <li><a href="/prodotti.php">Prodotti</a></li>
-        {{ breadcrumb_product }}
+        <li>
+            <a href="/">Home</a>
+            <span class="separator" aria-hidden="true">&gt;&gt;</span>
+        </li>
+        <li>
+            <a href="/prodotti.php">Prodotti</a>
+            <span class="separator" aria-hidden="true">&gt;&gt;</span>
+        </li>
+            {{ breadcrumb_product }}
+        <span class="separator" aria-hidden="true">&gt;&gt;</span>
         <li aria-current="page">{{ page_mode }}</li>
     </ol>
 </nav>

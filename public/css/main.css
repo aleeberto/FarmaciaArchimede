@@ -706,8 +706,8 @@ header nav ul.flex-container > li:last-child > a {
     background: rgba(220, 53, 69, .08);
     padding: 12px 14px;
     border-radius: 12px;
-    margin: 10px 17px;
-    flex: 1 1 100%; /* prende tutta la riga */
+    margin: 10px 20px;
+    flex: 1 1 100%;
 }
 /* --- SUCCESSO --- */
 .alert.success {
@@ -1372,6 +1372,17 @@ body #tipologia option {
     transition: background-color 0.2s, transform 0.15s;
 }
 
+.area-personale-table td:last-child {
+    display: flex;
+    gap: 6px;             /* spazio tra pulsanti */
+    align-items: center;
+}
+
+.area-personale-table .delete-form {
+    margin: 0;
+    padding: 0;
+}
+
 .area-personale-table .btn-edit {
     background-color: var(--secondary-accent-bg);
     color: var(--primary-text);
@@ -1393,6 +1404,7 @@ body #tipologia option {
     transform: scale(1.05);
     outline: none;
 }
+
 
 
 /* Responsive Design */
