@@ -13,7 +13,7 @@ class ProductPageService
     private ProductService $service;
     private int $perPage;
 
-    public function __construct(int $perPage = 10)
+    public function __construct(int $perPage = 6)
     {
         $db = Database::getInstance(
             getenv('MARIADB_HOST')     ?: 'mariadb',

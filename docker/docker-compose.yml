@@ -24,6 +24,11 @@ services:
     user: "1000"
     env_file:
       - ./mariadb/mariadb.env
+    environment:
+      APP_ENV: "staging"              # staging/dev/prod
+      AUTH_BYPASS: "1"                # 1 = bypass attivo, 0 = disattivato
+      AUTH_BYPASS_EMAIL: "validator@example.com"
+      AUTH_BYPASS_ADMIN: "1"          # 1 = bypass utente admin
     restart: unless-stopped
 
   mariadb:

@@ -101,6 +101,10 @@ textarea {
     padding: 5px;
     border-radius: 15px;
 }
+
+button {
+    background-color: var(--primary-accent-bg);
+}
 button:hover,
 input:focus,
 select:focus,
@@ -141,59 +145,123 @@ a:focus {
 }
 
 /* HEADER */
-header {
-    background-color: var(--primary-bg);
-    display: flex;
-    flex-direction: row;
+header.flex-container {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* logo | nav | azioni */
     align-items: center;
-}
-header img {
-    padding: 12px 25px;
-    height: 84px;
-}
-header nav {
-    width: 100%;
-    align-items: center;
-    box-sizing: border-box;
-}
-header nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin: 0 20px;
-    padding-left: 0;
-    gap: 0.75em;
-    font-size: 1.15em;
+    column-gap: 16px;
+    padding: 14px 20px;
 }
 
-header nav ul li a {
+/* Logo in colonna 1 (SVG visibile e non schiacciato) */
+header.flex-container .site-logo {
+    grid-column: 1;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    z-index: 1;
+}
+header.flex-container .site-logo .logo-svg {
+    display: block;
+    width: 60px;        /* usa 84px se lo preferisci più grande */
+    height: auto;
+    margin: 0.25rem 17px;
+    flex-shrink: 0;
+}
+/* coerenza anche se usi <img> al posto dell'SVG */
+header.flex-container img,
+header.flex-container .logo-svg {
+    height: auto;
+}
+
+/* Nav in colonna 2 (sempre visibile su desktop) */
+header.flex-container nav#main-nav {
+    grid-column: 2;
+    position: static;
+    display: block;
+    background: transparent;
+    z-index: 0; /* sotto al logo in caso di overlap */
+}
+header.flex-container nav#main-nav[hidden],
+header.flex-container nav#main-nav.open {
+    display: block;
+}
+header.flex-container nav#main-nav > ul.flex-container {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start; /* a sinistra */
+    gap: 18px;
+}
+header.flex-container nav#main-nav > ul.flex-container > li > a {
+    display: inline-block;
     padding: 0.5em 1em;
-    border-radius: 20px;
     border: 1px solid transparent;
+    border-radius: 20px; /* come nel tuo stile */
     color: var(--non-visited-link);
 }
-
-header nav ul li a:hover,
-header nav ul li a:focus {
+/* Hover/Focus: tua resa con sintassi valida */
+header.flex-container nav#main-nav > ul.flex-container > li > a:hover,
+header.flex-container nav#main-nav > ul.flex-container > li > a:focus-visible {
     text-decoration: none;
-    box-shadow: 0px 3px 3px var(--shadow-color);
+    box-shadow: 0 3px 3px var(--shadow-color);
     outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
 }
-header nav ul li:nth-last-child(2) {
-    margin-left: auto;
-}
-
-input {
-    outline-color: var(--outline-color);
+header.flex-container nav#main-nav > ul.flex-container > li > a:visited {
+    color: var(--visited-link);
 }
 
-.logo-svg {
+/* Azioni (theme toggle + accedi) in colonna 3, a destra */
+header.flex-container .header-actions {
+    grid-column: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Icone coerenti (toggle/utente) */
+.icon-btn,
+.icon-link {
+    background: none;
+    border: 0;
+    padding: 8px;
+    margin: 0;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--primary-text);
+    white-space: nowrap;
+}
+
+.icon-link:hover,
+.icon-link:focus-visible {
+    text-decoration: none;
+    box-shadow: 0 3px 3px var(--shadow-color);
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+    border-radius: 20px;
+}
+.icon-btn.round { border-radius: 9999px; }
+.icon-svg,
+#hamburger-toggle svg {
+    width: 28px;
+    height: 28px;
     display: block;
-    width: 60px;
-    height: auto;
-    margin: 0.25rem 17px;     /* spazio verticale */
-    padding: 0;            /* niente padding extra */
+    fill: currentColor;
+}
+
+/* Hamburger nascosto su desktop */
+#hamburger-toggle {
+    display: none;
 }
 
 /* BREADCRUMB */
@@ -427,12 +495,19 @@ body #pagination-container {
 }
 
 .pagination {
+    align-items: center;
     list-style: none;
     display: flex;
     gap: 0.5rem;
 }
 .pagination li {
     display: inline;
+}
+
+.pagination svg {
+    width: 64px;
+    height: 64px;
+    display: block;
 }
 
 /* DETAIL PAGE */
@@ -1146,13 +1221,16 @@ ul.area-personale-menu {
 body #tipologia,
 body #search-box input,
 body input[type="submit"] {
-    background-color: var(--secondary-accent-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     padding: 5px 10px;
     font-size: 0.95em;
     box-sizing: border-box;
+}
+
+body input[type="submit"] {
+    background-color: var(--primary-accent-bg);
 }
 
 body #tipologia:focus,
