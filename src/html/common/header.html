@@ -1,6 +1,6 @@
 <a href="#main-content" class="skip-link">Salta al contenuto principale</a>
 <header class="flex-container">
-    <a href="/" class="site-logo" aria-label="Home - Farmacia Archimede" tabindex="-1">
+    <div class="site-logo" role="img" aria-label="Home - Farmacia Archimede">
         <svg xmlns="http://www.w3.org/2000/svg" class="logo-svg" viewBox="128.772 137.69 122.275 122.129" aria-hidden="true" focusable="false">
             <defs>
                 <clipPath id="a">
@@ -17,22 +17,29 @@
             </g>
         </svg>
         <span class="visually-hidden">Farmacia Archimede</span>
-    </a>
+    </div>
 
 
     <!-- bottone hamburger: posizionalo qui -->
-    <button id="hamburger-toggle" aria-label="Apri menu">
+    <button id="hamburger-toggle"
+            aria-label="Apri menu"
+            aria-expanded="false"
+            aria-controls="main-nav">
         <svg viewBox="0 0 100 80"><rect width="100" height="10"/><rect y="30" width="100" height="10"/><rect y="60" width="100" height="10"/></svg>
     </button>
 
-    <nav aria-label="Menu principale">
+    <nav aria-label="Menu principale" id="main-nav">
         <ul class="flex-container">
             <li><a href="/">Home</a></li>
             <li><a href="/prodotti.php">Prodotti</a></li>
             <li><a href="/chi_siamo.php">Chi Siamo</a></li>
             <li><a href="/contatti.php">Contatti</a></li>
             <li>
-                <button id="theme-toggle" type="button" aria-label="Cambia tema" aria-pressed="false" class="icon-btn round">
+                <button  id="theme-toggle"
+                         type="button"
+                         aria-label="Cambia tema"
+                         aria-pressed="false"
+                         class="icon-btn round">
                     <svg id="icon-sun" viewBox="0 0 30 30"
                          preserveAspectRatio="xMidYMid meet"
                          class="icon-svg">

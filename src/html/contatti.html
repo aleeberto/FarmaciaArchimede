@@ -26,9 +26,9 @@
                 <div class="contact-content">
                     <h3>Dove siamo</h3>
                     <address>
-                        Farmacia Archimede<br>
-                        Via Galileo Galilei 1123<br>
-                        10129 Torino (TO)<br>
+                        Farmacia Archimede
+                        Via Galileo Galilei 1123
+                        10129 Torino (TO)
                         Italia
                     </address>
                     
@@ -68,11 +68,12 @@
             <section aria-labelledby="opening-hours" class="contact-card">
                 <h2 id="opening-hours">Orari di Apertura</h2>
                 <div class="contact-content">
-                    <p id="sum" class="visually-hidden">orario di apertura della farmacia divisa in colonne che definiscono i giorni della settimana e le righe che definiscono gli orari di apertura</p>
-                    <table class="opening-table" aria-describedby="sum">
+                    <p id="sum-main" class="visually-hidden">orario di apertura della farmacia divisa in colonne che definiscono i giorni della settimana e le righe che definiscono gli orari di apertura</p>
+                    <table class="opening-table" aria-describedby="sum-main">
+                        <caption>Orari di apertura</caption>
                         <thead>
                             <tr>
-                                <td></td>
+                                <th scope="col"></th>
                                 <th scope="col" abbr="Lun-Ven">Lunedì-Venerdì</th>
                                 <th scope="col" abbr="Sab">Sabato</th>
                                 <th scope="col" abbr="Dom">Domenica</th>
@@ -131,7 +132,6 @@
             </section>
         </div>
     </main>
-
     {{ footer }}
 </body>
 </html>
