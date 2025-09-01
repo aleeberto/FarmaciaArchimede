@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    {{ head }}
-</head>
+{{ head }}
 <body class="no-print">
-<a href="#main-content" class="skip-link">Salta al contenuto principale</a>
-
 {{ header }}
-
 <nav aria-label="breadcrumb" class="breadcrumb">
     Ti trovi in:
     <ol>
@@ -19,13 +14,17 @@
             <a href="/prodotti.php">Prodotti</a>
             <span class="separator" aria-hidden="true">&gt;&gt;</span>
         </li>
-        {{ breadcrumb_product }}
-        <span class="separator" aria-hidden="true">&gt;&gt;</span>
-        <li aria-current="page">{{ page_mode }}</li>
+        <li>
+            {{ breadcrumb_product }}
+            <span class="separator" aria-hidden="true">&gt;&gt;</span>
+        </li>
+        <li aria-current="page">
+            {{ page_mode }}
+        </li>
     </ol>
 </nav>
 
-<main id="main-content" role="main" tabindex="-1">
+<main id="main-content" tabindex="-1">
     <h1>{{ page_mode }}</h1>
 
     <div class="main-content">
@@ -44,14 +43,13 @@
             <input type="hidden"
                    id="product_id"
                    name="product_id"
-                   value="{{ product_id }}">
+                   value="{{ product_id }}" />
 
-            <!-- 🔼 Anteprima immagine in alto, a tutta larghezza -->
             <div class="form-control form-control--full">
                 <label for="product-image">Anteprima immagine</label>
                 <img src="{{ image_url }}"
                      alt="Anteprima prodotto"
-                     class="product-preview">
+                     class="product-preview" />
             </div>
 
             <!-- Upload immagine subito sotto, a tutta larghezza -->
@@ -61,7 +59,7 @@
                        id="product-image"
                        name="image_file"
                        accept="image/*"
-                       aria-describedby="help-image error-image-file">
+                       aria-describedby="help-image error-image-file" />
                 <p id="help-image" class="visually-hidden">
                     Seleziona un file immagine (PNG o JPG).
                 </p>
@@ -81,7 +79,6 @@
                 <select id="product-type"
                         name="product_type_id"
                         required
-                        aria-required="true"
                         aria-describedby="error-product-type">
                     {{ product_type_options }}
                 </select>
@@ -102,10 +99,9 @@
                        id="product-short-name"
                        name="short_name"
                        required
-                       aria-required="true"
                        maxlength="128"
                        aria-describedby="error-short-name"
-                       value="{{ short_name }}">
+                       value="{{ short_name }}" />
                 <p id="error-short-name"
                    class="error-msg"
                    role="alert"
@@ -123,10 +119,9 @@
                        id="product-name"
                        name="name"
                        required
-                       aria-required="true"
                        maxlength="128"
                        aria-describedby="error-name"
-                       value="{{ name }}">
+                       value="{{ name }}" />
                 <p id="error-name"
                    class="error-msg"
                    role="alert"
@@ -144,10 +139,9 @@
                        id="product-manufacturer"
                        name="manufacturer"
                        required
-                       aria-required="true"
                        maxlength="100"
                        aria-describedby="error-manufacturer"
-                       value="{{ manufacturer }}">
+                       value="{{ manufacturer }}" />
                 <p id="error-manufacturer"
                    class="error-msg"
                    role="alert"
@@ -165,11 +159,10 @@
                        id="product-aic"
                        name="aic_code"
                        required
-                       aria-required="true"
                        maxlength="10"
                        pattern="[A-Z0-9]{10}"
                        aria-describedby="error-aic-code"
-                       value="{{ aic_code }}">
+                       value="{{ aic_code }}" />
                 <p id="error-aic-code"
                    class="error-msg"
                    role="alert"
@@ -186,7 +179,6 @@
                 <select id="product-format"
                         name="format"
                         required
-                        aria-required="true"
                         aria-describedby="error-format">
                     {{ format_options }}
                 </select>
@@ -209,9 +201,8 @@
                        step="0.01"
                        min="0.01"
                        required
-                       aria-required="true"
                        aria-describedby="error-price"
-                       value="{{ price }}">
+                       value="{{ price }}" />
                 <p id="error-price"
                    class="error-msg"
                    role="alert"
@@ -230,9 +221,8 @@
                        name="availability"
                        min="0"
                        required
-                       aria-required="true"
                        aria-describedby="error-availability"
-                       value="{{ availability }}">
+                       value="{{ availability }}" />
                 <p id="error-availability"
                    class="error-msg"
                    role="alert"
@@ -258,7 +248,7 @@
             <!-- Pulsanti -->
             <div class="form-actions">
                 <a href="/area_personale.php?section=gestione_prodotti" class="button-secondary">Annulla</a>
-                <button type="submit" aria-label="Salva prodotto">{{ submit_label }}</button>
+                <button type="submit" aria-label="{{ submit_label }}">{{ submit_label }}</button>
             </div>
         </form>
     </div>

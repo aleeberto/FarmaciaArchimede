@@ -59,7 +59,7 @@
     .icon-svg,
     #hamburger-toggle svg {
         width: 34px;   /* ingranditi rispetto a 28px */
-        height: 34px;;
+        height: 34px;
         display: block;
         fill: currentColor;
     }

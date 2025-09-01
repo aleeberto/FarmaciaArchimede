@@ -1,8 +1,18 @@
-<a href="{{ url_farmaco }}" aria-label="Visualizza prodotto">
-    <div class="item">
+<li class="item" aria-labelledby="prod-name-{{ id }}">
+    <a class="product-link"
+       href="{{ url_farmaco }}"
+       aria-labelledby="prod-name-{{ id }} price-{{ id }}">
         <div class="product-image">{{ immagine }}</div>
-        <div class="product-name">{{ nome }}</div>
-        <div class="product-price">{{ prezzo }}</div>
-        <button type="button" id="add-to-cart-{{ id }}">Aggiungi al carrello</button>
-    </div>
-</a>
+        <h3 id="prod-name-{{ id }}" class="product-name">{{ nome }}</h3>
+        <p id="price-{{ id }}" class="product-price">{{ prezzo }}</p>
+    </a>
+
+    <button type="button"
+            class="add-to-cart"
+            id="add-to-cart-{{ id }}"
+            data-product-id="{{ id }}"
+            aria-label="Aggiungi al carrello: {{ nome }}">
+        Aggiungi al carrello
+        <span class="visually-hidden">: {{ nome }}</span>
+    </button>
+</li>

@@ -5,12 +5,27 @@
     <td>{{ price }}</td>
     <td>{{ availability }}</td>
     <td>
-        <a class="btn-edit" href="/modifica.php?id={{ id }}">Modifica</a>
-        <form class="delete-form" action="/delete.php" method="POST" data-row="#row-product-{{ id }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf }}">
-            <input type="hidden" name="type" value="product">
-            <input type="hidden" name="id" value="{{ id }}">
-            <button type="submit" class="btn-delete">Elimina</button>
+        <a class="btn-edit"
+           href="/modifica.php?id={{ id }}"
+           aria-label="Modifica prodotto: {{ name }} (ID {{ id }})">
+            Modifica
+        </a>
+
+        <form class="delete-form" action="/delete.php" method="post" data-row="#row-product-{{ id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf }}" />
+            <input type="hidden" name="type" value="product" />
+            <input type="hidden" name="id" value="{{ id }}" />
+
+            <!-- Nome accessibile univoco per SR -->
+            <span id="del-desc-{{ id }}" class="visually-hidden">
+        Elimina prodotto: {{ name }} (ID {{ id }})
+      </span>
+
+            <button type="submit"
+                    class="btn-delete"
+                    aria-labelledby="del-desc-{{ id }}">
+                Elimina
+            </button>
         </form>
     </td>
 </tr>

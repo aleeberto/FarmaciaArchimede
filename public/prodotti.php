@@ -7,7 +7,7 @@ use App\Service\ProductPageService;
 use App\Core\PageBuilder;
 
 // Configurazione: prodotti per pagina
-$itemsPerPage = 12;
+$itemsPerPage = 10;
 
 $service = new ProductPageService($itemsPerPage);
 $service->handleRequest();
