@@ -1,7 +1,9 @@
 <nav aria-label="Paginazione" class="pagination-nav">
     <ul class="pagination">
         {{ prev }}
-        {{ currentPage }}
+        <li aria-current="page">
+            <span class="current">{{ currentPage }}</span>
+        </li>
         {{ next }}
     </ul>
 </nav>

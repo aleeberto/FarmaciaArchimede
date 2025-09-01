@@ -163,7 +163,7 @@ class PageBuilder
 
         $main       = $this->loadTemplate($templateName);
         $headHtml   = (new HeadBuilder($this))->build($meta);
-        $headerHtml = (new HeaderBuilder($this, $uriPath))->build(); // ← niente safe
+        $headerHtml = (new HeaderBuilder($this, $uriPath))->build();
         $footerHtml = (new FooterBuilder($this))->build();
 
         // Inserisci i componenti standard

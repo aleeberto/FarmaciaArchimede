@@ -17,7 +17,6 @@ class HeaderBuilder
 
     public function build(): string
     {
-        // Mappa voci di menu -> path
         $routes = [
             'home'      => '/',
             'prodotti'  => '/prodotti.php',
@@ -25,7 +24,6 @@ class HeaderBuilder
             'contatti'  => '/contatti.php',
         ];
 
-        // Determina stato utente (best-effort)
         $isLogged   = false;
         $loginLabel = 'Accedi';
         $loginHref  = '/login.php';
@@ -38,11 +36,9 @@ class HeaderBuilder
                 $loginHref  = '/area_personale.php';
             }
         } catch (\Throwable $e) {
-            // degraded mode: lascia Accedi
             $isLogged = false;
         }
 
-        // Classi active
         $active = [
             'home'      => '',
             'prodotti'  => '',
@@ -51,35 +47,56 @@ class HeaderBuilder
             'login'     => '',
         ];
 
+        $aria = [
+            'home'      => '',
+            'prodotti'  => '',
+            'chi_siamo' => '',
+            'contatti'  => '',
+            'login'     => '',
+        ];
+
         $curr = '/' . ltrim(parse_url($this->currentPath, PHP_URL_PATH) ?: '/', '/');
+        $curr = rtrim($curr, '/') ?: '/';
 
         foreach ($routes as $key => $path) {
+            $path = rtrim(parse_url($path, PHP_URL_PATH) ?: '/', '/') ?: '/';
             if ($this->sameRoute($curr, $path)) {
                 $active[$key] = 'active';
+                $aria[$key]   = 'aria-current="page"';
                 break;
             }
         }
 
         if ($this->sameRoute($curr, '/login.php') || $this->sameRoute($curr, '/area_personale.php')) {
             $active['login'] = 'active';
+            $aria['login']   = 'aria-current="page"';
         }
 
-        $loginAria = ($active['login'] === 'active') ? 'tabindex="-1" aria-disabled="true"' : '';
+        $loginAria = ($active['login'] === 'active') ? 'aria-current="page"' : '';
 
         $tpl = $this->builder->loadTemplate('common/header.html');
 
+        // classi
         $tpl->insert('menu.home.class',      $active['home']);
         $tpl->insert('menu.prodotti.class',  $active['prodotti']);
         $tpl->insert('menu.chi_siamo.class', $active['chi_siamo']);
         $tpl->insert('menu.contatti.class',  $active['contatti']);
         $tpl->insert('menu.login.class',     $active['login']);
 
+        // aria-current (o stringa vuota)
+        $tpl->insert('menu.home.aria',      $aria['home']);
+        $tpl->insert('menu.prodotti.aria',  $aria['prodotti']);
+        $tpl->insert('menu.chi_siamo.aria', $aria['chi_siamo']);
+        $tpl->insert('menu.contatti.aria',  $aria['contatti']);
+
+        // link login
         $tpl->insert('login.href',  $loginHref);
         $tpl->insert('login.label', $loginLabel);
         $tpl->insert('login.aria',  $loginAria);
 
         return $tpl->build();
     }
+
 
     private function sameRoute(string $a, string $b): bool
     {

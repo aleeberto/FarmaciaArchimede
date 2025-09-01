@@ -17,7 +17,7 @@
     /* link */
     /* Link armonizzati */
     --non-visited-link: #1a5e3f; /* verde scuro puro */
-    --visited-link:     #5e4f1a; /* verde oliva/marroncino per distinzione netta */
+    --visited-link: #5a2a82; /* viola profondo accessibile */
     --link-hover-color: #0f3826; /* verde ancora più scuro per hover/focus */
 
     /* bordi e ombre */
@@ -60,7 +60,8 @@
 
     /* Link */
     --non-visited-link: #9BE5BF;     /* link su dark (≥ 7:1 su primary-bg) */
-    --visited-link:     #7AC9A4;     /* visited, distinguibile ma non “sparato” */
+    --visited-link: #D4C45E; /* contrasto ≈ 6.5:1 su #2e2b2b */
+
 
     /* Bordi e ombre (su dark le ombre restano scure, non chiare) */
     --border-color: rgba(255,255,255,0.14);
@@ -101,6 +102,10 @@ textarea {
     padding: 5px;
     border-radius: 15px;
 }
+
+button {
+    background-color: var(--primary-accent-bg);
+}
 button:hover,
 input:focus,
 select:focus,
@@ -112,7 +117,6 @@ input:focus,
 select:focus,
 textarea:focus,
 button:focus {
-    outline: none;
     border-color: var(--outline-color);
     box-shadow: 0 0 0 3px var(--outline-color);
 }
@@ -141,59 +145,123 @@ a:focus {
 }
 
 /* HEADER */
-header {
-    background-color: var(--primary-bg);
-    display: flex;
-    flex-direction: row;
+header.flex-container {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* logo | nav | azioni */
     align-items: center;
-}
-header img {
-    padding: 12px 25px;
-    height: 84px;
-}
-header nav {
-    width: 100%;
-    align-items: center;
-    box-sizing: border-box;
-}
-header nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin: 0 20px;
-    padding-left: 0;
-    gap: 0.75em;
-    font-size: 1.15em;
+    column-gap: 16px;
+    padding: 14px 20px;
 }
 
-header nav ul li a {
+/* Logo in colonna 1 (SVG visibile e non schiacciato) */
+header.flex-container .site-logo {
+    grid-column: 1;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    z-index: 1;
+}
+header.flex-container .site-logo .logo-svg {
+    display: block;
+    width: 60px;        /* usa 84px se lo preferisci più grande */
+    height: auto;
+    margin: 0.25rem 17px;
+    flex-shrink: 0;
+}
+/* coerenza anche se usi <img> al posto dell'SVG */
+header.flex-container img,
+header.flex-container .logo-svg {
+    height: auto;
+}
+
+/* Nav in colonna 2 (sempre visibile su desktop) */
+header.flex-container nav#main-nav {
+    grid-column: 2;
+    position: static;
+    display: block;
+    background: transparent;
+    z-index: 0; /* sotto al logo in caso di overlap */
+}
+header.flex-container nav#main-nav[hidden],
+header.flex-container nav#main-nav.open {
+    display: block;
+}
+header.flex-container nav#main-nav > ul.flex-container {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start; /* a sinistra */
+    gap: 18px;
+}
+header.flex-container nav#main-nav > ul.flex-container > li > a {
+    display: inline-block;
     padding: 0.5em 1em;
-    border-radius: 20px;
     border: 1px solid transparent;
+    border-radius: 20px; /* come nel tuo stile */
     color: var(--non-visited-link);
 }
-
-header nav ul li a:hover,
-header nav ul li a:focus {
+/* Hover/Focus: tua resa con sintassi valida */
+header.flex-container nav#main-nav > ul.flex-container > li > a:hover,
+header.flex-container nav#main-nav > ul.flex-container > li > a:focus-visible {
     text-decoration: none;
-    box-shadow: 0px 3px 3px var(--shadow-color);
+    box-shadow: 0 3px 3px var(--shadow-color);
     outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
 }
-header nav ul li:nth-last-child(2) {
-    margin-left: auto;
-}
-
-input {
-    outline-color: var(--outline-color);
+header.flex-container nav#main-nav > ul.flex-container > li > a:visited {
+    color: var(--visited-link);
 }
 
-.logo-svg {
+/* Azioni (theme toggle + accedi) in colonna 3, a destra */
+header.flex-container .header-actions {
+    grid-column: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Icone coerenti (toggle/utente) */
+.icon-btn,
+.icon-link {
+    background: none;
+    border: 0;
+    padding: 8px;
+    margin: 0;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--primary-text);
+    white-space: nowrap;
+}
+
+.icon-link:hover,
+.icon-link:focus-visible {
+    text-decoration: none;
+    box-shadow: 0 3px 3px var(--shadow-color);
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+    border-radius: 20px;
+}
+.icon-btn.round { border-radius: 9999px; }
+.icon-svg,
+#hamburger-toggle svg {
+    width: 28px;
+    height: 28px;
     display: block;
-    width: 60px;
-    height: auto;
-    margin: 0.25rem 17px;     /* spazio verticale */
-    padding: 0;            /* niente padding extra */
+    fill: currentColor;
+}
+
+/* Hamburger nascosto su desktop */
+#hamburger-toggle {
+    display: none;
 }
 
 /* BREADCRUMB */
@@ -202,7 +270,6 @@ input {
     background-color: var(--primary-accent-bg);
     padding: 9px 20px;
     font-size: 1.05em;
-    border: 1px solid var(--border-color);
     border-radius: 20px;
     box-shadow: 0px 3px 3px var(--shadow-color);
 }
@@ -370,10 +437,11 @@ body .pagination-info {
     padding: 5px 10px;
 }
 
+/* --- Griglia --- */
 body .items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    /* Definisco esattamente 3 righe alte 270px l’una */
+    /* hai scritto nel commento “3 righe”, ma qui ne definisci 2: adeguo il commento */
     grid-template-rows: repeat(2, 270px);
     grid-gap: 20px;
     padding: 5px 20px 15px 5px;
@@ -385,41 +453,76 @@ body .item {
     border-radius: 20px;
     box-shadow: 0px 3px 3px var(--shadow-color);
     text-align: center;
+
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 7px;
     padding: 12px;
     height: 270px;
+    gap: 7px;
 }
-body .item:hover,
-body .item:focus {
+
+/* La card reagisce quando link o bottone hanno focus */
+.item:hover,
+.item:focus-within {
     box-shadow: 0px 3px 3px var(--shadow-color-strong);
     transform: scale(1.05);
 }
-.items a {
-    display: inline-block;
-    text-decoration: none;
-    color: var(--non-visited-link);
-    border-radius: 20px;
+
+/* Outline visibile e coerente sul focus reale (link/bottone) */
+.product-link:focus {
+    outline: 2px solid var(--outline-color);
+    outline-offset: 4px;
+    border-radius: 12px;
 }
 
+/* il link con immagine+nome+prezzo deve riempire lo spazio disponibile */
+.product-link {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* immagine: occupa lo spazio previsto ma non “spinge” troppo */
+.product-image {
+    flex: 0 0 auto;
+    max-height: 90px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* titolo: prende spazio variabile ma non fa muovere il prezzo */
+.product-name {
+    display: block;          /* valore valido */
+    flex: 1 1 auto;
+    margin-bottom: 0.5em;
+    line-height: 1.25;
+    max-height: 2.5em;       /* 2 righe × 1.25 */
+    overflow: hidden;        /* o overflow: clip; se il tuo target lo supporta */
+}
+
+
+/* prezzo: sempre ancorato in basso dentro il link */
 .product-price {
+    flex: 0 0 auto;
+    margin-top: auto; /* spinge in basso */
     font-size: 1.2em;
     font-weight: bold;
     color: var(--primary-text);
 }
 
-/* fa sì che product-name occupi lo spazio disponibile */
-.product-name {
-    flex: 1;               /* cresce fino a occupare spazio */
-    margin-bottom: 0.5em;  /* piccolo gap col pulsante */
-    overflow: hidden;      /* nasconde l’eccesso di testo */
-}
-
-/* sposta il pulsante in fondo, indipendentemente dall’altezza del titolo */
-.item > button {
-    margin-top: auto;
+/* bottone: resta sotto il link e non influisce sul prezzo */
+.add-to-cart {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    align-self: center;
+    cursor: pointer;
 }
 
 body #pagination-container {
@@ -427,12 +530,27 @@ body #pagination-container {
 }
 
 .pagination {
+    align-items: center;
     list-style: none;
     display: flex;
     gap: 0.5rem;
 }
+
+/* Paginazione centrata e sempre allo stesso punto orizzontale */
+.pagination-nav {
+    display: flex;
+    justify-content: center;
+    padding-block: .5rem;
+}
+
 .pagination li {
     display: inline;
+}
+
+.pagination svg {
+    width: 64px;
+    height: 64px;
+    display: block;
 }
 
 /* DETAIL PAGE */
@@ -584,7 +702,6 @@ body #product-details > p {
 .product-form ::placeholder { opacity: 0.8; color: var(--muted-text, var(--primary-text)); }
 
 .product-form input[type="file"]:focus-visible {
-    outline: none;
     border-color: var(--outline-color);
     box-shadow: 0 0 0 3px var(--outline-color);
 }
@@ -647,7 +764,6 @@ body #product-details > p {
 .product-form .form-actions button[type="submit"]:focus-visible {
     background: var(--tertiary-accent-bg);
     transform: translateY(-1px);
-    outline: none;
     box-shadow: 0 4px 10px var(--shadow-color-hover);
 }
 
@@ -664,7 +780,6 @@ body #product-details > p {
 .product-form .form-actions .button-secondary:hover,
 .product-form .form-actions .button-secondary:focus-visible {
     background: var(--active-hover-color);
-    outline: none;
 }
 
 /* Accessibilità: focus chiaro anche su link pulsante */
@@ -922,6 +1037,7 @@ a#theme-toggle:focus svg {
     height: 40px;
 }
 
+.icon-link.active,
 header nav ul.flex-container li.active > a {
     font-weight: bold;
     pointer-events: none;
@@ -1116,8 +1232,9 @@ ul.area-personale-menu {
 }
 
 .accessibility-list {
-    list-style: none;
     padding: 0;
+    list-style-position: inside;
+    margin-top: 1em;
 }
 
 .accessibility-list li {
@@ -1146,7 +1263,6 @@ ul.area-personale-menu {
 body #tipologia,
 body #search-box input,
 body input[type="submit"] {
-    background-color: var(--secondary-accent-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: 15px;
@@ -1155,12 +1271,20 @@ body input[type="submit"] {
     box-sizing: border-box;
 }
 
+body input[type="submit"] {
+    background-color: var(--primary-accent-bg);
+    border: none;
+}
+
 body #tipologia:focus,
 body #search-box input:focus,
 body input[type="submit"]:focus {
     border-color: var(--outline-color);
     box-shadow: 0 0 0 2px var(--outline-color);
 }
+
+.radio { display: block; margin-block: .25rem; }
+.radio input { margin-right: .5rem; }
 
 /* Hover per submit e search input se vuoi un effetto simile ai bottoni */
 body input[type="submit"]:hover,
@@ -1263,11 +1387,6 @@ body #tipologia option {
     text-decoration: none;
     font-weight: 600;
     border: 2px solid transparent;
-}
-
-.btn-primary {
-    background-color: var(--tertiary-accent-bg);
-    color: var(--primary-text);
 }
 
 .btn-secondary {
@@ -1460,7 +1579,7 @@ body #tipologia option {
     text-decoration: none;
     font-weight: 600;
     border: 2px solid transparent;
-    background-color: var(--non-visited-link);
+    background-color: var(--primary-accent-bg);
     color: var(--primary-bg);
 }
 
@@ -1544,7 +1663,6 @@ body #tipologia option {
     background-color: var(--tertiary-accent-bg);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px var(--shadow-color-hover);
-    outline: none;
 }
 .error-page .btn-home:focus-visible {
     box-shadow: 0 0 0 3px var(--outline-color);
@@ -1617,7 +1735,6 @@ body #tipologia option {
 .area-personale-table .btn-edit:focus-visible {
     background-color: var(--tertiary-accent-bg);
     transform: scale(1.05);
-    outline: none;
 }
 .area-personale-table .btn-delete {
     background-color: #dc3545;
@@ -1627,9 +1744,14 @@ body #tipologia option {
 .area-personale-table .btn-delete:focus-visible {
     background-color: #a71d2a;
     transform: scale(1.05);
-    outline: none;
 }
 
+.map-frame {
+    width: 100%;
+    height: auto;
+    border: 0;
+
+}
 
 /* move to mobile.css */
 /*@media (max-width: 768px) {*/

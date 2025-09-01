@@ -20,6 +20,28 @@ class AuthService
         $this->mysqli   = $database->connect();
     }
 
+    /** Attiva bypass solo fuori produzione */
+    private function isBypassEnabled(): bool
+    {
+        $env = getenv('APP_ENV') ?: 'production';
+        return $env !== 'production' && (getenv('AUTH_BYPASS') === '1');
+    }
+
+    /** Inietta un utente fittizio in sessione (se non già presente) */
+    private function ensureBypassUser(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user']) || !($_SESSION['user'] instanceof \App\Core\Model\UserDTO)) {
+            $email   = getenv('AUTH_BYPASS_EMAIL') ?: 'validator@example.com';
+            $isAdmin = getenv('AUTH_BYPASS_ADMIN') === '1';
+            $_SESSION['user'] = new \App\Core\Model\UserDTO(
+                0, $email, 'Total', 'Validator', 'XXXXXXXXXXXXXXX', $isAdmin
+            );
+        }
+    }
+
     public function login(string $email, string $password): bool
     {
         $stmt = $this->mysqli->prepare(
@@ -66,11 +88,16 @@ class AuthService
 
     public function isLogged(): bool
     {
+        if ($this->isBypassEnabled()) {
+            $this->ensureBypassUser();
+            return true;
+        }
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
         return isset($_SESSION['user']) && $_SESSION['user'] instanceof UserDTO;
     }
+
 
     public function getUser(): ?UserDTO
     {

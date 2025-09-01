@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-// TODO sistemare breadcrumb con >>
 // public/area_personale.php
 // Front-controller per l'Area Personale, con breadcrumb e PageBuilder
 

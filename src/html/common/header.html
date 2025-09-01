@@ -19,80 +19,95 @@
         <span class="visually-hidden">Farmacia Archimede</span>
     </div>
 
-
-    <!-- bottone hamburger: posizionalo qui -->
-    <button id="hamburger-toggle"
-            aria-label="Apri menu"
-            aria-expanded="false"
-            aria-controls="main-nav">
-        <svg viewBox="0 0 100 80"><rect width="100" height="10"/><rect y="30" width="100" height="10"/><rect y="60" width="100" height="10"/></svg>
-    </button>
-
     <nav aria-label="Menu principale" id="main-nav">
         <ul class="flex-container">
-            <li><a href="/">Home</a></li>
-            <li><a href="/prodotti.php">Prodotti</a></li>
-            <li><a href="/chi_siamo.php">Chi Siamo</a></li>
-            <li><a href="/contatti.php">Contatti</a></li>
-            <li>
-                <button  id="theme-toggle"
-                         type="button"
-                         aria-label="Cambia tema"
-                         aria-pressed="false"
-                         class="icon-btn round">
-                    <svg id="icon-sun" viewBox="0 0 30 30"
-                         preserveAspectRatio="xMidYMid meet"
-                         class="icon-svg">
-                        <circle cx="15" cy="15" r="6" fill="currentColor" />
-                        <line id="ray" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                              x1="15" y1="1" x2="15" y2="4" />
-                        <use href="#ray" transform="rotate(45 15 15)" />
-                        <use href="#ray" transform="rotate(90 15 15)" />
-                        <use href="#ray" transform="rotate(135 15 15)" />
-                        <use href="#ray" transform="rotate(180 15 15)" />
-                        <use href="#ray" transform="rotate(225 15 15)" />
-                        <use href="#ray" transform="rotate(270 15 15)" />
-                        <use href="#ray" transform="rotate(315 15 15)" />
-                    </svg>
-
-                    <svg id="icon-moon" viewBox="0 0 30 30"
-                         preserveAspectRatio="xMidYMid meet"
-                         class="icon-svg">
-                        <path fill="currentColor"
-                              d="M23,5 A12 12 0 1 0 23,25 A12 12 0 0 1 23,5" />
-                    </svg>
-                </button>
+            <li class="{{ menu.home.class }}">
+                <a href="/" {{ menu.home.aria }}>Home</a>
             </li>
-            <li>
-                <a href="/login.php" class="icon-link">
-                    <!-- SVG “utente” con currentColor -->
-                    <svg
-                            id="icon-user"
-                            class="icon-svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 32 32"
-                            fill="currentColor"
-                            xmlns="http://www.w3.org/2000/svg"
-                            style="vertical-align: middle; margin-right: 6px;"
-                    >
-                        <g>
-                            <!-- bordo circolare esterno come donut -->
-                            <path d="M16,31C7.7285,31,1,24.271,1,16S7.7285,1,16,1s15,6.729,15,15S24.271,31,16,31z
-                           M16,3C8.832,3,3,8.832,3,16s5.832,13,13,13s13-5.832,13-13S23.168,3,16,3z"/>
-                        </g>
-                        <g>
-                            <!-- testa -->
-                            <circle cx="16" cy="11.3684" r="3.3684"/>
-                            <!-- corpo -->
-                            <path d="M20.6734,24h-9.3469c-0.8295,0-1.502-0.6725-1.502-1.502V21.5115
-                           c0-2.9843,2.4192-5.4035,5.4035-5.4035h1.5439
-                           c2.9843,0,5.4035,2.4192,5.4035,5.4035V22.498
-                           C22.1754,23.3275,21.503,24,20.6734,24z"/>
-                        </g>
-                    </svg>{{ login.label }}
-                </a>
+            <li class="{{ menu.prodotti.class }}">
+                <a href="/prodotti.php" {{ menu.prodotti.aria }}>Prodotti</a>
+            </li>
+            <li class="{{ menu.chi_siamo.class }}">
+                <a href="/chi_siamo.php" {{ menu.chi_siamo.aria }}>Chi Siamo</a>
+            </li>
+            <li class="{{ menu.contatti.class }}">
+                <a href="/contatti.php" {{ menu.contatti.aria }}>Contatti</a>
             </li>
         </ul>
     </nav>
+
+    <div class="header-actions">
+        <!-- bottone hamburger: posizionalo qui -->
+        <button  id="theme-toggle"
+                 type="button"
+                 aria-label="Cambia tema"
+                 aria-pressed="false"
+                 class="icon-btn round">
+            <svg id="icon-sun" viewBox="0 0 30 30"
+                 preserveAspectRatio="xMidYMid meet"
+                 class="icon-svg">
+                <circle cx="15" cy="15" r="6" fill="currentColor" />
+                <line id="ray" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      x1="15" y1="1" x2="15" y2="4" />
+                <use href="#ray" transform="rotate(45 15 15)" />
+                <use href="#ray" transform="rotate(90 15 15)" />
+                <use href="#ray" transform="rotate(135 15 15)" />
+                <use href="#ray" transform="rotate(180 15 15)" />
+                <use href="#ray" transform="rotate(225 15 15)" />
+                <use href="#ray" transform="rotate(270 15 15)" />
+                <use href="#ray" transform="rotate(315 15 15)" />
+            </svg>
+
+            <svg id="icon-moon" viewBox="0 0 30 30"
+                 preserveAspectRatio="xMidYMid meet"
+                 class="icon-svg">
+                <path fill="currentColor"
+                      d="M23,5 A12 12 0 1 0 23,25 A12 12 0 0 1 23,5" />
+            </svg>
+        </button>
+        <button id="hamburger-toggle"
+                aria-label="Apri menu"
+                aria-expanded="false"
+                aria-controls="main-nav">
+            <!-- icona hamburger -->
+            <svg class="icon-burger" viewBox="0 0 100 80" aria-hidden="true" focusable="false">
+                <rect width="100" height="10"/>
+                <rect y="30" width="100" height="10"/>
+                <rect y="60" width="100" height="10"/>
+            </svg>
+            <!-- icona X -->
+            <svg class="icon-close" viewBox="0 0 100 80" aria-hidden="true" focusable="false">
+                <line x1="15" y1="15" x2="85" y2="65" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+                <line x1="85" y1="15" x2="15" y2="65" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+            </svg>
+        </button>
+        <a href="/login.php" class="icon-link">
+            <!-- SVG “utente” con currentColor -->
+            <svg
+                    id="icon-user"
+                    class="icon-svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 32 32"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style="vertical-align: middle; margin-right: 6px;"
+            >
+                <g>
+                    <!-- bordo circolare esterno come donut -->
+                    <path d="M16,31C7.7285,31,1,24.271,1,16S7.7285,1,16,1s15,6.729,15,15S24.271,31,16,31z
+                           M16,3C8.832,3,3,8.832,3,16s5.832,13,13,13s13-5.832,13-13S23.168,3,16,3z"/>
+                </g>
+                <g>
+                    <!-- testa -->
+                    <circle cx="16" cy="11.3684" r="3.3684"/>
+                    <!-- corpo -->
+                    <path d="M20.6734,24h-9.3469c-0.8295,0-1.502-0.6725-1.502-1.502V21.5115
+                           c0-2.9843,2.4192-5.4035,5.4035-5.4035h1.5439
+                           c2.9843,0,5.4035,2.4192,5.4035,5.4035V22.498
+                           C22.1754,23.3275,21.503,24,20.6734,24z"/>
+                </g>
+            </svg><span class="login-label">{{ login.label }}</span>
+        </a>
+    </div>
 </header>

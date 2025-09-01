@@ -66,9 +66,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $previewImageUrl = '';
     }
 
+    // --- META DINAMICI (GET) ---
+    $page_mode = $product_id ? 'Modifica' : 'Inserisci';
+    $short     = trim($data['short_name'] ?? '');
+    $hasName   = ($short !== '');
+
+    $meta_title = $hasName
+        ? sprintf('%s prodotto: %s | Farmacia Archimede', $page_mode, $short)
+        : sprintf('%s prodotto | Farmacia Archimede', $page_mode);
+
+    $meta_description = $hasName
+        ? sprintf('%s i dati del prodotto %s: AIC, formato, prezzo, disponibilità e descrizione nel catalogo di Farmacia Archimede.', $page_mode, $short)
+        : sprintf('%s i dati di un prodotto: AIC, formato, prezzo, disponibilità e descrizione nel catalogo di Farmacia Archimede.', $page_mode);
+
+    $meta_keywords = $hasName
+        ? sprintf('farmacia archimede, prodotti, %s, %s prodotto, catalogo, gestione', $short, strtolower($page_mode))
+        : 'farmacia archimede, prodotti, modifica, inserisci, catalogo, gestione';
+
     $breadcrumb_product = $product_id
         ? sprintf(
-            '<li><a href="/prodotto.php?id=%s">%s</a></li>',
+            '<a href="/prodotto.php?id=%s">%s</a>',
             htmlspecialchars($product_id, ENT_QUOTES),
             htmlspecialchars($data['short_name'], ENT_QUOTES)
         )
@@ -76,16 +93,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id'         => $product_id ?: '',
-        'breadcrumb_product' => $breadcrumb_product,
-        'form_action'        => '/modifica.php?id=' . $product_id,
-        'errors'             => $errors,
-        'image_url'          => $previewImageUrl,
+        'product_id'           => $product_id ?: '',
+        'breadcrumb_product'   => $breadcrumb_product,
+        'form_action'          => '/modifica.php?id=' . $product_id,
+        'errors'               => $errors,
+        'image_url'            => $previewImageUrl,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options'       => $productService->renderFormatOptions($data['format']),
-        'meta_title'         => ($product_id ? 'Modifica' : 'Inserisci') . ' | Prodotti',
-        'page_mode'          => $product_id ? 'Modifica'   : 'Inserisci',
-        'submit_label'       => $product_id ? 'Modifica'   : 'Inserisci',
+        // META
+        'meta_title'           => $meta_title,
+        'meta_description'     => $meta_description,
+        'meta_keywords'        => $meta_keywords,
+        // UI
+        'page_mode'            => $page_mode,
+        'submit_label'         => $page_mode,
     ]);
     exit;
 }
@@ -174,9 +195,27 @@ foreach ($errors as $msg) {
 }
 
 if ($hasErrors) {
+    // --- META DINAMICI (POST CON ERRORI) ---
+    $page_mode = $product_id ? 'Modifica' : 'Inserisci';
+    $short     = trim($data['short_name'] ?? '');
+    $hasName   = ($short !== '');
+
+    $meta_title = $hasName
+        ? sprintf('%s prodotto: %s | Farmacia Archimede', $page_mode, $short)
+        : sprintf('%s prodotto | Farmacia Archimede', $page_mode);
+
+    // Nota: in presenza di errori, esplicitiamo che ci sono errori nel form
+    $meta_description = $hasName
+        ? sprintf('%s i dati del prodotto %s. Alcuni campi non sono validi: correggi e invia di nuovo.', $page_mode, $short)
+        : sprintf('%s i dati del prodotto. Alcuni campi non sono validi: correggi e invia di nuovo.', $page_mode);
+
+    $meta_keywords = $hasName
+        ? sprintf('farmacia archimede, prodotti, %s, %s prodotto, errori form, validazione', $short, strtolower($page_mode))
+        : 'farmacia archimede, prodotti, modifica, inserisci, errori form, validazione';
+
     $breadcrumb_product = $product_id
         ? sprintf(
-            '<li><a href="/prodotto.php?id=%s">%s</a></li>',
+            '<a href="/prodotto.php?id=%s">%s</a>',
             htmlspecialchars($product_id, ENT_QUOTES),
             htmlspecialchars($data['short_name'], ENT_QUOTES)
         )
@@ -186,18 +225,23 @@ if ($hasErrors) {
         'type'    => 'error',
         'message' => 'Alcuni dati inseriti non sono corretti. Verifica i campi evidenziati e invia nuovamente il modulo.',
     ];
+
     PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id'         => $product_id ?: '',
-        'breadcrumb_product' => $breadcrumb_product,
-        'form_action'        => '/modifica.php?id=' . $product_id,
-        'errors'             => $errors,
-        'image_url'          => $previewImageUrl,
+        'product_id'           => $product_id ?: '',
+        'breadcrumb_product'   => $breadcrumb_product,
+        'form_action'          => '/modifica.php?id=' . $product_id,
+        'errors'               => $errors,
+        'image_url'            => $previewImageUrl,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options'       => $productService->renderFormatOptions($data['format']),
-        'meta_title'         => ($product_id ? 'Modifica' : 'Inserisci') . ' | Prodotti',
-        'page_mode'          => $product_id ? 'Modifica'   : 'Inserisci',
-        'submit_label'       => $product_id ? 'Modifica'   : 'Inserisci',
+        // META
+        'meta_title'           => $meta_title,
+        'meta_description'     => $meta_description,
+        'meta_keywords'        => $meta_keywords,
+        // UI
+        'page_mode'            => $page_mode,
+        'submit_label'         => $page_mode,
     ]);
     exit;
 }
