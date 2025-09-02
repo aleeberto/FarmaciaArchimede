@@ -391,4 +391,81 @@
     .value-item {
         padding: 1rem;
     }
+
+    /* Contenitore: da righe affiancate a stack verticale */
+    body #product-container {
+        flex-direction: column;
+        max-width: 100%;
+        width: calc(100% - 32px);      /* margine visivo rispetto ai bordi schermo */
+        margin: 16px;                  /* spazio esterno */
+        padding: 5px;                 /* respiro interno */
+        gap: 16px;
+
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 2px 6px var(--shadow-color);
+        background: var(--primary-bg);
+    }
+
+    /* Immagine centrata e fluida */
+    body #product-image {
+        order: 1;
+        text-align: center;
+        margin: 0 auto;
+        width: 100%;
+    }
+    body #product-image img {
+        display: block;
+        width: 100%;
+        max-width: 420px;           /* evita immagini troppo grandi */
+        height: auto;
+        margin: 0 auto;
+    }
+
+    /* Dettagli */
+    body #product-details {
+        order: 2;
+        margin: 0;
+        padding: 0 4px;
+        line-height: 1.55;
+        text-align: left;
+    }
+    body #product-details > h2 {
+        font-size: 1.25rem;
+        margin: 8px 0 6px;
+        padding-left: 0;
+    }
+    body #product-details > p {
+        padding: 8px 0;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Prezzo più evidente */
+    #product-price {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 6px 0 10px;
+    }
+
+    /* Azioni carrello: più spazio, target tattili comodi */
+    .cart-actions {
+        gap: 10px;
+        margin: 10px 0 16px 0;
+        flex-wrap: wrap;
+    }
+
+    #qty-input {
+        width: 96px;
+        min-height: 44px;           /* target touch */
+        padding: 8px 10px;
+        font-size: 1rem;
+    }
+
+    #add-to-cart {
+        flex: 1 1 auto;
+        min-height: 44px;           /* target touch */
+        padding: 10px 14px;
+        font-size: 1rem;
+        border-radius: 14px;
+    }
 }

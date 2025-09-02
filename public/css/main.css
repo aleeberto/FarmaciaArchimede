@@ -1364,7 +1364,6 @@ body #tipologia option {
     padding: 2rem;
     background-color: var(--secondary-accent-bg);
     border-radius: 20px;
-    margin-top: 2rem;
 }
 
 .welcome-cta p {
@@ -1669,6 +1668,10 @@ body #tipologia option {
 }
 
 /* ===== TABELLE Area Personale ===== */
+
+caption {
+    margin: 1em;
+}
 .area-personale-table {
     width: auto;
     border-collapse: collapse;
