@@ -1,229 +1,255 @@
-/* ==========================================
-   Stampa - CSS per Farmacia Archimede
-   Versione bianco e nero senza !important
-   ========================================== */
-
 @page {
     size: A4 portrait;
     margin: 12mm;
 }
 
-@media print {
-    /* Reset tipografico base */
-    * {
-        background: transparent;
-        color: #000;
-        box-shadow: none;
-        text-shadow: none;
-        border-color: #000;
-        break-before: avoid;
-    }
+:root {
+    --primary-bg: #fff;
+    --primary-text: #000;
+    --non-visited-link: #000;
+    --visited-link: #000;
+    --link-hover-color: #000;
+    --border-color: #000;
+    --shadow-color: rgba(0,0,0,0);
+    --shadow-color-hover: rgba(0,0,0,0);
+    --shadow-color-strong: rgba(0,0,0,0);
+}
 
-    *:hover,
-    *:focus,
-    *:focus-within,
-    *:active {
-        outline: none;
-        border: 0;
-        box-shadow: none;
-        background: transparent;
-    }
+body form,
+body form.product-form {
+    position: relative;
+    display: none;
+    border: 0;
+    text-align: center;
+}
 
-    html, body {
-        background: #fff;
-        color: #000;
-    }
+body form * {
+    display: none;
+}
+/* Reset tipografico base */
+*,
+.welcome-section,
+.welcome-section > * {
+    background: transparent;
+    line-height: 1.5em;
+    color: black;
+    box-shadow: none;
+    text-shadow: none;
+    border-color: #000;
+    break-before: avoid;
+    margin: 0;
+}
 
-    body {
-        font: 11pt/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    }
+*:hover,
+*:focus,
+*:focus-within,
+*:active {
+    outline: none;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    transform: none;
+}
+
+html, body {
+    background: #fff;
+    color: #000;
+}
+
+a:link:after,
+a:visited:after {
+    content: " [" attr(href) "]";
+}
+
+body {
+    font: 11pt/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
 
 
-    /* Link spogli ovunque (anche in liste e celle) */
-    a,
-    a:visited,
-    a:link,
-    a:active,
-    a:hover,
-    a:focus,
-    li a,
-    li a:visited,
-    li a:link,
-    li a:active,
-    li a:hover,
-    li a:focus {
-        color: #000;
-        border: 0;
-        background: transparent;
-        box-shadow: none;
-        text-decoration: none;
-    }
+/* Link spogli ovunque (anche in liste e celle) */
+a,
+a:visited,
+a:link,
+a:active,
+a:hover,
+a:focus,
+li a,
+li a:visited,
+li a:link,
+li a:active,
+li a:hover,
+li a:focus {
+    color: #000;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    text-decoration: none;
+}
 
-    /* Layout: una colonna */
-    .items {
-        display: block;
-        padding: 0;
-        margin: 0;
-    }
+/* Layout: una colonna */
+.items {
+    display: block;
+    padding: 0;
+    margin: 0;
+}
 
-    .item {
-        display: block;
-        margin: 0 0 10pt 0;
-        padding: 8pt 10pt;
-    }
+.item {
+    display: block;
+    margin: 0 0 10pt 0;
+    padding: 8pt 10pt;
+}
 
-    /* Contenuti card prodotti */
-    .product-image,
-    .add-to-cart,
-    .badge,
-    .tag {
-        display: none;
-    }
+/* Contenuti card prodotti */
+.product-image,
+.add-to-cart,
+.badge,
+.tag {
+    display: none;
+}
 
-    .product-link {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-    }
+.product-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
 
-    .product-name {
-        display: inline;
-        font-weight: 700;
-        margin: 0;
-    }
+.product-name {
+    display: inline;
+    font-weight: 700;
+    margin: 0;
+}
 
-    .product-price {
-        display: inline;
-        font-weight: 700;
-        margin-left: 6pt;
-    }
+.product-price {
+    display: inline;
+    font-weight: 700;
+    margin-left: 6pt;
+}
 
-    .product-name + .product-price::before {
-        content: " · ";
-        font-weight: 400;
-    }
+.product-name + .product-price::before {
+    content: " · ";
+    font-weight: 400;
+}
 
-    .availability,
-    .disponibilita {
-        display: inline;
-        margin-left: 6pt;
-        font-style: normal;
-    }
+.availability,
+.disponibilita {
+    display: inline;
+    margin-left: 6pt;
+    font-style: normal;
+}
 
-    .product-price + .availability::before,
-    .product-price + .disponibilita::before {
-        content: " · ";
-    }
+.product-price + .availability::before,
+.product-price + .disponibilita::before {
+    content: " · ";
+}
 
-    /* URL accanto al link prodotto */
-    .product-link[href^="http"]::after {
-        content: " (" attr(href) ")";
-        font-size: 9pt;
-        white-space: nowrap;
-    }
+/* URL accanto al link prodotto */
+.product-link[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    white-space: nowrap;
+}
 
-    /* SKU / Codice */
-    .sku,
-    .codice {
-        display: inline;
-        margin-left: 6pt;
-    }
+/* SKU / Codice */
+.sku,
+.codice {
+    display: inline;
+    margin-left: 6pt;
+}
 
-    .availability + .sku::before,
-    .disponibilita + .sku::before,
-    .availability + .codice::before,
-    .disponibilita + .codice::before {
-        content: " · ";
-    }
+.availability + .sku::before,
+.disponibilita + .sku::before,
+.availability + .codice::before,
+.disponibilita + .codice::before {
+    content: " · ";
+}
 
-    /* Nascondi elementi non utili in stampa */
-    header.flex-container .header-actions,
-    nav#main-nav,
-    .breadcrumb,
-    .pagination,
-    footer,
-    .filters,
-    #filterForm,
-    #filter-container,
-    .map-frame,
-    .welcome-cta,
-    .about-cta,
-    .btn-back {
-        display: none;
-    }
+/* Nascondi elementi non utili in stampa */
+header.flex-container .header-actions,
+nav#main-nav,
+.breadcrumb,
+.pagination,
+footer,
+.filters,
+#filterForm,
+#filter-container,
+.map-frame,
+.welcome-cta,
+.about-cta,
+.btn-back {
+    display: none;
+}
 
-    /* Liste prodotti -> elenco puntato */
-    body .items {
-        display: block;
-        margin: 0;
-        padding-left: 1.5rem;
-        list-style: disc;
-    }
+/* Liste prodotti -> elenco puntato */
+body .items {
+    display: block;
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: disc;
+}
 
-    body .item {
-        display: list-item;
-        list-style-type: disc;
-        margin: 0.5rem 0;
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-        height: auto;
-        text-align: left;
-        gap: 0;
-    }
+body .item {
+    display: list-item;
+    list-style-type: disc;
+    margin: 0.5rem 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    height: auto;
+    text-align: left;
+    gap: 0;
+}
 
-    /* Tabelle generiche */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+/* Tabelle generiche */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    th,
-    td {
-        border: 1px solid #000;
-        padding: 6pt 8pt;
-    }
+th,
+td {
+    border: 1px solid #000;
+    padding: 6pt 8pt;
+}
 
-    thead {
-        display: table-header-group;
-    }
+thead {
+    display: table-header-group;
+}
 
-    /* Nascondi colonna "Azioni" */
-    .area-personale-table thead tr > th:last-child,
-    .area-personale-table tbody tr > td:last-child,
-    .area-personale-table tfoot tr > td:last-child {
-        display: none;
-    }
+.area-personale-table thead tr > th:last-child,
+.area-personale-table tbody tr > td:last-child,
+.area-personale-table tfoot tr > td:last-child {
+    display: none;
+}
 
-    /* Nascondi controlli azione tabella */
-    .area-personale-table .btn-edit,
-    .area-personale-table .btn-delete,
-    .area-personale-table .delete-form {
-        display: none;
-    }
+.area-personale-table .btn-edit,
+.area-personale-table .btn-delete,
+.area-personale-table .delete-form {
+    display: none;
+}
 
-    picture,
-    img,
-    svg {
-        display: none;
-    }
+picture,
+img,
+svg {
+    display: none;
+}
 
-    /* Logo visibile e monocromatico */
-    .site-logo svg,
-    .site-logo img {
-        max-height: 40px;
-        width: auto;
-        fill: #000;
-        color: #000;
-    }
+.site-logo svg,
+.site-logo img {
+    max-height: 40px;
+    width: auto;
+    fill: #000;
+    color: #000;
+}
 
-    /* Se un componente ha ombre “di base” più specifiche */
-    .card, .box, .panel, .item, .content, .flex-container,
-    header, nav, footer, main, aside,
-    [class*="card"], [class*="shadow"], [class*="elevat"], [class*="panel"] {
-        box-shadow: none;
-        filter: none;
-        background-image: none;
-    }
+.card, .box, .panel, .item, .content, .flex-container,
+header, nav, footer, main, aside,
+[class*="card"], [class*="shadow"], [class*="elevat"], [class*="panel"] {
+    box-shadow: none;
+    filter: none;
+    background-image: none;
+}
+
+.member-quote {
+    color: black;
 }
