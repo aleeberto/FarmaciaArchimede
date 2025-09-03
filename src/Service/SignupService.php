@@ -30,7 +30,7 @@ class SignupService extends HeaderBuilder
 
     public function handleRequest(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
             $this->renderForm();
             return;
         }
@@ -50,22 +50,24 @@ class SignupService extends HeaderBuilder
             'email'      => $email,
         ];
 
-        // Validazioni basilari
-        $errorMessage = $this->validate($firstName, $lastName, $taxCode, $email, $pwd, $pwd2);
-        if ($errorMessage !== '') {
-            $this->renderForm($old, $errorMessage);
-            return;
-        }
+        // Validazioni basilari → array di errori per campo
+        $errors = $this->validate($firstName, $lastName, $taxCode, $email, $pwd, $pwd2);
 
         // Controllo email già esistente
-        if ($this->emailExists($email)) {
-            $this->renderForm($old, 'Esiste già un account con questa email.');
-            return;
+        if ($email !== '' && $this->emailExists($email)) {
+            $errors['email'] = 'Esiste già un account con questa email.';
         }
 
-        // (Opzionale) controllo codice fiscale univoco
+        // Controllo codice fiscale univoco
         if ($taxCode !== '' && $this->taxCodeExists($taxCode)) {
-            $this->renderForm($old, 'Esiste già un account con questo codice fiscale.');
+            $errors['tax_code'] = 'Esiste già un account con questo codice fiscale.';
+        }
+
+        if (!empty($errors)) {
+            if (!isset($errors['_global'])) {
+                $errors['_global'] = 'Correggi i campi evidenziati.';
+            }
+            $this->renderForm($old, $errors);
             return;
         }
 
@@ -91,22 +93,22 @@ class SignupService extends HeaderBuilder
             $this->db->commit();
         } catch (Throwable $e) {
             $this->db->rollback();
-            $this->renderForm($old, 'Errore durante la registrazione. Riprova più tardi.');
+            $this->renderForm($old, ['_global' => 'Errore durante la registrazione. Riprova più tardi.']);
             return;
         }
 
-        // Auto-login e redirect area personale (evita passaggi di messaggi via querystring)
+        // Auto-login e redirect area personale
         if ($this->auth->login($email, $pwd)) {
             header('Location: /area_personale.php');
             exit;
         }
 
-        // Fallback: se per qualche motivo l’auto-login non riesce
+        // Fallback: auto-login non riuscito
         header('Location: /login.php?registered=1');
         exit;
     }
 
-    private function renderForm(array $old = [], string $errorMessage = ''): void
+    private function renderForm(array $old = [], array $errors = []): void
     {
         // default per tutti i campi attesi
         $defaults = [
@@ -117,25 +119,34 @@ class SignupService extends HeaderBuilder
         ];
         $old = array_merge($defaults, $old);
 
-        // escape per sicurezza XSS nei value=""
         $escape = static fn(string $v): string =>
         htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         foreach ($old as $k => $v) {
             $old[$k] = $escape((string)$v);
         }
-        $errorMessage = $escape($errorMessage);
+        foreach ($errors as $k => $v) {
+            $errors[$k] = $escape((string)$v);
+        }
+
+        // Banner globale opzionale in {{ alert }}
+        $alert = '';
+        if (!empty($errors['_global'])) {
+            $alert = '<div class="alert error" role="alert" aria-live="assertive">'
+                . $errors['_global']
+                . '</div>';
+        }
 
         PageBuilder::show('signup', [
-            'error_message'    => $errorMessage,
+            'alert'            => $alert,
             'old'              => $old,
+            'errors'           => $errors,
             'meta_title'       => 'Registrati | Farmacia Archimede',
             'meta_description' => 'Crea il tuo account per accedere all’area personale.',
             'meta_keywords'    => 'registrazione, account, farmacia archimede',
         ]);
         exit;
     }
-
 
     private function validate(
         string $firstName,
@@ -144,29 +155,47 @@ class SignupService extends HeaderBuilder
         string $email,
         string $pwd,
         string $pwd2,
-    ): string {
-        if ($firstName === '' || $lastName === '' || $email === '' || $pwd === '' || $pwd2 === '') {
-            return 'Compila tutti i campi obbligatori.';
+    ): array {
+        $errors = [];
+
+        // Obbligatorietà
+        if ($firstName === '') $errors['first_name'] = 'Il nome è obbligatorio.';
+        if ($lastName === '')  $errors['last_name']  = 'Il cognome è obbligatorio.';
+        if ($email === '')     $errors['email']      = 'L’email è obbligatoria.';
+        if ($taxCode === '')   $errors['tax_code']   = 'Il codice fiscale è obbligatorio.';
+        if ($pwd === '')       $errors['password']   = 'La password è obbligatoria.';
+        if ($pwd2 === '')      $errors['password_confirm'] = 'Conferma la password.';
+
+        // Se ci sono già errori di required, fermo qui con un globale
+        if (!empty($errors)) {
+            $errors['_global'] = 'Correggi i campi evidenziati.';
+            return $errors;
         }
 
+        // Password
         if ($pwd !== $pwd2) {
-            return 'Le password non coincidono.';
+            $errors['password_confirm'] = 'Le password non coincidono.';
+        } elseif (strlen($pwd) < 8) {
+            $errors['password'] = 'La password deve avere almeno 8 caratteri.';
         }
-        if (strlen($pwd) < 8) {
-            return 'La password deve avere almeno 8 caratteri.';
+
+        // CF italiano basilare
+        if (!preg_match('/^[A-Z0-9]{16}$/', $taxCode)) {
+            $errors['tax_code'] = 'Codice fiscale non valido.';
         }
-        // Validazione basilare CF italiano (16 alfanumerici). Se opzionale, ignora quando vuoto.
-        if ($taxCode !== '' && !preg_match('/^[A-Z0-9]{16}$/', $taxCode)) {
-            return 'Codice fiscale non valido.';
+
+        if (!empty($errors)) {
+            $errors['_global'] = 'Correggi i campi evidenziati.';
         }
-        return '';
+
+        return $errors;
     }
 
     private function emailExists(string $email): bool
     {
         $q = 'SELECT 1 FROM users WHERE email = ? LIMIT 1';
         $stmt = $this->db->prepare($q);
-        if (!$stmt) return true;
+        if (!$stmt) return true; // conservativo
         $stmt->bind_param('s', $email);
         $stmt->execute();
         $stmt->store_result();
@@ -179,7 +208,7 @@ class SignupService extends HeaderBuilder
     {
         $q = 'SELECT 1 FROM users WHERE tax_code = ? LIMIT 1';
         $stmt = $this->db->prepare($q);
-        if (!$stmt) return false;
+        if (!$stmt) return false; // se fallisce la prepare, non blocco la registrazione
         $stmt->bind_param('s', $taxCode);
         $stmt->execute();
         $stmt->store_result();
