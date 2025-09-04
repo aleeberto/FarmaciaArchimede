@@ -1172,6 +1172,10 @@ ul.area-personale-menu {
     box-shadow: 0px 3px 3px var(--shadow-color);
 }
 
+.contact-card h3 {
+    margin-top: 1em;
+}
+
 .contact-content {
     margin-top: 15px;
 }

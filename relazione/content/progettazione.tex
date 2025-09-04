@@ -1,0 +1,52 @@
+\section{Progettazione}
+
+\subsection{PHP}
+
+L'applicazione è sviluppata in PHP adottando una separazione netta tra presentazione e comportamento. Gli \emph{entry point} risiedono in \texttt{public/} (ad es.\ \texttt{index.php}, \texttt{prodotti.php}, \texttt{prodotto.php}, \texttt{login.php}, \texttt{signup.php}, \texttt{logout.php}, \texttt{area\_personale.php}) e hanno il solo compito di caricare l'autoloader e di delegare al servizio pertinente la costruzione della pagina. La logica applicativa è organizzata in \texttt{src/}.
+
+Il rendering è orchestrato dalla classe \texttt{App\textbackslash Core\textbackslash PageBuilder}, che inizializza la sessione, verifica la disponibilità dei servizi essenziali (autenticazione e database) e compone l'output finale integrando \emph{head}, \emph{header}, \emph{footer} e contenuto specifico della pagina.
+
+La presentazione è definita da template HTML collocati in \texttt{src/html/}, privi di logica PHP. La sostituzione dei segnaposto è affidata al micro--motore \texttt{App\textbackslash Core\textbackslash Template}, che gestisce placeholder del tipo \texttt{\{\{ id \}\}} e blocchi \texttt{\{\{ id \}\} \dots \{\{/id\}\}}, inclusi casi annidati e strutture array/oggetto. 
+
+L'accesso ai dati è incapsulato in \texttt{App\textbackslash Core\textbackslash Database}, che fornisce una connessione \texttt{mysqli} gestita come singleton. Le interrogazioni al database utilizzano \emph{prepared statements} per prevenire SQL injection; per disaccoppiare persistenza e presentazione impieghiamo oggetti di trasferimento dati (DTO), come \texttt{App\textbackslash Core\textbackslash Model\textbackslash ProductDTO} e \texttt{UserDTO}. Quando è necessario costruire elenchi filtrabili e paginati, le classi di supporto in \texttt{App\textbackslash Core\textbackslash Filter} e \texttt{App\textbackslash Core\textbackslash Pagination} compongono in maniera sistematica condizioni, limiti e offset, mantenendo le regole di business fuori dalle query ad hoc.
+
+L'autenticazione è gestita da \texttt{App\textbackslash Service\textbackslash AuthService}, che utilizza \texttt{password\_hash()} e \texttt{password\_verify()} per il trattamento delle credenziali e si occupa della persistenza di sessione. I flussi di login e registrazione, coordinati rispettivamente da \texttt{LoginService} e \texttt{SignupService}, validano gli input lato server, impostano messaggi di errore e forniscono alla vista un modello coerente con lo stato dell'operazione. Nei form sensibili, in particolare nell'area riservata governata da \texttt{AreaPersonaleService}, introduciamo token anti--CSRF generati e verificati sul server; i messaggi di validazione sono esposti tramite elementi con \texttt{role="alert"} e \texttt{aria-live="assertive"} per una corretta fruizione con tecnologie assistive.
+
+Le parti comuni dell'interfaccia sono costruite dai \emph{builder} in \texttt{App\textbackslash View} (\texttt{HeadBuilder}, \texttt{HeaderBuilder}, \texttt{FooterBuilder}), richiamati dal \texttt{PageBuilder} o dai servizi quando necessario. Questa scelta elimina duplicazioni tra pagine e consente modifiche centralizzate del layout. Nel complesso, gli \emph{entry point} in \texttt{public/} espongono i casi d'uso, i servizi modellano la logica del dominio, il \emph{core} fornisce infrastruttura e resilienza e i template garantiscono una presentazione accessibile.
+
+
+\subsection{Struttura del sito}
+
+Il sito non presenta un elevata profondità di navigazione, in quanto quasi tutte le pagine sono raggiungibili dalla home page tramite il menu di navigazione principale. Le uniche eccezioni sono rappresentate dalle pagine di dettaglio dei prodotti, che sono accessibili solo dalla pagina di elenco prodotti e quella dell area personale, accessibile dopo il login.
+
+\begin{itemize}
+    \item TODO
+\end{itemize}
+
+\subsection{Layout e contenuti delle pagine}
+
+TODO
+
+\subsection{Elementi comuni}
+
+TODO
+
+\subsubsection{Header}
+
+TODO
+
+\subsubsection{Footer}
+
+TODO
+
+\subsubsection{Breadcrumb}
+
+TODO
+
+\subsection{Emotional Design}
+
+TODO
+
+\subsection{Suddivisione del lavoro}
+
+TODO
