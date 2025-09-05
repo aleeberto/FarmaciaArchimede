@@ -29,3 +29,14 @@ TODO
 \subsubsection{Ambienti di TESTING}
 
 TODO
+
+
+% Per alessandro ... sposta dove vuoi
+\subsubsection{Avvisi di validazione}
+La validazione con Total Validator ha segnalato 5 falsi positivi:
+\begin{itemize}
+  \item \textbf{E626 — All element names must be in lower case}. Falso positivo dovuto agli SVG inline: alcuni nomi di elementi SVG sono in camelCase (p.es.\ \texttt{linearGradient}, \texttt{feGaussianBlur}) e sono validi secondo le specifiche SVG. Il validatore applica invece la regola XHTML/HTML che impone i nomi in minuscolo, segnalando erroneamente l’\verb|<svg>|.
+\item \textbf{E621 — The ATTRIBUTE NAME attribute for this tag is missing}. Nel nostro caso riguarda \texttt{xmlns} mancante su \verb|<html lang="it">|. Per documenti HTML5 serviti come \texttt{text/html} con \verb|<!DOCTYPE html>|, il namespace è implicito e \texttt{xmlns} non è richiesto (né va usato).
+  \item \textbf{E627 — All attribute names must be in lower case}. Come sopra, ma per gli attributi SVG: nomi come \texttt{viewBox}, \texttt{preserveAspectRatio} o \texttt{markerUnits} sono corretti in SVG; la segnalazione nasce perché lo strumento non riconosce il namespace SVG e pretende gli attributi tutti in minuscolo.
+  \item \textbf{E61 — The ATTRIBUTE NAME attribute has a boolean value, and this may be ignored or cause errors in older browsers/robots}. L’avviso riguarda gli attributi booleani (p.es.\ \texttt{required}), che in HTML5 sono validi sia in forma ridotta (\texttt{required}) sia esplicita (\texttt{required="required"}). La presenza di una delle due forme è conforme; la segnalazione è quindi un falso positivo legato alla doppia notazione prevista dallo standard.
+\end{itemize}
