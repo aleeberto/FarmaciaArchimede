@@ -6,12 +6,14 @@ namespace App\Core;
 
 use App\Service\AuthService;
 use App\View\FooterBuilder;
+use App\View\FooterBuilder;
 use App\View\HeadBuilder;
+use App\View\HeaderBuilder;
 use App\View\HeaderBuilder;
 use RuntimeException;
 use Throwable;
 
-class PageBuilder
+class PageBuilder extends HeaderBuilder, FooterBuilder
 {
     private static ?PageBuilder $instance = null;
 
