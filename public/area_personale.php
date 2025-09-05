@@ -309,18 +309,6 @@ switch ($section) {
         break;
     }
 
-    case 'gestione_ordini': {
-        if (!$isAdmin) { header('Location: /area_personale.php'); exit; }
-        $params = $svc->getOrdiniAdmin();
-        $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
-        $crumbs[] = 'Ordini';
-        $params['meta_title'] = 'Ordini | Gestisci | Farmacia Archimede';
-        $params['meta_description'] = 'Gestione ordini: verifica pagamenti, stati, evasioni e resi dei clienti della Farmacia Archimede.';
-        $params['meta_keywords']    = 'gestione ordini, pagamenti, farmacia archimede';
-        $templateName = 'area_personale/gestione/gestione_ordini';
-        break;
-    }
-
     case 'gestione_utenti': {
         if (!$isAdmin) { header('Location: /area_personale.php'); exit; }
         $params = $svc->getUtentiAdmin();
