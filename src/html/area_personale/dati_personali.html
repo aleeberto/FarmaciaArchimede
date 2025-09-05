@@ -29,13 +29,13 @@
 
             <h2 id="form-title" class="visually-hidden">Aggiorna i tuoi dati e, se vuoi, cambia password</h2>
 
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
             <!-- Nome -->
             <div class="form-control">
                 <label for="first_name">Nome<span aria-hidden="true">*</span></label>
                 <input id="first_name" name="first_name" type="text" required
-                       value="{{ first_name }}" aria-describedby="error-first-name">
+                       value="{{ first_name }}" aria-describedby="error-first-name" />
                 <p id="error-first-name" class="error-msg">{{ errors.first_name }}</p>
             </div>
 
@@ -43,7 +43,7 @@
             <div class="form-control">
                 <label for="last_name">Cognome<span aria-hidden="true">*</span></label>
                 <input id="last_name" name="last_name" type="text" required
-                       value="{{ last_name }}" aria-describedby="error-last-name">
+                       value="{{ last_name }}" aria-describedby="error-last-name" />
                 <p id="error-last-name" class="error-msg">{{ errors.last_name }}</p>
             </div>
 
@@ -51,7 +51,7 @@
             <div class="form-control">
                 <label for="tax_code">Codice fiscale<span aria-hidden="true">*</span></label>
                 <input id="tax_code" name="tax_code" type="text" maxlength="16" required
-                       value="{{ tax_code }}" aria-describedby="error-tax-code">
+                       value="{{ tax_code }}" aria-describedby="error-tax-code" />
                 <p id="error-tax-code" class="error-msg">{{ errors.tax_code }}</p>
             </div>
 
@@ -59,11 +59,9 @@
             <div class="form-control">
                 <label for="email">Email<span aria-hidden="true">*</span></label>
                 <input id="email" name="email" type="email" required
-                       value="{{ email }}" aria-describedby="error-email">
+                       value="{{ email }}" aria-describedby="error-email" />
                 <p id="error-email" class="error-msg">{{ errors.email }}</p>
             </div>
-
-            <hr class="form-divider">
 
             <!-- Cambio password opzionale -->
             <fieldset class="password-fieldset">
@@ -71,19 +69,19 @@
 
                 <div class="form-control">
                     <label for="current_password">Password attuale</label>
-                    <input id="current_password" name="current_password" type="password">
+                    <input id="current_password" name="current_password" type="password" />
                     <p id="error-current-password" class="error-msg">{{ errors.current_password }}</p>
                 </div>
 
                 <div class="form-control">
                     <label for="new_password">Nuova password</label>
-                    <input id="new_password" name="new_password" type="password">
+                    <input id="new_password" name="new_password" type="password" />
                     <p id="error-new-password" class="error-msg">{{ errors.new_password }}</p>
                 </div>
 
                 <div class="form-control">
                     <label for="new_password_confirm">Conferma nuova password</label>
-                    <input id="new_password_confirm" name="new_password_confirm" type="password">
+                    <input id="new_password_confirm" name="new_password_confirm" type="password" />
                     <p id="error-new-password-confirm" class="error-msg">{{ errors.new_password_confirm }}</p>
                 </div>
             </fieldset>
@@ -91,7 +89,7 @@
             <!-- Conferma con password -->
             <div class="form-control">
                 <label for="confirm_with_password">Conferma modifiche con la tua password<span aria-hidden="true">*</span></label>
-                <input id="confirm_with_password" name="confirm_with_password" type="password" required>
+                <input id="confirm_with_password" name="confirm_with_password" type="password" required />
                 <p id="error-confirm-with-password" class="error-msg">{{ errors.confirm_with_password }}</p>
             </div>
 
