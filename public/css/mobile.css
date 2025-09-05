@@ -230,6 +230,11 @@
         grid-template-columns: 1fr;
     }
 
+    .contact-card h3,
+    .contact-card h2 {
+        text-align: center;
+    }
+
     .team-member {
         padding: 1.5rem;
     }
@@ -237,6 +242,10 @@
     .member-photo img {
         width: 150px;
         height: 150px;
+    }
+
+    .alert {
+        flex: 1 0;
     }
 
     header.flex-container nav#main-nav {
@@ -370,7 +379,6 @@
     about-container {
         padding: 10px;
     }
-
     .about-intro {
         padding: 0 1rem;
     }
