@@ -16,16 +16,12 @@
             <input type="hidden" name="type" value="product" />
             <input type="hidden" name="id" value="{{ id }}" />
 
-            <!-- Nome accessibile univoco per SR -->
-            <span id="del-desc-{{ id }}" class="visually-hidden">
-        Elimina prodotto: {{ name }} (ID {{ id }})
-      </span>
-
-            <button type="submit"
-                    class="btn-delete"
-                    aria-labelledby="del-desc-{{ id }}">
+            <!-- RIMOSSO lo span esterno con id=del-desc-{{id}} -->
+            <button type="submit" class="btn-delete">
                 Elimina
+                <span class="visually-hidden"> prodotto: {{ name }} (ID {{ id }})</span>
             </button>
         </form>
     </td>
+
 </tr>

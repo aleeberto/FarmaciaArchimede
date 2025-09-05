@@ -1,14 +1,20 @@
-<table class="area-personale-table">
+<p id="users-desc" class="visually-hidden">
+  Tabella dati degli utenti: ogni riga rappresenta un utente; l’ultima colonna contiene azioni
+  come modifica ed eliminazione.
+</p>
+
+<table class="area-personale-table" aria-describedby="users-desc">
+  <caption class="visually-hidden">Utenti registrati (ID, email, anagrafica, ruolo e azioni)</caption>
   <thead>
-    <tr>
-      <th>ID</th>
-      <th>Email</th>
-      <th>Nome</th>
-      <th>Cognome</th>
-      <th>Codice Fiscale</th>
-      <th>Ruolo</th>
-      <th>Azioni</th>
-    </tr>
+  <tr>
+    <th scope="col">ID</th>
+    <th scope="col">Email</th>
+    <th scope="col">Nome</th>
+    <th scope="col">Cognome</th>
+    <th scope="col">Codice Fiscale</th>
+    <th scope="col">Ruolo</th>
+    <th scope="col">Azioni</th>
+  </tr>
   </thead>
   <tbody>
   {{ users_rows }}

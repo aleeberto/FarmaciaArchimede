@@ -13,11 +13,10 @@ class AreaPersonaleService
     private \mysqli $mysqli;
     private AuthService $auth;
 
-
     public function __construct(AuthService $auth, Database $db)
     {
-        $this->auth    = $auth;
-        $this->mysqli  = $db->connect();
+        $this->auth   = $auth;
+        $this->mysqli = $db->connect();
     }
 
     private function readTpl(string $relativePath): string
@@ -32,22 +31,85 @@ class AreaPersonaleService
 
     /**
      * Renderizza un “row template” sostituendo un array associativo di valori.
-     * Usa htmlspecialchars per sicurezza dove serve (già pronto per HTML).
+     * (Escape a monte quando necessario).
      */
     private function renderRow(string $tpl, array $data): string
     {
         $t = new Template('row', $tpl);
         foreach ($data as $k => $v) {
-            // di default escape per testo; se passi HTML “sicuro”, escapa a monte e qui usa così com’è
             $t->insert($k, (string)$v);
         }
         return $t->build();
     }
 
+    /**
+     * =========================
+     * Helpers sicurezza/ruoli
+     * =========================
+     */
+
+    /** CSRF helper: assicura e ritorna il token in sessione. */
+    private function ensureCsrfToken(): string
+    {
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    /** Verifica su DB se l'utente è admin (fallback quando DTO non espone isAdmin()). */
+    private function isUserAdminById(int $userId): bool
+    {
+        $stmt = $this->mysqli->prepare('SELECT is_admin FROM users WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new \RuntimeException('Errore sistema (prep isUserAdminById).');
+        }
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+        return (bool)($row['is_admin'] ?? false);
+    }
 
     /**
-     * Dati base dell’utente
+     * Elimina un utente rispettando le policy:
+     * - nessuno può eliminare se stesso;
+     * - un non-admin può eliminare altri utenti; l’admin non può eliminare se stesso.
      */
+    public function deleteUserById(int $targetUserId): void
+    {
+        $me = $this->auth->getUser();
+        if (!$me instanceof UserDTO) {
+            throw new \RuntimeException('Utente non autenticato.');
+        }
+
+        $myId = (int)$me->getId();
+        if ($targetUserId === $myId) {
+            throw new \RuntimeException('Non puoi eliminare il tuo stesso account.');
+        }
+
+        $stmt = $this->mysqli->prepare('DELETE FROM users WHERE user_id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new \RuntimeException('Errore sistema (prep delete user).');
+        }
+        $stmt->bind_param('i', $targetUserId);
+        if (!$stmt->execute()) {
+            $code = $stmt->errno;
+            $msg  = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException("Errore durante l'eliminazione dell'utente (SQL $code): $msg");
+        }
+        $stmt->close();
+    }
+
+    /**
+     * =========================
+     * Dati area personale
+     * =========================
+     */
+
+    /** Dati base dell’utente */
     public function getDatiUtente(): array
     {
         $user = $this->auth->getUser();
@@ -55,7 +117,7 @@ class AreaPersonaleService
             throw new \RuntimeException("Utente non autenticato.");
         }
 
-        // 🔁 Leggi sempre dal DB per evitare dati stantii in sessione
+        // Leggi sempre dal DB per evitare dati stantii in sessione
         $row = $this->getProfiloUtente($user->getId());
         if ($row === null) {
             throw new \RuntimeException("Profilo utente non trovato.");
@@ -71,20 +133,7 @@ class AreaPersonaleService
         ];
     }
 
-    /**
-     * Elenco ordini dell’utente
-     */
-    public function getOrdiniUtente(): array
-    {
-        $user = $this->auth->getUser();
-        return [
-            'user_orders' => $this->renderUserOrdersComponent($user->getId()),
-        ];
-    }
-
-    /**
-     * Elenco prodotti (solo admin)
-     */
+    /** Elenco prodotti (UI: se vuoto mostra stato vuoto) */
     public function getProdottiAdmin(): array
     {
         return [
@@ -92,19 +141,7 @@ class AreaPersonaleService
         ];
     }
 
-    /**
-     * Elenco ordini (solo admin)
-     */
-    public function getOrdiniAdmin(): array
-    {
-        return [
-            'all_orders' => $this->renderOrdersComponent(),
-        ];
-    }
-
-    /**
-     * Elenco utenti (solo admin)
-     */
+    /** Elenco utenti (UI: se vuoto mostra stato vuoto) */
     public function getUtentiAdmin(): array
     {
         return [
@@ -112,56 +149,19 @@ class AreaPersonaleService
         ];
     }
 
-    private function renderOrdersComponent(): string
-    {
-        $sql = "
-            SELECT o.order_id, o.created_at, u.first_name, u.last_name, u.email
-            FROM orders o
-            JOIN users u ON o.user_id = u.user_id
-            ORDER BY o.created_at DESC
-        ";
-
-        $result = $this->mysqli->query($sql);
-        if (!$result) {
-            throw new \RuntimeException("Errore nella query ordini: " . $this->mysqli->error);
-        }
-
-        $orders = $result->fetch_all(MYSQLI_ASSOC);
-        $rows = '';
-
-        foreach ($orders as $order) {
-            $orderId = $order['order_id'];
-            $date = $order['created_at'];
-            $name = htmlspecialchars($order['first_name'] . ' ' . $order['last_name']);
-            $email = htmlspecialchars($order['email']);
-
-            $rows .= "<tr>";
-            $rows .= "<td>{$orderId}</td>";
-            $rows .= "<td>{$date}</td>";
-            $rows .= "<td>{$name}</td>";
-            $rows .= "<td>{$email}</td>";
-            $rows .= "<td>
-                <a class='btn-edit' href='/modifica.php?id=" . (int)$orderId . "'>Modifica</a>
-                <button class='btn-delete' data-id='{$orderId}'>Elimina</button>
-                </td>";
-
-            $rows .= "</tr>";
-        }
-
-        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_orders.html');
-        $template = new Template('all_orders', $templateHtml);
-        $template->insert('orders_rows', $rows);
-        return $template->build();
-    }
-
+    /**
+     * =========================
+     * Component: Prodotti
+     * =========================
+     */
     private function renderProductsComponent(): string
     {
         // 1) Query
         $sql = "
-        SELECT product_id, name, manufacturer, price, availability
-        FROM products
-        ORDER BY name ASC
-    ";
+            SELECT product_id, name, manufacturer, price, availability
+            FROM products
+            ORDER BY name ASC
+        ";
 
         $result = $this->mysqli->query($sql);
         if (!$result) {
@@ -170,10 +170,7 @@ class AreaPersonaleService
         $products = $result->fetch_all(MYSQLI_ASSOC);
 
         // 2) CSRF per le delete forms
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
-        }
-        $csrf = $_SESSION['csrf_token'];
+        $csrf = $this->ensureCsrfToken();
 
         // 3) Carica template
         $tableTpl = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_products.html');
@@ -185,17 +182,22 @@ class AreaPersonaleService
             throw new \RuntimeException("Template non trovato: _product_row.html");
         }
 
-        // 4) Costruisci righe
+        // 4) Costruisci righe (gestione stato vuoto)
         $rowsHtml = '';
-        foreach ($products as $p) {
-            $row = new Template('product_row', $rowTpl);
-            $row->insert('id',           (string)(int)$p['product_id']);
-            $row->insert('name',         htmlspecialchars($p['name']));
-            $row->insert('manufacturer', htmlspecialchars($p['manufacturer']));
-            $row->insert('price',        number_format((float)$p['price'], 2));
-            $row->insert('availability', (string)(int)$p['availability']);
-            $row->insert('csrf',         $csrf); // per la form di delete nel partial
-            $rowsHtml .= $row->build();
+        if (empty($products)) {
+            $colspan = 6;
+            $rowsHtml = '<tr><td colspan="' . $colspan . '" class="empty" role="status">Non ci sono prodotti al momento.</td></tr>';
+        } else {
+            foreach ($products as $p) {
+                $row = new Template('product_row', $rowTpl);
+                $row->insert('id',           (string)(int)$p['product_id']);
+                $row->insert('name',         htmlspecialchars($p['name']));
+                $row->insert('manufacturer', htmlspecialchars($p['manufacturer']));
+                $row->insert('price',        number_format((float)$p['price'], 2));
+                $row->insert('availability', (string)(int)$p['availability']);
+                $row->insert('csrf',         $csrf); // per la form di delete nel partial
+                $rowsHtml .= $row->build();
+            }
         }
 
         // 5) Inserisci nel wrapper
@@ -205,113 +207,102 @@ class AreaPersonaleService
         return $table->build();
     }
 
-
+    /**
+     * =========================
+     * Component: Utenti
+     * =========================
+     */
     private function renderUsersComponent(): string
     {
-        $sql = "
-            SELECT user_id, email, first_name, last_name, tax_code, is_admin
-            FROM users
-            ORDER BY last_name, first_name
-        ";
+        // Chi sono io? Sono admin?
+        $me = $this->auth->getUser();
+        if (!$me instanceof UserDTO) {
+            throw new \RuntimeException('Utente non autenticato.');
+        }
+        $myId     = (int)$me->getId();
+        $iAmAdmin = method_exists($me, 'isAdmin') ? (bool)$me->isAdmin() : $this->isUserAdminById($myId);
 
+        // Dati
+        $sql = "
+        SELECT user_id, email, first_name, last_name, tax_code, is_admin
+        FROM users
+        ORDER BY last_name, first_name
+    ";
         $result = $this->mysqli->query($sql);
         if (!$result) {
-            throw new \RuntimeException("Errore nella query utenti: " . $this->mysqli->error);
+            throw new \RuntimeException('Errore nella query utenti: ' . $this->mysqli->error);
         }
-
         $users = $result->fetch_all(MYSQLI_ASSOC);
-        $rows = '';
 
+        // CSRF
+        $csrf = $this->ensureCsrfToken();
+
+        // Template (wrapper + row specifico per ruolo)
+        $tableTplPath = __DIR__ . '/../html/area_personale/tabelle/all_users.html';
+        $rowTplAdmin  = __DIR__ . '/../html/area_personale/tabelle/_user_row.html';
+        $rowTplPublic = __DIR__ . '/../html/area_personale/tabelle/_user_row_public.html';
+
+        $tableTpl = file_get_contents($tableTplPath);
+        if ($tableTpl === false) {
+            throw new \RuntimeException('Template non trovato: all_users.html');
+        }
+        $rowTpl = file_get_contents($iAmAdmin ? $rowTplAdmin : $rowTplPublic);
+        if ($rowTpl === false) {
+            throw new \RuntimeException('Template non trovato: ' . ($iAmAdmin ? '_user_row.html' : '_user_row_public.html'));
+        }
+
+        // Costruzione righe
+        $rowsHtml = '';
         foreach ($users as $u) {
-            $userId = $u['user_id'];
-            $role = $u['is_admin'] ? 'Admin' : 'Utente';
+            $userId  = (int)$u['user_id'];
+            $isAdmin = (bool)$u['is_admin'];
+            $isSelf  = ($userId === $myId);
 
-            $rows .= "<tr>";
-            $rows .= "<td>{$userId}</td>";
-            $rows .= "<td>" . htmlspecialchars($u['email']) . "</td>";
-            $rows .= "<td>" . htmlspecialchars($u['first_name']) . "</td>";
-            $rows .= "<td>" . htmlspecialchars($u['last_name']) . "</td>";
-            $rows .= "<td>" . htmlspecialchars($u['tax_code']) . "</td>";
-            $rows .= "<td>{$role}</td>";
-            $rows .= "<td>
-                <a class='btn-edit' href='?area_personale.php?section=dati.php?id=" . (int)$userId . "'>Modifica</a>
-                <button class='btn-delete' data-id='{$userId}'>Elimina</button>
-                </td>";
+            $row = new Template('user_row', $rowTpl);
+            $row->insert('id',         (string)$userId);
+            $row->insert('first_name', htmlspecialchars((string)$u['first_name']));
+            $row->insert('last_name',  htmlspecialchars((string)$u['last_name']));
+            $row->insert('csrf',       $csrf);
 
-            $rows .= "</tr>";
-        }
+            if ($iAmAdmin) {
+                // Vista admin: tutti i dati visibili
+                $row->insert('email',    htmlspecialchars((string)$u['email']));
+                $row->insert('tax_code', htmlspecialchars((string)$u['tax_code']));
+                $row->insert('role',     $isAdmin ? 'Admin' : 'Utente');
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_users.html');
-        $template = new Template('all_users', $templateHtml);
-        $template->insert('users_rows', $rows);
-        return $template->build();
-    }
-
-    private function renderUserOrdersComponent(int $userId): string
-    {
-        $stmt = $this->mysqli->prepare("
-            SELECT order_id, created_at
-            FROM orders
-            WHERE user_id = ?
-            ORDER BY created_at DESC
-        ");
-        if (!$stmt) {
-            throw new \RuntimeException("Errore prepare getUserOrders: " . $this->mysqli->error);
-        }
-
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if (!$result) {
-            throw new \RuntimeException("Errore execute getUserOrders: " . $stmt->error);
-        }
-
-        $orders = $result->fetch_all(MYSQLI_ASSOC);
-        $html = '';
-
-        if (empty($orders)) {
-            $html = "<p class='order-info'>Non hai ancora effettuato ordini.</p>";
-        } else {
-            foreach ($orders as $order) {
-                $html .= "<article class='order'>";
-                $html .= "<h3>Ordine #{$order['order_id']} - {$order['created_at']}</h3><ul>";
-
-                $items = $this->getOrderItems($order['order_id']);
-                foreach ($items as $item) {
-                    $html .= "<li>" . htmlspecialchars($item['product_name']) . " x {$item['quantity']}</li>";
+                // Modifica: consentita SOLO su se stessi; altri = controllo disabilitato (non interattivo)
+                if ($isSelf) {
+                    $row->insert('edit_control', '<a class="btn-edit" href="http://localhost/area_personale.php?section=dati">Modifica</a>');
+                } else {
+                    $row->insert('edit_control', '<span class="btn-edit is-disabled" aria-disabled="true" title="Puoi modificare solo il tuo profilo">Modifica</span>');
                 }
 
-                $html .= "</ul></article>";
+                // Elimina: disabilitato se me stesso
+                $row->insert('delete_disabled', $isSelf ? 'disabled aria-disabled="true"' : '');
+            } else {
+                // Vista non-admin: dati sensibili oscurati, nessuna modifica
+                $row->insert('email',    '—');
+                $row->insert('tax_code', '—');
+                $row->insert('role',     '—');
+
+                // Elimina: posso eliminare altri utenti, non me stesso
+                $row->insert('delete_disabled', $isSelf ? 'disabled aria-disabled="true"' : '');
             }
+
+            $rowsHtml .= $row->build();
         }
 
-        $templateHtml = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/user_orders.html');
-        $template = new Template('user_orders', $templateHtml);
-        $template->insert('user_orders_list', $html);
-        return $template->build();
+        // Wrapper
+        $table = new Template('all_users', $tableTpl);
+        $table->insert('users_rows', $rowsHtml);
+        return $table->build();
     }
 
-    private function getOrderItems(int $orderId): array
-    {
-        $stmt = $this->mysqli->prepare("
-            SELECT p.name AS product_name, oi.quantity
-            FROM order_items oi
-            JOIN products p ON oi.product_id = p.product_id
-            WHERE oi.order_id = ?
-        ");
-        if (!$stmt) {
-            throw new \RuntimeException("Errore prepare getOrderItems: " . $this->mysqli->error);
-        }
-
-        $stmt->bind_param('i', $orderId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if (!$result) {
-            throw new \RuntimeException("Errore execute getOrderItems: " . $stmt->error);
-        }
-
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
+    /**
+     * =========================
+     * Profilo / Aggiornamenti
+     * =========================
+     */
 
     /**
      * Ritorna il profilo utente completo per la vista "I miei dati".
@@ -381,7 +372,7 @@ class AreaPersonaleService
             try {
                 $this->auth->refreshSessionUserData($userId);
             } catch (\Throwable $e) {
-                // Non è bloccante per il salvataggio: logga se hai un logger
+                // Non è bloccante per il salvataggio
             }
         }
     }
@@ -415,7 +406,7 @@ class AreaPersonaleService
 
     /**
      * Verifica la password di conferma per l’utente corrente.
-     * Usa AuthService se disponibile, altrimenti confronta SHA-256 esadecimale su DB.
+     * Usa AuthService se disponibile, altrimenti password_verify su DB.
      */
     public function verifyPassword(string $password): void
     {
@@ -453,17 +444,13 @@ class AreaPersonaleService
         }
 
         $expected = $row['password_hash'];
-
-        // >>> qui usi password_verify <<<
         if (!password_verify($password, $expected)) {
             throw new RuntimeException('Password di conferma errata.');
         }
     }
 
-
     /**
      * Cambia la password (verifica prima la corrente).
-     * Salva SHA-256 esadecimale in users.password_hash.
      */
     public function changePassword(string $current, string $new): void
     {
@@ -474,7 +461,7 @@ class AreaPersonaleService
             throw new \RuntimeException('La nuova password deve avere almeno 8 caratteri.');
         }
 
-        // Verifica current (usa verifyPassword che già fa password_verify)
+        // Verifica current
         $this->verifyPassword($current);
 
         $user = $this->auth->getUser();
@@ -503,10 +490,8 @@ class AreaPersonaleService
      * - normalizza email (trim+lower) e CF (trim+upper)
      * - controlla unicità email
      */
-
     public function updateProfile(array $data): string
     {
-        // NIENTE mysqli_report() qui: lascia la policy globale com’è
         $user = $this->auth->getUser();
         if (!$user instanceof UserDTO) {
             throw new \RuntimeException('Utente non autenticato.');
@@ -523,7 +508,7 @@ class AreaPersonaleService
 
         $uid = (int)$user->getId();
 
-        // 1) Carica valori correnti (no eccezioni: controlli espliciti)
+        // 1) Carica valori correnti
         $stmt = $this->mysqli->prepare('SELECT first_name,last_name,email,tax_code FROM users WHERE user_id = ? LIMIT 1');
         if (!$stmt) throw new \RuntimeException('Errore sistema (prep select current).');
         $stmt->bind_param('i', $uid);
@@ -553,7 +538,7 @@ class AreaPersonaleService
         $stmt->close();
         if ($exists) throw new \RuntimeException('Email già in uso.');
 
-        // 3) UPDATE con gestione errori puntuale
+        // 3) UPDATE
         $stmt = $this->mysqli->prepare(
             'UPDATE users SET first_name = ?, last_name = ?, email = ?, tax_code = ? WHERE user_id = ? LIMIT 1'
         );
@@ -562,34 +547,25 @@ class AreaPersonaleService
 
         try {
             if (!$stmt->execute()) {
-                // in teoria, con check espliciti, qui non arrivi
                 throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
             }
         } catch (\mysqli_sql_exception $e) {
-            // Mappa errori noti e logga gli altri
             if ((int)$e->getCode() === 1062) {
                 throw new \RuntimeException('Email già in uso.');
             }
-            // TODO: usa il tuo logger invece di error_log
             error_log('[updateProfile] SQL error '.$e->getCode().': '.$e->getMessage());
             throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
         } finally {
             $stmt->close();
         }
 
-        // 4) Riallinea sessione (non deve far fallire il salvataggio)
-
+        // 4) Riallinea sessione (best-effort)
         try {
             $this->auth->reloadUserFromDbAndSyncSession();
         } catch (\Throwable $e) {
-                var_dump('[updateProfile] sync session failed: '.$e->getMessage());
-                // non bloccare l’utente
+            // non bloccare l’utente
         }
-
 
         return 'updated';
     }
-
-
-
 }
