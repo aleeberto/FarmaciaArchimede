@@ -3,3 +3,5 @@ debug.*
 .DS_Store
 temp
 .idea
+.texèadtmp
+*.pdf

@@ -1760,40 +1760,17 @@ caption {
 
 }
 
-/* move to mobile.css */
-/*@media (max-width: 768px) {*/
-/*    .team-grid {*/
-/*        grid-template-columns: 1fr;*/
-/*    }*/
-
-/*    .values-grid {*/
-/*        grid-template-columns: 1fr;*/
-/*    }*/
-
-/*    .team-member {*/
-/*        padding: 1.5rem;*/
-/*    }*/
-
-/*    .member-photo img {*/
-/*        width: 150px;*/
-/*        height: 150px;*/
-/*    }*/
-/*}*/
-
-/*@media (max-width: 480px) {*/
-/*    .about-container {*/
-/*        padding: 10px;*/
-/*    }*/
-
-/*    .about-intro {*/
-/*        padding: 0 1rem;*/
-/*    }*/
-
-/*    .team-member {*/
-/*        padding: 1rem;*/
-/*    }*/
-
-/*    .value-item {*/
-/*        padding: 1rem;*/
-/*    }*/
-/*}*/
+button[disabled]:active, button[disabled],
+input[type="button"][disabled]:active,
+input[type="button"][disabled],
+input[type="submit"][disabled]:active,
+input[type="submit"][disabled] ,
+button[disabled]:hover,
+input[type="button"][disabled]:hover,
+input[type="submit"][disabled]:hover
+{
+    color: GrayText;
+    cursor: inherit;
+    background-color: #ddd;
+    background: #ddd;
+}

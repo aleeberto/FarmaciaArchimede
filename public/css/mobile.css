@@ -346,7 +346,6 @@
         align-items: stretch;
     }
     footer .footer-box { text-align: left; }
-    footer li { text-indent: 0; }
 
     /* Tabelle area personale con margine orizzontale */
     table.area-personale-table { width: calc(100% - 16px); margin: 12px 8px; }
