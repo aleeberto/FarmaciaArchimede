@@ -1,5 +1,8 @@
+\clearpage
 \section{Implementazione}
 
+\subsection{HTML
+}
 \subsection{PHP}
 
 L'applicazione è sviluppata in PHP adottando una separazione netta tra presentazione e comportamento. Gli \emph{entry point} risiedono in \texttt{public/} (ad es.\ \texttt{index.php}, \texttt{prodotti.php}, \texttt{prodotto.php}, \texttt{login.php}, \texttt{signup.php}, \texttt{logout.php}, \texttt{area\_personale.php}) e hanno il solo compito di caricare l'autoloader e di delegare al servizio pertinente la costruzione della pagina. La logica applicativa è organizzata in \texttt{src/}.
@@ -18,3 +21,54 @@ L'autenticazione è gestita da \texttt{App\textbackslash Service\textbackslash A
 Adottiamo un approccio di \emph{progressive enhancement}: la pagina e i form funzionano anche senza script (invio tradizionale), mentre con JavaScript abilitiamo l’aggiornamento in-place della lista prodotti in risposta ai filtri. Al cambio dei controlli serializziamo i parametri con \texttt{FormData}/\texttt{URLSearchParams} e inviamo una richiesta \texttt{fetch} a \texttt{/prodotti.php}, marcando \texttt{\#items} con \texttt{aria-busy} e usando l’header \texttt{X-Requested-With: fetch} per consentire al server di restituire, quando possibile, solo il frammento HTML della lista; la risposta, sia frammento sia pagina intera, viene parsata e reinserita in \texttt{\#items}. 
 
 Le \emph{validazioni} sono progettate in modo \emph{server-authoritative}: la verifica effettiva dei parametri avviene sempre lato server e l’esito non dipende da ciò che succede nel browser. Quando un input non supera i controlli, il server restituisce un frammento HTML accessibile con i messaggi di errore, esposto con \texttt{role="alert"} e \texttt{aria-live="assertive"}, così che l’utente sia informato in modo chiaro e compatibile con le tecnologie assistive. In parallelo, gli \emph{script di validazione lato client} affiancano il flusso senza sostituirlo: si agganciano agli eventi \texttt{input}/\texttt{change}/\texttt{submit}, normalizzano i valori, marcano i campi con \texttt{aria-invalid} e collegano i messaggi con \texttt{aria-describedby}. In questo modo l’esperienza resta fluida (aggiornamenti in-place quando possibile).
+
+\subsection{Database}
+
+Il database è composto da tre tabelle principali: \texttt{users}, \texttt{product\_types} e \texttt{products}. 
+Di seguito si descrivono campi, tipi di dato e vincoli principali.
+
+\subsubsection{\texttt{users}}
+Gestisce gli account registrati.
+\begin{itemize}[leftmargin=2.2em]
+  \item \texttt{user\_id} — \textbf{INT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}: identificatore interno univoco.
+  \item \texttt{email} — \textbf{VARCHAR(255)}, \textbf{NOT NULL}, \textbf{UNIQUE}: credenziale di login univoca.
+  \item \texttt{password\_hash} — \textbf{CHAR(64)}, \textbf{NOT NULL}: hash della password (esadecimale, p.\,es.\ SHA--256).
+  \item \texttt{first\_name} — \textbf{VARCHAR(50)}, \textbf{NOT NULL}: nome.
+  \item \texttt{last\_name} — \textbf{VARCHAR(50)}, \textbf{NOT NULL}: cognome.
+  \item \texttt{tax\_code} — \textbf{CHAR(16)}, \textbf{NOT NULL}: codice fiscale.
+  \item \texttt{is\_admin} — \textbf{BOOLEAN}, \textbf{NOT NULL}, default \textbf{0}: flag amministratore (1) / utente (0).
+\end{itemize}
+\textbf{Relazioni}: al momento non sono definiti vincoli di chiave esterna verso altre tabelle.
+
+\subsection{\texttt{product\_types}}
+Raccoglie le tipologie di prodotto (utile per filtri, categorie e SEO).
+\begin{itemize}[leftmargin=2.2em]
+  \item \texttt{product\_type\_id} — \textbf{SMALLINT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}.
+  \item \texttt{name} — \textbf{VARCHAR(50)}, \textbf{NOT NULL}, \textbf{UNIQUE}: nome della categoria (p.\,es.\ ``Integratori'').
+  \item \texttt{description} — \textbf{TEXT}: descrizione opzionale.
+\end{itemize}
+\textbf{Relazioni}: \textbf{1--N} con \texttt{products} (una tipologia può avere molti prodotti).
+
+\subsubsection{\texttt{products}}
+Contiene il catalogo dei prodotti in vendita.
+\begin{itemize}[leftmargin=2.2em]
+  \item \texttt{product\_id} — \textbf{SMALLINT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}.
+  \item \texttt{product\_type\_id} — \textbf{SMALLINT UNSIGNED}, \textbf{NOT NULL}, \textbf{FOREIGN KEY} $\rightarrow$ \texttt{product\_types(product\_type\_id)}.
+  \item \texttt{short\_name} — \textbf{VARCHAR(128)}, \textbf{NOT NULL}: nome breve per anteprime e liste.
+  \item \texttt{name} — \textbf{VARCHAR(128)}, \textbf{NOT NULL}: denominazione completa.
+  \item \texttt{manufacturer} — \textbf{VARCHAR(100)}, \textbf{NOT NULL}: produttore.
+  \item \texttt{aic\_code} — \textbf{CHAR(10)}, \textbf{NOT NULL}, \textbf{UNIQUE}: codice AIC (identificativo del farmaco).
+  \item \texttt{format} — \textbf{ENUM} (\texttt{compresse}, \texttt{capsule}, \texttt{sciroppo}, \texttt{gocce}, \texttt{pomata}, \texttt{crema}, \texttt{spray}, \texttt{polvere}, \texttt{soluzione}, \texttt{gel}, \texttt{granulato}, \texttt{cerotto}, \texttt{altro}), \textbf{NOT NULL}: lista chiusa dei formati ammessi.
+  \item \texttt{price} — \textbf{DECIMAL(10,2)}, \textbf{NOT NULL}, \textbf{CHECK} (\texttt{price > 0}): prezzo positivo.
+  \item \texttt{availability} — \textbf{INT UNSIGNED}, \textbf{NOT NULL}, default \textbf{0}: disponibilità a magazzino.
+  \item \texttt{description} — \textbf{TEXT}: descrizione estesa.
+  \item \texttt{image\_path} — \textbf{VARCHAR(255)}: percorso dell’immagine del prodotto.
+\end{itemize}
+
+\paragraph{Indici a supporto delle query su \texttt{products}.}
+\begin{itemize}[leftmargin=2.2em]
+  \item \texttt{idx\_short\_name} su \texttt{short\_name(50)}: velocizza ricerche e matching di prefisso sul nome breve.
+  \item \texttt{idx\_product\_type} su \texttt{product\_type\_id}: ottimizza i filtri e le join per categoria.
+  \item \texttt{idx\_availability} su \texttt{availability}: supporta filtri e ordinamenti per giacenza.
+\end{itemize}
+
