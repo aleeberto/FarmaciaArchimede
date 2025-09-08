@@ -133,7 +133,7 @@ class ProductService
         $dto->price          = (float)$row['price'];
         $dto->availability   = (int)$row['availability'];
         $dto->description    = (string)$row['description'];
-        $dto->imagePath      = '/assets/img/' . $row['image_path'];
+        $dto->imagePath      = 'assets/img/' . $row['image_path'];
         return $dto;
     }
 

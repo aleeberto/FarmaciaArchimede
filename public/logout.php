@@ -20,5 +20,5 @@ $auth = new AuthService($db);
 $auth->logout();
 
 // 3. Redirigi al login
-header('Location: /login.php');
+header('Location: login.php');
 exit;

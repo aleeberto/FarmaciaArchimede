@@ -1,119 +1,261 @@
 <?php
 
-namespace App\View;
+declare(strict_types = 1);
 
-use App\Core\PageBuilder;
+namespace App\Core;
 
-class HeaderBuilder
-{
-    private PageBuilder $builder;
-    private string $currentPath;
+use App\Service\AuthService;
+use App\View\FooterBuilder;
+use App\View\HeadBuilder;
+use App\View\HeaderBuilder;
+use RuntimeException;
+use Throwable;
 
-    public function __construct(PageBuilder $builder, string $currentPath = '/')
+class PageBuilder {
+    private static ?PageBuilder $instance = null;
+
+    private string $basePath;
+    private ?AuthService $auth = null;         // può rimanere null in degraded mode
+    private bool $degraded = false;            // true se Auth/DB non disponibili
+
+    // === DEBUG FORZATO (metti a false in produzione) ===
+    private const FORCE_DEBUG = true;
+
+    private static function isDebug(): bool
     {
-        $this->builder = $builder;
-        $this->currentPath = $currentPath ?: '/';
+        $env = getenv('APP_ENV') ?: '';
+        return self::FORCE_DEBUG
+            || (getenv('APP_DEBUG') === '1')
+            || in_array($env, ['dev','local','development'], true);
     }
 
-    public function build(): string
+    private static function setPlain500(): void
     {
-        $routes = [
-            'home'      => 'index.php',
-            'prodotti'  => 'prodotti.php',
-            'chi_siamo' => 'chi_siamo.php',
-            'contatti'  => 'contatti.php',
-        ];
+        if (!headers_sent()) {
+            http_response_code(500);
+            header('Content-Type: text/plain; charset=utf-8');
+        }
+    }
 
-        $isLogged = false;
-        $loginLabel = 'Accedi';
-        $loginHref = 'login.php';
+    private function __construct()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Best-effort: prova a istanziare DB/Auth, altrimenti rimani in degraded mode.
+        try {
+            $db = Database::getInstance(
+                'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
+            );
+            $this->auth = new AuthService($db);
+        } catch (Throwable $e) {
+            // Niente DB/Auth: continuiamo lo stesso
+            $this->auth = null;
+            $this->degraded = true;
+
+            // In debug: mostra a schermo
+            if (self::isDebug()) {
+                self::setPlain500();
+                echo "[PageBuilder::__construct][Auth/DB degraded] " . $e->getMessage() . "\n";
+                echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+                // non usciamo: proviamo comunque a renderizzare
+            }
+        }
+
+        $configuredPath = realpath(__DIR__ . '/../html');
+        if ($configuredPath === false) {
+            if (self::isDebug()) {
+                self::setPlain500();
+                echo "[PageBuilder] Directory template non trovata: " . (__DIR__ . '/../html') . "\n";
+                exit;
+            }
+            throw new RuntimeException('Directory template non trovata');
+        }
+        $this->basePath = $configuredPath;
+    }
+
+    public static function getInstance(): PageBuilder
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function getAuthService(): ?AuthService
+    {
+        return $this->auth;
+    }
+
+    /**
+     * Mostra il template richiesto.
+     *
+     * @param string|null $templateName Nome template senza estensione (default: nome dello script chiamante).
+     * @param array       $parameters   Parametri da iniettare nel template.
+     */
+    public static function show(?string $templateName = null, array $parameters = []): void
+    {
+        $self = self::getInstance();
+
+        if ($templateName === null) {
+            $templateName = pathinfo($_SERVER['SCRIPT_FILENAME'] ?? 'index.php', PATHINFO_FILENAME);
+        } else {
+            $templateName = trim($templateName, '/\\');
+            $templateName = preg_replace('/\.(html|php)$/i', '', $templateName);
+        }
 
         try {
-            $user = $this->builder->getAuthService()?->getUser();
-            if ($user) {
-                $isLogged = true;
-                $loginLabel = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
-                $loginHref = 'area_personale.php';
+            echo $self->build($templateName, $parameters);
+        } catch (Throwable $e) {
+            if (self::isDebug()) {
+                self::setPlain500();
+                echo "[PageBuilder::show] " . $e->getMessage() . "\n";
+                echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+                echo $e->getTraceAsString() . "\n";
+                exit;
             }
-        } catch (\Throwable) {
-            $isLogged = false;
+
+            // Produzione: pagina 500 “pulita”
+            self::error(500, [
+                'meta_description' => 'Si è verificato un errore interno. Torna alla home.',
+                'meta_keywords'    => 'errore 500, problema server, Farmacia Archimede'
+            ]);
+        }
+    }
+
+    /**
+     * Renderizza una pagina di errore e termina l'esecuzione.
+     */
+    public static function error(int $code, array $parameters = []): void
+    {
+        $allowed = [400, 401, 403, 404, 418, 422, 429, 500, 502, 503, 504];
+        if (!in_array($code, $allowed, true)) {
+            $code = 500;
         }
 
-        $currAbs = parse_url($this->currentPath, PHP_URL_PATH) ?: '/';
-        $baseDir = $this->getBaseDir();
-        $currRel = $this->absToRel($currAbs, $baseDir);
-
-        $active = ['home'=>'','prodotti'=>'','chi_siamo'=>'','contatti'=>'','login'=>''];
-        $aria   = ['home'=>'','prodotti'=>'','chi_siamo'=>'','contatti'=>'','login'=>''];
-
-        foreach ($routes as $key => $relPath) {
-            if ($this->sameRouteRel($currRel, $relPath)) {
-                $active[$key] = 'active';
-                $aria[$key] = 'aria-current="page"';
-                break;
+        if (self::isDebug()) {
+            self::setPlain500();
+            echo "[PageBuilder::error] HTTP $code\n";
+            if (!empty($parameters)) {
+                echo "Dettagli:\n";
+                foreach ($parameters as $k => $v) {
+                    echo "- $k: " . (is_scalar($v) ? (string)$v : json_encode($v)) . "\n";
+                }
             }
+            exit;
         }
-        if ($this->sameRouteRel($currRel, $loginHref)) {
-            $active['login'] = 'active';
-            $aria['login'] = 'aria-current="page"';
+
+        http_response_code($code);
+        $parameters["meta_title"] = "Errore $code | Farmacia Archimede";
+        self::show((string)$code, ['error_code' => $code] + $parameters);
+
+        self::$instance = null;
+        exit;
+    }
+
+    public function getBasePath(): string
+    {
+        return $this->basePath;
+    }
+
+    public function loadTemplate(string $name): Template
+    {
+        $file = preg_replace('/\.(html|php)$/i', '', $name);
+        $path = $this->basePath . '/' . $file . '.html';
+        if (!is_readable($path)) {
+            if (self::isDebug()) {
+                self::setPlain500();
+                echo "[PageBuilder::loadTemplate] Impossibile leggere il template: {$file}.html\n";
+                echo "Percorso: {$path}\n";
+                exit;
+            }
+            throw new RuntimeException("Impossibile leggere il template: {$file}.html");
         }
-        $loginAria = ($active['login'] === 'active') ? 'aria-current="page"' : '';
+        return new Template($file . '.html', file_get_contents($path));
+    }
 
-        $tpl = $this->builder->loadTemplate('common/header.html');
+    public static function getFlashMessage(): string
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
-        $tpl->insert('menu.home.class',      $active['home']);
-        $tpl->insert('menu.prodotti.class',  $active['prodotti']);
-        $tpl->insert('menu.chi_siamo.class', $active['chi_siamo']);
-        $tpl->insert('menu.contatti.class',  $active['contatti']);
-        $tpl->insert('menu.login.class',     $active['login']);
+        if (!isset($_SESSION['flash_message'])) {
+            return '';
+        }
 
-        $tpl->insert('menu.home.aria',      $aria['home']);
-        $tpl->insert('menu.prodotti.aria',  $aria['prodotti']);
-        $tpl->insert('menu.chi_siamo.aria', $aria['chi_siamo']);
-        $tpl->insert('menu.contatti.aria',  $aria['contatti']);
+        $type = $_SESSION['flash_message']['type'];
+        $message = $_SESSION['flash_message']['message'];
+        unset($_SESSION['flash_message']);
 
-        $tpl->insert('menu.home.href',      $routes['home']);
-        $tpl->insert('menu.prodotti.href',  $routes['prodotti']);
-        $tpl->insert('menu.chi_siamo.href', $routes['chi_siamo']);
-        $tpl->insert('menu.contatti.href',  $routes['contatti']);
-
-        $tpl->insert('login.href',  $loginHref);
-        $tpl->insert('login.label', $loginLabel);
-        $tpl->insert('login.aria',  $loginAria);
-
+        $tpl = self::getInstance()->loadTemplate('common/alert');
+        $tpl->insertAll([
+            'type'    => $type,
+            'message' => htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+        ]);
         return $tpl->build();
     }
 
-    private function getBaseDir(): string
+    public function build(string $templateName, array $parameters = []): string
     {
-        $script = $_SERVER['SCRIPT_NAME'] ?? '/';
-        $dir = rtrim(dirname($script), '/\\');
-        return $dir === '' ? '/' : $dir;
-    }
+        $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+        $uriPath = $uriPath === '/index.php' ? '/' : $uriPath;
 
-    private function absToRel(string $absPath, string $baseDir): string
-    {
-        $absPath = parse_url($absPath, PHP_URL_PATH) ?: '/';
-        $baseDir = rtrim($baseDir, '/');
-        if ($baseDir === '') $baseDir = '/';
-        if ($absPath === '/' || $absPath === $baseDir || $absPath === $baseDir . '/') return 'index.php';
-        if ($baseDir !== '/' && str_starts_with($absPath, $baseDir . '/')) {
-            $rel = substr($absPath, strlen($baseDir) + 1);
-        } else {
-            $rel = ltrim($absPath, '/');
+        // Se non passato esplicitamente, deduci is_admin dall'utente (se disponibile)
+        if (!array_key_exists('is_admin', $parameters)) {
+            $parameters['is_admin'] = false;
+            try {
+                $user = $this->auth?->getUser();
+                if ($user && method_exists($user, 'isAdmin')) {
+                    $parameters['is_admin'] = (bool)$user->isAdmin();
+                }
+            } catch (Throwable $e) {
+                // ignora errori auth in fase di build ma MOSTRA in debug
+                $parameters['is_admin'] = false;
+                if (self::isDebug()) {
+                    self::setPlain500();
+                    echo "[PageBuilder::build][getUser] " . $e->getMessage() . "\n";
+                    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+                    // non usciamo: continuiamo il rendering
+                }
+            }
         }
-        $rel = rtrim($rel, '/');
-        return $rel === '' ? 'index.php' : $rel;
-    }
 
-    private function sameRouteRel(string $a, string $b): bool
-    {
-        $norm = static function (string $p): string {
-            $p = trim($p);
-            $p = ltrim($p, '/');
-            $p = rtrim($p, '/');
-            return ($p === '' || $p === 'index.php') ? 'index.php' : $p;
-        };
-        return $norm($a) === $norm($b);
+        $meta = [
+            'meta_title'       => $parameters['meta_title'] ?? '',
+            'meta_description' => $parameters['meta_description'] ?? '',
+            'meta_keywords'    => $parameters['meta_keywords'] ?? '',
+        ];
+
+        $main       = $this->loadTemplate($templateName);
+        $headHtml   = (new HeadBuilder($this))->build($meta);
+        $headerHtml = (new HeaderBuilder($this, $uriPath))->build();
+        $footerHtml = (new FooterBuilder($this))->build();
+
+        // Inserisci i componenti standard
+        $main->insert('head', $headHtml);
+        $main->insert('header', $headerHtml);
+        $main->insert('footer', $footerHtml);
+        $main->insert('alert', self::getFlashMessage());
+        $main->insertAll($parameters);
+
+        // Materializza i blocchi condizionali PRIMA del build
+        $adminBlock = $main->getBlockContent('admin_section');
+        $userBlock  = $main->getBlockContent('user_section');
+
+        if ($parameters['is_admin']) {
+            if ($adminBlock !== null) {
+                $main->insert('admin_section', $adminBlock);
+            }
+            $main->insert('user_section', '');
+        } else {
+            if ($userBlock !== null) {
+                $main->insert('user_section', $userBlock);
+            }
+            $main->insert('admin_section', '');
+        }
+
+        return $main->build();
     }
 }

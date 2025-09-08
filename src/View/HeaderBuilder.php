@@ -11,85 +11,72 @@ class HeaderBuilder
 
     public function __construct(PageBuilder $builder, string $currentPath = '/')
     {
-        $this->builder     = $builder;
+        $this->builder = $builder;
         $this->currentPath = $currentPath ?: '/';
     }
 
     public function build(): string
     {
         $routes = [
-            'home'      => '/',
-            'prodotti'  => '/prodotti.php',
-            'chi_siamo' => '/chi_siamo.php',
-            'contatti'  => '/contatti.php',
+            'home'      => 'index.php',
+            'prodotti'  => 'prodotti.php',
+            'chi_siamo' => 'chi_siamo.php',
+            'contatti'  => 'contatti.php',
         ];
 
-        $isLogged   = false;
+        $isLogged = false;
         $loginLabel = 'Accedi';
-        $loginHref  = '/login.php';
+        $loginHref = 'login.php';
 
         try {
             $user = $this->builder->getAuthService()?->getUser();
             if ($user) {
-                $isLogged   = true;
+                $isLogged = true;
                 $loginLabel = htmlspecialchars($user->getFirstName(), ENT_QUOTES, 'UTF-8');
-                $loginHref  = '/area_personale.php';
+                $loginHref = 'area_personale.php';
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             $isLogged = false;
         }
 
-        $active = [
-            'home'      => '',
-            'prodotti'  => '',
-            'chi_siamo' => '',
-            'contatti'  => '',
-            'login'     => '',
-        ];
+        $currAbs = parse_url($this->currentPath, PHP_URL_PATH) ?: '/';
+        $baseDir = $this->getBaseDir();
+        $currRel = $this->absToRel($currAbs, $baseDir);
 
-        $aria = [
-            'home'      => '',
-            'prodotti'  => '',
-            'chi_siamo' => '',
-            'contatti'  => '',
-            'login'     => '',
-        ];
+        $active = ['home'=>'','prodotti'=>'','chi_siamo'=>'','contatti'=>'','login'=>''];
+        $aria   = ['home'=>'','prodotti'=>'','chi_siamo'=>'','contatti'=>'','login'=>''];
 
-        $curr = '/' . ltrim(parse_url($this->currentPath, PHP_URL_PATH) ?: '/', '/');
-        $curr = rtrim($curr, '/') ?: '/';
-
-        foreach ($routes as $key => $path) {
-            $path = rtrim(parse_url($path, PHP_URL_PATH) ?: '/', '/') ?: '/';
-            if ($this->sameRoute($curr, $path)) {
+        foreach ($routes as $key => $relPath) {
+            if ($this->sameRouteRel($currRel, $relPath)) {
                 $active[$key] = 'active';
-                $aria[$key]   = 'aria-current="page"';
+                $aria[$key] = 'aria-current="page"';
                 break;
             }
         }
-
-        if ($this->sameRoute($curr, '/login.php') || $this->sameRoute($curr, '/area_personale.php')) {
+        if ($this->sameRouteRel($currRel, $loginHref)) {
             $active['login'] = 'active';
-            $aria['login']   = 'aria-current="page"';
+            $aria['login'] = 'aria-current="page"';
         }
-
         $loginAria = ($active['login'] === 'active') ? 'aria-current="page"' : '';
 
         $tpl = $this->builder->loadTemplate('common/header.html');
 
-        // classi
         $tpl->insert('menu.home.class',      $active['home']);
         $tpl->insert('menu.prodotti.class',  $active['prodotti']);
         $tpl->insert('menu.chi_siamo.class', $active['chi_siamo']);
         $tpl->insert('menu.contatti.class',  $active['contatti']);
         $tpl->insert('menu.login.class',     $active['login']);
 
-        // aria-current (o stringa vuota)
         $tpl->insert('menu.home.aria',      $aria['home']);
         $tpl->insert('menu.prodotti.aria',  $aria['prodotti']);
         $tpl->insert('menu.chi_siamo.aria', $aria['chi_siamo']);
         $tpl->insert('menu.contatti.aria',  $aria['contatti']);
 
-        // link login
+        $tpl->insert('menu.home.href',      $routes['home']);
+        $tpl->insert('menu.prodotti.href',  $routes['prodotti']);
+        $tpl->insert('menu.chi_siamo.href', $routes['chi_siamo']);
+        $tpl->insert('menu.contatti.href',  $routes['contatti']);
+
         $tpl->insert('login.href',  $loginHref);
         $tpl->insert('login.label', $loginLabel);
         $tpl->insert('login.aria',  $loginAria);
@@ -97,13 +84,35 @@ class HeaderBuilder
         return $tpl->build();
     }
 
+    private function getBaseDir(): string
+    {
+        $script = $_SERVER['SCRIPT_NAME'] ?? '/';
+        $dir = rtrim(dirname($script), '/\\');
+        return $dir === '' ? '/' : $dir;
+    }
 
-    private function sameRoute(string $a, string $b): bool
+    private function absToRel(string $absPath, string $baseDir): string
+    {
+        $absPath = parse_url($absPath, PHP_URL_PATH) ?: '/';
+        $baseDir = rtrim($baseDir, '/');
+        if ($baseDir === '') $baseDir = '/';
+        if ($absPath === '/' || $absPath === $baseDir || $absPath === $baseDir . '/') return 'index.php';
+        if ($baseDir !== '/' && str_starts_with($absPath, $baseDir . '/')) {
+            $rel = substr($absPath, strlen($baseDir) + 1);
+        } else {
+            $rel = ltrim($absPath, '/');
+        }
+        $rel = rtrim($rel, '/');
+        return $rel === '' ? 'index.php' : $rel;
+    }
+
+    private function sameRouteRel(string $a, string $b): bool
     {
         $norm = static function (string $p): string {
-            $p = parse_url($p, PHP_URL_PATH) ?: '/';
-            $p = '/' . ltrim($p, '/');
-            return rtrim($p, '/') ?: '/';
+            $p = trim($p);
+            $p = ltrim($p, '/');
+            $p = rtrim($p, '/');
+            return ($p === '' || $p === 'index.php') ? 'index.php' : $p;
         };
         return $norm($a) === $norm($b);
     }

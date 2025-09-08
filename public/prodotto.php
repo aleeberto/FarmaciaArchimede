@@ -20,7 +20,7 @@ $service = new ProductService($db);
 // Get product ID from query string
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
 if ($id <= 0) {
-    header('Location: /prodotti.php');
+    header('Location: prodotti.php');
     exit;
 }
 
@@ -31,12 +31,12 @@ if (! $product) {
         'type'    => 'error',
         'message' => 'Il prodotto richiesto non è stato trovato.',
     ];
-    header('Location: /prodotti.php');
+    header('Location: prodotti.php');
     exit;
 }
 
 $imagePath = $product->imagePath;
-$src       = $imagePath ?: '/assets/img/default.jpg';
+$src       = $imagePath ?: 'assets/img/default.jpg';
 $alt       = $imagePath ? 'Immagine del prodotto' : 'Immagine non disponibile';
 
 $params = [
@@ -57,4 +57,4 @@ $params = [
     'meta_keywords'    => 'prodotti, farmacia, archimede, disponibilità'
 ];
 
-PageBuilder::show($_SERVER['SCRIPT_NAME'], $params);
+PageBuilder::show('prodotto', $params);
