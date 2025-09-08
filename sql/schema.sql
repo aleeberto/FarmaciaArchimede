@@ -1,63 +1,57 @@
-CREATE DATABASE IF NOT EXISTS farmacia_archimede;
+CREATE DATABASE IF NOT EXISTS farmacia_archimede
+    DEFAULT CHARACTER SET utf8mb4
+    DEFAULT COLLATE utf8mb4_unicode_ci;
+
 USE farmacia_archimede;
 
 -- ====================
 -- TAB. UTENTI
--- Gestisce gli utenti registrati della farmacia.
 -- ====================
 CREATE TABLE users (
-                       user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,            -- Identificatore univoco interno
-                       email VARCHAR(255) NOT NULL UNIQUE,                        -- Email usata come login (univoca)
-                       password_hash CHAR(64) NOT NULL,                           -- Hash della password (es: SHA-256)
-                       first_name VARCHAR(50) NOT NULL,                           -- Nome
-                       last_name VARCHAR(50) NOT NULL,                            -- Cognome
-                       tax_code CHAR(16) NOT NULL,                                -- Codice fiscale (CF)
-                       is_admin BOOLEAN NOT NULL DEFAULT 0                        -- 1 = Admin, 0 = Utente normale
-);
+                       user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                       email VARCHAR(255) NOT NULL UNIQUE,
+                       password_hash CHAR(64) NOT NULL,
+                       first_name VARCHAR(50) NOT NULL,
+                       last_name  VARCHAR(50) NOT NULL,
+                       tax_code   CHAR(16) NOT NULL,
+                       is_admin   BOOLEAN NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ====================
 -- TAB. TIPI DI PRODOTTO
--- Entità separata per ogni tipologia, con nome e descrizione
--- Utile per filtri, pagine categoria, SEO
 -- ====================
 CREATE TABLE product_types (
-                               product_type_id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, -- ID tipo prodotto
-                               name VARCHAR(50) NOT NULL UNIQUE,                            -- Nome tipo (es. Farmaci, Integratori)
-                               description TEXT                                             -- Descrizione opzionale
-);
+                               product_type_id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                               name VARCHAR(50) NOT NULL UNIQUE,
+                               description TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ====================
 -- TAB. PRODOTTI
--- Tutti i dati relativi ai prodotti in vendita
 -- ====================
 CREATE TABLE products (
-                          product_id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,     -- ID prodotto
-                          product_type_id SMALLINT UNSIGNED NOT NULL,                  -- FK verso tipi prodotto
-                          short_name VARCHAR(128) NOT NULL,                            -- Nome breve (per preview/lista)
-                          name VARCHAR(128) NOT NULL,                                  -- Nome completo
-                          manufacturer VARCHAR(100) NOT NULL,                          -- Produttore
-                          aic_code CHAR(10) NOT NULL UNIQUE,                           -- Codice AIC (identificativo farmaco)
+                          product_id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                          product_type_id SMALLINT UNSIGNED NOT NULL,
+                          short_name VARCHAR(128) NOT NULL,
+                          name VARCHAR(128) NOT NULL,
+                          manufacturer VARCHAR(100) NOT NULL,
+                          aic_code CHAR(10) NOT NULL UNIQUE,
                           format ENUM(
-        'compresse',   -- Compresse
-        'capsule',     -- Capsule
-        'sciroppo',    -- Sciroppo
-        'gocce',       -- Gocce
-        'pomata',      -- Pomata
-        'crema',       -- Crema
-        'spray',       -- Spray
-        'polvere',     -- Polvere
-        'soluzione',   -- Soluzione
-        'gel',
-        'granulato',
-        'cerotto',     -- Cerotto
-        'altro'        -- Altro (in caso serva)
-    ) NOT NULL,                                 -- Formato del prodotto
-                          price DECIMAL(10,2) NOT NULL CHECK (price > 0),              -- Prezzo > 0
-                          availability INT UNSIGNED NOT NULL DEFAULT 0,                -- Disponibilità in magazzino
-                          description TEXT,                                            -- Descrizione dettagliata
-                          image_path VARCHAR(255),                                     -- Path immagine
-                          FOREIGN KEY (product_type_id) REFERENCES product_types(product_type_id)
-);
+                              'compresse','capsule','sciroppo','gocce','pomata','crema',
+                              'spray','polvere','soluzione','gel','granulato','cerotto','altro'
+                              ) NOT NULL,
+                          price DECIMAL(10,2) NOT NULL CHECK (price > 0),
+                          availability INT UNSIGNED NOT NULL DEFAULT 0,
+                          description TEXT,
+                          image_path VARCHAR(255),
+                          CONSTRAINT fk_products_type FOREIGN KEY (product_type_id)
+                              REFERENCES product_types(product_type_id),
+
+    -- indici senza ALTER
+                          KEY idx_short_name (short_name(50)),
+                          KEY idx_product_type (product_type_id),
+                          KEY idx_availability (availability)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ====================
 -- TAB. INDIRIZZI
@@ -104,11 +98,3 @@ CREATE TABLE products (
 #                              FOREIGN KEY (order_id) REFERENCES orders(order_id),
 #                              FOREIGN KEY (product_id) REFERENCES products(product_id)
 # );
-
--- ====================
--- INDICI MIGLIORATIVI PER LE QUERY DI FILTRO
--- ====================
-ALTER TABLE products
-    ADD INDEX idx_short_name (short_name(50)),
-    ADD INDEX idx_product_type (product_type_id),
-    ADD INDEX idx_availability (availability);

@@ -1,3 +1,6 @@
+SET NAMES utf8mb4;
+SET collation_connection = 'utf8mb4_unicode_ci';
+
 USE farmacia_archimede;
 INSERT INTO product_types (name, description) VALUES
     ('Medicinale', 'Farmaci e prodotti ad azione terapeutica'),

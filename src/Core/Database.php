@@ -8,7 +8,7 @@ use mysqli;
 use mysqli_sql_exception;
 
 /**
- * Classe Database: singleton per la connessione MySQL tramite mysqli.
+ * Classe Database: singleton per la connessione MySQL tramite mysqli (UTF-8).
  */
 class Database
 {
@@ -43,7 +43,7 @@ class Database
 
     /**
      * Apre la connessione al database se non ancora aperta, e la restituisce.
-     * In caso di errore usa PageBuilder::error(500, ...).
+     * Forza utf8mb4 su client/connessione/risultati.
      */
     public function connect(): mysqli
     {
@@ -51,23 +51,36 @@ class Database
             // niente warning a schermo
             ini_set('display_errors', '0');
 
-            // alza eccezioni mysqli
+            // alza eccezioni mysqli (niente @)
             mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
             try {
-                // sopprimo warning nativi di mysqli
-                $this->connection = @new mysqli(
+                $this->connection = new mysqli(
                     $this->url,
                     $this->user,
                     $this->password,
                     $this->database
                 );
-                $this->connection->set_charset('utf8mb4');
+
+                // Imposta UTF-8 completo
+                if (!$this->connection->set_charset('utf8mb4')) {
+                    throw new mysqli_sql_exception(
+                        'Impossibile impostare il charset utf8mb4: ' . $this->connection->error
+                    );
+                }
+
+                // Facoltativo: allinea la collation della sessione
+                $this->connection->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
             } catch (mysqli_sql_exception $e) {
+                // Log tecnico per il server
+                error_log('[DB] ' . $e->getMessage());
+
+                // Pagina di errore per l’utente
                 PageBuilder::error(500, [
-                'meta_description' => 'Si è verificato un errore interno. Il team di Farmacia Archimede è al lavoro. Torna alla home.',
-                'meta_keywords'    => 'errore 500, problema server, Farmacia Archimede, errore interno, sito farmacia']);
+                    'meta_description' => 'Si è verificato un errore interno. Il team di Farmacia Archimede è al lavoro. Torna alla home.',
+                    'meta_keywords'    => 'errore 500, problema server, Farmacia Archimede, errore interno, sito farmacia'
+                ]);
                 exit;
             }
         }
