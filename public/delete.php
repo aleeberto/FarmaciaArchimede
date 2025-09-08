@@ -16,7 +16,7 @@ $type = $_POST['type'] ?? '';
 $id   = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
 $db = Database::getInstance(
-    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
 );
 $svc = new DeleteService($db);
 

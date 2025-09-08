@@ -22,7 +22,7 @@ final class Auth
 
         if (self::$authService === null) {
             $dbInstance = Database::getInstance(
-                'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+                'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
             );
             self::$authService = new AuthService($dbInstance);
         }
@@ -53,7 +53,7 @@ final class Auth
     public static function requireLogin(): void
     {
         if (!self::manager()->isLogged()) {
-            header('Location: /login.php');
+            header('Location: login.php');
             exit;
         }
     }
@@ -64,7 +64,7 @@ final class Auth
     public static function redirectIfLogged(): void
     {
         if (self::manager()->isLogged()) {
-            header('Location: /area_personale.php');
+            header('Location: area_personale.php');
             exit;
         }
     }

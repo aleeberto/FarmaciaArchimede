@@ -18,7 +18,7 @@ Auth::requireLogin();
 
 // 2) Inizializza DB e servizi
 $db = Database::getInstance(
-    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
 );
 $auth = new AuthService($db);
 $svc  = new AreaPersonaleService($auth, $db);

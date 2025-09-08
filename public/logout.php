@@ -9,7 +9,7 @@ use App\Core\Auth;
 
 // 1. Inizializza DB e AuthenticationService
 $db  = Database::getInstance(
-    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
 );
 
 Auth::requireLogin();

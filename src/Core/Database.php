@@ -72,14 +72,13 @@ class Database
                 $this->connection->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
             } catch (mysqli_sql_exception $e) {
-                // Log tecnico per il server
-                error_log('[DB] ' . $e->getMessage());
 
+                echo($e->getMessage());
                 // Pagina di errore per l’utente
-                PageBuilder::error(500, [
+                /*PageBuilder::error(500, [
                     'meta_description' => 'Si è verificato un errore interno. Il team di Farmacia Archimede è al lavoro. Torna alla home.',
                     'meta_keywords'    => 'errore 500, problema server, Farmacia Archimede, errore interno, sito farmacia'
-                ]);
+                ]);*/
                 exit;
             }
         }

@@ -6,7 +6,7 @@
     <td>—</td>
     <td>—</td>
     <td class="actions">
-        <form method="post" action="/actions/delete_user.php" class="inline-form" onsubmit="return confirm('Eliminare l\'utente #{{ id }}?');">
+        <form method="post" class="inline-form">
             <input type="hidden" name="user_id" value="{{ id }}" />
             <input type="hidden" name="csrf_token" value="{{ csrf }}" />
             <button type="submit" class="btn-delete" {{ delete_disabled }}>Elimina</button>

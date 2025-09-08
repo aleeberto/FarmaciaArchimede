@@ -12,7 +12,7 @@ use App\Service\ProductService;
 
 // Initialize DB and service
 $db  = Database::getInstance(
-    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
 );
 
 $service = new ProductService($db);

@@ -16,7 +16,7 @@ class ProductPageService
     public function __construct(int $perPage = 6)
     {
         $db = Database::getInstance(
-            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+            'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
         );
         $this->service = new ProductService($db);
         $this->perPage = $perPage;
@@ -170,7 +170,7 @@ class ProductPageService
     private function getProductTypes(): array
     {
         $db = Database::getInstance(
-            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+            'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
         )->connect();
 
         $res = $db->query('SELECT name FROM product_types ORDER BY name');

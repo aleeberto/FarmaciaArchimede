@@ -19,7 +19,7 @@ class SignupService extends HeaderBuilder
     public function __construct()
     {
         $database   = Database::getInstance(
-            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+            'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
         );
         $this->db   = $database->connect();
         $this->auth = new AuthService($database);

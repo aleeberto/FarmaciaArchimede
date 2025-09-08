@@ -14,7 +14,7 @@ class LoginService
     public function __construct()
     {
         $db = Database::getInstance(
-            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+            'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
         );
         $this->auth = new AuthService($db);
     }
@@ -28,7 +28,7 @@ class LoginService
         // === Logout (PRG) ===
         if (isset($_GET['logout'])) {
             $this->auth->logout();
-            header('Location: /login.php');
+            header('Location: login.php');
             exit;
         }
 
@@ -39,7 +39,7 @@ class LoginService
 
             if ($this->auth->login($email, $pwd)) {
                 // Successo → vai all’area personale
-                header('Location: /area_personale.php');
+                header('Location: area_personale.php');
                 exit;
             }
 
@@ -51,7 +51,7 @@ class LoginService
             $_SESSION['old'] = ['email' => $email];
 
             // GET pulita
-            header('Location: /login.php');
+            header('Location: login.php');
             exit;
         }
 

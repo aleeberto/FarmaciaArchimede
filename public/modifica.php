@@ -12,7 +12,7 @@ Auth::requireAdmin();
 
 // Connessione al DB
 $db = Database::getInstance(
-    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
+    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
 );
 
 $productService = new ProductService($db);
