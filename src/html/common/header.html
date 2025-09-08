@@ -22,19 +22,20 @@
     <nav aria-label="Menu principale" id="main-nav">
         <ul class="flex-container">
             <li class="{{ menu.home.class }}">
-                <a href="/" {{ menu.home.aria }}>Home</a>
+                <a href="{{ menu.home.href }}" {{ menu.home.aria }}>Home</a>
             </li>
             <li class="{{ menu.prodotti.class }}">
-                <a href="/prodotti.php" {{ menu.prodotti.aria }}>Prodotti</a>
+                <a href="{{ menu.prodotti.href }}" {{ menu.prodotti.aria }}>Prodotti</a>
             </li>
             <li class="{{ menu.chi_siamo.class }}">
-                <a href="/chi_siamo.php" {{ menu.chi_siamo.aria }}>Chi Siamo</a>
+                <a href="{{ menu.chi_siamo.href }}" {{ menu.chi_siamo.aria }}>Chi Siamo</a>
             </li>
             <li class="{{ menu.contatti.class }}">
-                <a href="/contatti.php" {{ menu.contatti.aria }}>Contatti</a>
+                <a href="{{ menu.contatti.href }}" {{ menu.contatti.aria }}>Contatti</a>
             </li>
         </ul>
     </nav>
+
 
     <div class="header-actions">
         <!-- bottone hamburger: posizionalo qui -->

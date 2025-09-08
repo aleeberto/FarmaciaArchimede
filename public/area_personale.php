@@ -241,7 +241,7 @@ switch ($section) {
                 'type'    => 'success',
                 'message' => 'Modifiche salvate correttamente.',
             ];
-            header('Location: /area_personale.php?section=dati'); // torna al form
+            header('Location: area_personale.php?section=dati'); // torna al form
             exit;
 
         } catch (\Throwable $e) {
@@ -285,7 +285,7 @@ switch ($section) {
     }
 
     case 'gestione': {
-        if (!$isAdmin) { header('Location: /area_personale.php'); exit; }
+        if (!$isAdmin) { header('Location: area_personale.php'); exit; }
         $crumbs[] = 'Gestisci';
         $params['meta_title'] = 'Gestisci | Farmacia Archimede';
         $params['meta_description'] = 'Pannello di amministrazione: accesso rapido a prodotti, ordini e utenti della Farmacia Archimede.';
@@ -295,7 +295,7 @@ switch ($section) {
     }
 
     case 'gestione_prodotti': {
-        if (!$isAdmin) { header('Location: /area_personale.php'); exit; }
+        if (!$isAdmin) { header('Location: area_personale.php'); exit; }
         $params = $svc->getProdottiAdmin();
         $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
         $crumbs[] = 'Prodotti';
@@ -307,7 +307,7 @@ switch ($section) {
     }
 
     case 'gestione_utenti': {
-        if (!$isAdmin) { header('Location: /area_personale.php'); exit; }
+        if (!$isAdmin) { header('Location: area_personale.php'); exit; }
         $params = $svc->getUtentiAdmin();
         $crumbs[] = '<a href="?section=gestione">Gestisci</a>';
         $crumbs[] = 'Utenti';
