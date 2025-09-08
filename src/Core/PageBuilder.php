@@ -27,10 +27,7 @@ class PageBuilder {
         // Best-effort: prova a istanziare DB/Auth, altrimenti rimani in degraded mode.
         try {
             $db = Database::getInstance(
-                getenv('MARIADB_HOST') ?: 'mariadb',
-                getenv('MARIADB_USER') ?: 'admin',
-                getenv('MARIADB_PASSWORD') ?: 'admin',
-                getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+                'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
             );
             $this->auth = new AuthService($db);
         } catch (Throwable $e) {

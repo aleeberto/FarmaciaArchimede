@@ -18,10 +18,7 @@ Auth::requireLogin();
 
 // 2) Inizializza DB e servizi
 $db = Database::getInstance(
-    getenv('MARIADB_HOST')     ?: 'mariadb',
-    getenv('MARIADB_USER')     ?: 'admin',
-    getenv('MARIADB_PASSWORD') ?: 'admin',
-    getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
 );
 $auth = new AuthService($db);
 $svc  = new AreaPersonaleService($auth, $db);

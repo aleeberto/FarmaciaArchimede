@@ -12,11 +12,9 @@ use App\Service\ProductService;
 
 // Initialize DB and service
 $db  = Database::getInstance(
-    getenv('MARIADB_HOST')     ?: 'mariadb',
-    getenv('MARIADB_USER')     ?: 'admin',
-    getenv('MARIADB_PASSWORD') ?: 'admin',
-    getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
 );
+
 $service = new ProductService($db);
 
 // Get product ID from query string

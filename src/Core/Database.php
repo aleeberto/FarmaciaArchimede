@@ -69,7 +69,6 @@ class Database
                     );
                 }
 
-                // Facoltativo: allinea la collation della sessione
                 $this->connection->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
             } catch (mysqli_sql_exception $e) {

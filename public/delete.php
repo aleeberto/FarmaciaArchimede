@@ -16,10 +16,7 @@ $type = $_POST['type'] ?? '';
 $id   = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
 $db = Database::getInstance(
-    getenv('MARIADB_HOST')     ?: 'mariadb',
-    getenv('MARIADB_USER')     ?: 'admin',
-    getenv('MARIADB_PASSWORD') ?: 'admin',
-    getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
 );
 $svc = new DeleteService($db);
 

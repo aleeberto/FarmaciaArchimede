@@ -19,10 +19,7 @@ class SignupService extends HeaderBuilder
     public function __construct()
     {
         $database   = Database::getInstance(
-            getenv('MARIADB_HOST') ?: 'mariadb',
-            getenv('MARIADB_USER') ?: 'admin',
-            getenv('MARIADB_PASSWORD') ?: 'admin',
-            getenv('MARIADB_DATABASE') ?: 'pharmacy_archimede'
+            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
         );
         $this->db   = $database->connect();
         $this->auth = new AuthService($database);

@@ -22,10 +22,7 @@ final class Auth
 
         if (self::$authService === null) {
             $dbInstance = Database::getInstance(
-                getenv('MARIADB_HOST')     ?: 'mariadb',
-                getenv('MARIADB_USER')     ?: 'admin',
-                getenv('MARIADB_PASSWORD') ?: 'admin',
-                getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+                'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
             );
             self::$authService = new AuthService($dbInstance);
         }

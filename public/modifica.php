@@ -12,11 +12,9 @@ Auth::requireAdmin();
 
 // Connessione al DB
 $db = Database::getInstance(
-    getenv('MARIADB_HOST')     ?: 'mariadb',
-    getenv('MARIADB_USER')     ?: 'admin',
-    getenv('MARIADB_PASSWORD') ?: 'admin',
-    getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+    'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
 );
+
 $productService = new ProductService($db);
 
 // Chiavi di errore

@@ -1,7 +1,7 @@
 SET NAMES utf8mb4;
 SET collation_connection = 'utf8mb4_unicode_ci';
 
-USE farmacia_archimede;
+USE gbarison;
 INSERT INTO product_types (name, description) VALUES
     ('Medicinale', 'Farmaci e prodotti ad azione terapeutica'),
     ('Cosmetico', 'Prodotti per la cura e l\'igiene della persona'),

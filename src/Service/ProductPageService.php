@@ -16,10 +16,7 @@ class ProductPageService
     public function __construct(int $perPage = 6)
     {
         $db = Database::getInstance(
-            getenv('MARIADB_HOST')     ?: 'mariadb',
-            getenv('MARIADB_USER')     ?: 'admin',
-            getenv('MARIADB_PASSWORD') ?: 'admin',
-            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
         );
         $this->service = new ProductService($db);
         $this->perPage = $perPage;
@@ -173,10 +170,7 @@ class ProductPageService
     private function getProductTypes(): array
     {
         $db = Database::getInstance(
-            getenv('MARIADB_HOST')     ?: 'mariadb',
-            getenv('MARIADB_USER')     ?: 'admin',
-            getenv('MARIADB_PASSWORD') ?: 'admin',
-            getenv('MARIADB_DATABASE') ?: 'farmacia_archimede'
+            'localhost', 'gabrison','SaSoo9chahNguuCh', 'gabrison'
         )->connect();
 
         $res = $db->query('SELECT name FROM product_types ORDER BY name');
