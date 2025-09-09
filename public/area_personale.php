@@ -4,7 +4,6 @@ declare(strict_types=1);
 // public/area_personale.php
 // Front-controller per l'Area Personale, con breadcrumb e PageBuilder
 
-// 0) Autoload Composer (nessun echo/whitespace prima)
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Auth;
@@ -13,7 +12,6 @@ use App\Core\PageBuilder;
 use App\Service\AuthService;
 use App\Service\AreaPersonaleService;
 
-// 1) Verifica login (fa session_start() internamente)
 Auth::requireLogin();
 
 // 2) Inizializza DB e servizi
@@ -30,7 +28,7 @@ $action  = $_GET['action']  ?? 'view'; // non più usato per 'dati' in GET
 // 4) Breadcrumb e parametri base
 $params = [];
 $crumbs = [
-    '<a href="index.php">Home</a>',
+    '<a href="index.php" lang="en">Home</a>',
     '<a href="area_personale.php">Area personale</a>',
 ];
 
