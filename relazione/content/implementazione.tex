@@ -5,7 +5,7 @@
 }
 \subsection{PHP}
 
-L'applicazione è sviluppata in PHP adottando una separazione netta tra presentazione e comportamento. Gli \emph{entry point} risiedono in \texttt{public/} (ad es.\ \texttt{index.php}, \texttt{prodotti.php}, \texttt{prodotto.php}, \texttt{login.php}, \texttt{signup.php}, \texttt{logout.php}, \texttt{area\_personale.php}) e hanno il solo compito di caricare l'autoloader e di delegare al servizio pertinente la costruzione della pagina. La logica applicativa è organizzata in \texttt{src/}.
+L'applicazione è sviluppata in PHP adottando una separazione netta tra presentazione e comportamento. Gli \emph{entry point} risiedono in \texttt{public\_html/} (ad es.\ \texttt{index.php}, \texttt{prodotti.php}, \texttt{prodotto.php}, \texttt{login.php}, \texttt{signup.php}, \texttt{logout.php}, \texttt{area\_personale.php}) e hanno il solo compito di caricare l'autoloader e di delegare al servizio pertinente la costruzione della pagina. La logica applicativa è organizzata in \texttt{src/}.
 
 Il rendering è orchestrato dalla classe \texttt{App\textbackslash Core\textbackslash PageBuilder}, che inizializza la sessione, verifica la disponibilità dei servizi essenziali (autenticazione e database) e compone l'output finale integrando \emph{head}, \emph{header}, \emph{footer} e contenuto specifico della pagina. Le parti comuni dell'interfaccia sono costruite dai \emph{builder} in \texttt{App\textbackslash View} (\texttt{HeadBuilder}, \texttt{HeaderBuilder}, \texttt{FooterBuilder}), richiamati dal \texttt{PageBuilder} o dai servizi quando necessario. Questa scelta elimina duplicazioni tra pagine e consente modifiche centralizzate del layout.
  
