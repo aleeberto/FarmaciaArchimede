@@ -534,6 +534,7 @@ body #pagination-container {
     list-style: none;
     display: flex;
     gap: 0.5rem;
+    margin-top: 0;
 }
 
 /* Paginazione centrata e sempre allo stesso punto orizzontale */
@@ -551,6 +552,7 @@ body #pagination-container {
     width: 64px;
     height: 64px;
     display: block;
+    color: var(--tertiary-accent-bg);
 }
 
 /* DETAIL PAGE */
@@ -1267,7 +1269,6 @@ ul.area-personale-menu {
 body #tipologia,
 body #search-box input,
 body input[type="submit"] {
-    color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     padding: 5px 10px;
@@ -1276,7 +1277,7 @@ body input[type="submit"] {
 }
 
 body input[type="submit"] {
-    background-color: var(--primary-accent-bg);
+    background-color: var(--secondary-accent-bg);
     border: none;
 }
 
@@ -1289,6 +1290,29 @@ body input[type="submit"]:focus {
 
 .radio { display: block; margin-block: .25rem; }
 .radio input { margin-right: .5rem; }
+
+input[type="radio"] {
+    appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--primary-bg);
+    cursor: pointer;
+    place-content: center;
+}
+
+/* Stato selezionato: cerchio pieno */
+input[type="radio"]:checked {
+    background: var(--secondary-accent-bg);
+    border-color: var(--secondary-accent-bg);
+}
+
+/* Focus */
+input[type="radio"]:focus-visible {
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
 
 /* Hover per submit e search input se vuoi un effetto simile ai bottoni */
 body input[type="submit"]:hover,
