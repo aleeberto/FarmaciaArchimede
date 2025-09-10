@@ -1,20 +1,7 @@
-<p id="prod-table-desc" class="visually-hidden">
-  Tabella di gestione prodotti: colonne per ID, Nome, Produttore, Prezzo, Disponibilità e Azioni (modifica/elimina).
+<p id="prod-cards-desc" class="visually-hidden">
+  Elenco di schede prodotto: ogni card mostra ID, Nome, Produttore, Prezzo, Disponibilità e Azioni (modifica/elimina).
 </p>
 
-<table class="area-personale-table" aria-describedby="prod-table-desc">
-  <caption class="visually-hidden">Elenco prodotti gestibili dall’amministratore</caption>
-  <thead>
-  <tr>
-    <th scope="col">ID</th>
-    <th scope="col">Nome</th>
-    <th scope="col">Produttore</th>
-    <th scope="col">Prezzo (€)</th>
-    <th scope="col">Disponibilità</th>
-    <th scope="col">Azioni</th>
-  </tr>
-  </thead>
-  <tbody>
+<div class="cards-grid" role="list" aria-describedby="prod-cards-desc">
   {{ products_rows }}
-  </tbody>
-</table>
+</div>

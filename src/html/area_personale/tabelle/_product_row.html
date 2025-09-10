@@ -1,27 +1,50 @@
-<tr id="row-product-{{ id }}">
-    <td>{{ id }}</td>
-    <td>{{ name }}</td>
-    <td>{{ manufacturer }}</td>
-    <td>{{ price }}</td>
-    <td>{{ availability }}</td>
-    <td>
+<article id="card-product-{{ id }}"
+         class="product-card"
+         role="listitem"
+         aria-labelledby="prod-title-{{ id }}"
+         aria-describedby="prod-meta-{{ id }}">
+    <header class="product-card__header">
+        <h3 id="prod-title-{{ id }}" class="product-card__title">
+            {{ name }}
+        </h3>
+        <p class="product-card__manufacturer">
+            <span class="visually-hidden">Produttore:</span> {{ manufacturer }}
+        </p>
+        <p id="prod-meta-{{ id }}" class="visually-hidden">
+            ID {{ id }}, Prezzo {{ price }} euro, Disponibilità {{ availability }}.
+        </p>
+    </header>
+
+    <dl class="product-card__details">
+        <div class="row">
+            <dt>ID</dt><dd>{{ id }}</dd>
+        </div>
+        <div class="row">
+            <dt>Prezzo</dt><dd><span aria-label="{{ price }} euro">{{ price }} €</span></dd>
+        </div>
+        <div class="row">
+            <dt>Disponibilità</dt>
+            <dd>
+                <span class="badge {{ availability_class }}" aria-live="polite">{{ availability }}</span>
+            </dd>
+        </div>
+    </dl>
+
+    <div class="product-card__actions">
         <a class="btn-edit"
            href="modifica.php?id={{ id }}"
            aria-label="Modifica prodotto: {{ name }} (ID {{ id }})">
             Modifica
         </a>
 
-        <form class="delete-form" action="delete.php" method="post" data-row="#row-product-{{ id }}">
+        <form class="delete-form" action="delete.php" method="post" data-row="#card-product-{{ id }}">
             <input type="hidden" name="csrf_token" value="{{ csrf }}" />
             <input type="hidden" name="type" value="product" />
             <input type="hidden" name="id" value="{{ id }}" />
-
-            <!-- RIMOSSO lo span esterno con id=del-desc-{{id}} -->
             <button type="submit" class="btn-delete">
                 Elimina
-                <span class="visually-hidden"> prodotto: {{ name }} (ID {{ id }})</span>
+                <span class="visually-hidden">prodotto: {{ name }} (ID {{ id }})</span>
             </button>
         </form>
-    </td>
-
-</tr>
+    </div>
+</article>

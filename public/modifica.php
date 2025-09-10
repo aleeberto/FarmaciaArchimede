@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $breadcrumb_product = $product_id
         ? sprintf(
-            '<a href="/prodotto.php?id=%s">%s</a>',
+            '<a href="prodotto.php?id=%s">%s</a>',
             htmlspecialchars($product_id, ENT_QUOTES),
             htmlspecialchars($data['short_name'], ENT_QUOTES)
         )
@@ -213,7 +213,7 @@ if ($hasErrors) {
 
     $breadcrumb_product = $product_id
         ? sprintf(
-            '<a href="/prodotto.php?id=%s">%s</a>',
+            '<a href="prodotto.php?id=%s">%s</a>',
             htmlspecialchars($product_id, ENT_QUOTES),
             htmlspecialchars($data['short_name'], ENT_QUOTES)
         )
@@ -263,9 +263,9 @@ if ($product_id) {
         'type'    => 'success',
         'message' => 'Il nuovo prodotto è stato inserito correttamente.',
     ];
-    header('Location: /prodotti.php');
+    header('Location: prodotti.php');
     exit;
 }
 
-header('Location: /modifica.php?id=' . $product_id);
+header('Location: modifica.php?id=' . $product_id);
 exit;
