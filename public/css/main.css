@@ -14,6 +14,10 @@
     --secondary-accent-bg: #9ceaac;
     --tertiary-accent-bg: #80d2a3;
 
+    --card-border-color: rgba(0,0,0,.32);   /* lati */
+    --card-border-strong: rgba(0,0,0,.42);  /* top/bottom più marcati */
+
+
     /* link */
     /* Link armonizzati */
     --non-visited-link: #1a5e3f; /* verde scuro puro */
@@ -57,6 +61,9 @@
     --primary-accent-bg:   #0F2F25;  /* più scuro → migliore contrasto col testo chiaro */
     --secondary-accent-bg: #2BAA74;  /* pulsanti/CTA su dark */
     --tertiary-accent-bg:  #1E7E59;  /* hover di pulsanti/CTA */
+
+    --card-border-color: rgba(255,255,255,.28);
+    --card-border-strong: rgba(255,255,255,.42);
 
     /* Link */
     --non-visited-link: #9BE5BF;     /* link su dark (≥ 7:1 su primary-bg) */
@@ -954,7 +961,6 @@ th {
     background-color: var(--secondary-accent-bg);
 }
 
-/* TOGGLE THEME OVERRIDE senza !important */
 .icon-btn {
     display: inline-flex;
     align-items: center;
@@ -1209,7 +1215,6 @@ ul.area-personale-menu {
     height: 100%;
 }
 
-/* Resto del CSS rimane invariato */
 .opening-table {
     width: 100%;
     border-collapse: collapse;
@@ -1248,12 +1253,6 @@ ul.area-personale-menu {
     padding-left: 25px;
     position: relative;
 }
-/* non usare content
-.accessibility-list li::before {
-    content: "✓";
-    position: absolute;
-    left: 5px;
-} */
 
 @media (max-width: 768px) {
     .contact-grid {
@@ -1717,4 +1716,167 @@ input[type="submit"][disabled]:hover
     cursor: inherit;
     background-color: #ddd;
     background: #ddd;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-inline: 1rem;  /* spazio laterale */
+    margin-block: 1rem;   /* spazio sopra/sotto */
+}
+@media (min-width: 600px) {
+    .cards-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+}
+
+/* Card base con bordo più visibile sopra/sotto */
+.product-card {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+
+    /* contorno: top/bottom più marcati, lati leggermente più tenui */
+    border-top: 2px solid var(--card-border-strong);
+    border-bottom: 2px solid var(--card-border-strong);
+    border-left: 1.5px solid var(--card-border-color);
+    border-right: 1.5px solid var(--card-border-color);
+
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
+    padding: 1rem;
+    transition:
+            box-shadow .15s ease,
+            transform .12s ease,
+            background-color .15s ease,
+            border-color .15s ease;
+}
+.product-card:hover,
+.product-card:focus-within {
+    background-color: var(--active-hover-color);
+    /* mantieni i bordi ben contrastati anche in hover/focus */
+    border-top-color: var(--card-border-strong);
+    border-bottom-color: var(--card-border-strong);
+    border-left-color: var(--card-border-color);
+    border-right-color: var(--card-border-color);
+
+    box-shadow: 0 3px 12px var(--shadow-color-hover);
+    transform: translateY(-1px);
+}
+.product-card:focus-within {
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
+
+/* Intestazione card */
+.product-card__header { margin-bottom: .5rem; }
+.product-card__title {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin: 0 0 .25rem 0;
+    color: var(--non-visited-link);
+}
+.product-card__manufacturer {
+    margin: 0;
+    color: var(--muted-text, var(--primary-text));
+}
+
+/* Dettagli (DL etichetta/valore) */
+.product-card__details { margin: .75rem 0 1rem; }
+.product-card__details .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .5rem 1rem;
+    align-items: baseline;
+    padding: .35rem 0;
+    border-top: 1px dashed var(--card-border-color);
+}
+.product-card__details .row:first-child { border-top: 0; }
+.product-card__details dt { font-weight: 600; color: var(--primary-text); }
+.product-card__details dd { margin: 0; text-align: right; color: var(--primary-text); }
+
+/* Badge disponibilità */
+.badge {
+    display: inline-block;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    font-size: .9rem;
+    line-height: 1;
+    color: var(--primary-text);
+    box-shadow: 0 1px 2px var(--shadow-color);
+}
+.badge.is-available { background: var(--secondary-accent-bg); }
+.badge.is-low       { background: var(--tertiary-accent-bg);  }
+/* "Esaurito" coerente con gli alert rossi */
+.badge.is-out {
+    background-color: rgba(220, 53, 69, .12);
+    border-color: rgba(220, 53, 69, .4);
+    color: var(--primary-text);
+}
+
+/* Azioni card */
+.product-card__actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+/* Bottoni coerenti (edit/delete) — scope limitato alla card */
+.product-card .btn-edit,
+.product-card .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem .75rem;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+            background-color .15s ease,
+            transform .12s ease,
+            box-shadow .15s ease,
+            outline .15s ease;
+    box-shadow: 0 2px 3px var(--shadow-color);
+}
+
+/* Edit = verde della palette */
+.product-card .btn-edit {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+}
+.product-card .btn-edit:hover,
+.product-card .btn-edit:focus-visible {
+    background-color: var(--tertiary-accent-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-color-hover);
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
+
+/* Delete = rosso consistente con il resto del sito */
+.product-card .btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: transparent;
+}
+.product-card .btn-delete:hover,
+.product-card .btn-delete:focus-visible {
+    background-color: #a71d2a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--shadow-color-hover);
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
+
+/* Form elimina allineato senza margini extra */
+.product-card .delete-form { margin: 0; padding: 0; }
+
+/* Stati disabilitati coerenti */
+.product-card .btn-edit[aria-disabled="true"],
+.product-card .btn-delete:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
