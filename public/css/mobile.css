@@ -244,7 +244,8 @@
         height: 150px;
     }
 
-    .alert {
+    .alert,
+    .main-content > .alert {
         flex: 1 0;
     }
 

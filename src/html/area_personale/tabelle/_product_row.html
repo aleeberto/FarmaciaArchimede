@@ -1,12 +1,12 @@
-<article id="card-product-{{ id }}"
+<li id="card-product-{{ id }}"
          class="product-card"
          role="listitem"
          aria-labelledby="prod-title-{{ id }}"
          aria-describedby="prod-meta-{{ id }}">
     <header class="product-card__header">
-        <h3 id="prod-title-{{ id }}" class="product-card__title">
+        <h2 id="prod-title-{{ id }}" class="product-card__title">
             {{ name }}
-        </h3>
+        </h2>
         <p class="product-card__manufacturer">
             <span class="visually-hidden">Produttore:</span> {{ manufacturer }}
         </p>
@@ -20,7 +20,10 @@
             <dt>ID</dt><dd>{{ id }}</dd>
         </div>
         <div class="row">
-            <dt>Prezzo</dt><dd><span aria-label="{{ price }} euro">{{ price }} €</span></dd>
+            <dt>Prezzo</dt>
+            <dd>
+                <data class="price" value="18.89">18.89 €</data>
+            </dd>
         </div>
         <div class="row">
             <dt>Disponibilità</dt>
@@ -47,4 +50,4 @@
             </button>
         </form>
     </div>
-</article>
+</li>

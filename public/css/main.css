@@ -44,6 +44,18 @@
     --error-shadow-h:var(--shadow-color-hover, rgba(0,0,0,.2));
     --error-border:  var(--border-color, rgba(0,0,0,.2));
 
+    --alert-success-bg: rgba(40, 167, 69, .12);
+    --alert-success-bd: rgba(40, 167, 69, .4);
+    --alert-success-fg: #0f5132;
+
+    --alert-error-bg: rgba(220, 53, 69, .12);
+    --alert-error-bd: rgba(220, 53, 69, .4);
+    --alert-error-fg: #842029;
+
+    --alert-info-bg: rgba(13, 110, 253, .12);
+    --alert-info-bd: rgba(13, 110, 253, .4);
+    --alert-info-fg: #084298;
+
 }
 
 :root[data-theme="dark"] {
@@ -86,6 +98,18 @@
     --success-bg: #0E2E24;
     --warning-bg: #2E260E;
     --error-bg:   #2E1515;
+
+    --alert-success-bg: rgba(25, 135, 84, .22);
+    --alert-success-bd: rgba(25, 135, 84, .55);
+    --alert-success-fg: #9adbb3;
+
+    --alert-error-bg: rgba(220, 53, 69, .18);
+    --alert-error-bd: rgba(220, 53, 69, .55);
+    --alert-error-fg: #f1aeb5;
+
+    --alert-info-bg: rgba(13, 110, 253, .18);
+    --alert-info-bd: rgba(13, 110, 253, .55);
+    --alert-info-fg: #9ec5fe;
 }
 
 /* Layout di base */
@@ -1084,24 +1108,20 @@ header nav ul.flex-container > li:last-child > a {
     margin: 10px 20px;
     flex: 1 1 100%;
 }
-/* --- SUCCESSO --- */
 .alert.success {
-    background-color: rgba(40, 167, 69, .12);
-    border-color: rgba(40, 167, 69, .4);
-    color: #0f5132;
+    background-color: var(--alert-success-bg);
+    border-color: var(--alert-success-bd);
+    color: var(--alert-success-fg);
 }
-
-/* --- ERRORE --- */
 .alert.error {
-    background-color: rgba(220, 53, 69, .12);
-    border-color: rgba(220, 53, 69, .4);
-    color: #842029;
+    background-color: var(--alert-error-bg);
+    border-color: var(--alert-error-bd);
+    color: var(--alert-error-fg);
 }
-
 .alert.info {
-    background-color: rgba(13, 110, 253, .12);  /* blu chiaro */
-    border-color: rgba(13, 110, 253, .4);       /* blu più scuro */
-    color: #084298;                             /* testo blu intenso */
+    background-color: var(--alert-info-bg);
+    border-color: var(--alert-info-bd);
+    color: var(--alert-info-fg);
 }
 
 ul.area-personale-menu {
