@@ -6,33 +6,33 @@
 Il sito non presenta un elevata profondità di navigazione, in quanto quasi tutte le pagine sono raggiungibili dalla home page tramite il menu di navigazione principale. Le uniche eccezioni sono rappresentate dalle pagine di dettaglio dei prodotti, che sono accessibili solo dalla pagina di elenco prodotti e quella dell area personale, accessibile dopo il login.
 
 \begin{itemize}
-    \item TODO
+    \item \textbf{Home} Il suo scopo principale é quello di landing page, con un messaggio di benvenuto e una breve descrizione del sito, con presentazione del team e degli obiettivi.
+    \item \textbf{Prodotti} La pagina di elenco prodotti mostra una lista di tutti i prodotti disponibili, con la possibilitá di filtrare per tipologia e di cercare il nome del prodotto Ogni prodotto é rappresentato da una card che mostra un'anteprima delle informazioni principali.
+    \begin{itemize}
+        \item \textbf{Prodotto} La pagina di dettaglio del prodotto presenta informazioni specifiche sul prodotto selezionato come nome, prezzo, produttore, disponibilitá, descrizione e codice AIC.
+    \end{itemize}
+    \item \textbf{Chi Siamo} La pagina presenta il team di dipendenti della farmacia, con una foto seguita da una breve descrizione di conoscenze e mansioni.
+    \item \textbf{Contatti} La pagina fornisce informaizoni su come contattare la farmacia, inclusi indirizzo, numero di telefono, email e orari di apertura. Inoltre é presente una mappa con descrizione per persone con disabilitá visive.
+    \item \textbf{Area Personale} La pagina dell'area personale consente agli utenti di gestire il proprio profilo, visualizzare la cronologia degli ordini e le informazioni di pagamento. Questa pagina é accessibile solo dopo il login. Inoltre consente ai gestori di aggiungere, modificare o rimuovere prodotti dal catalogo.
 \end{itemize}
 
 \subsection{Layout e contenuti delle pagine}
 
-TODO
+Abbiamo deciso di strutturare il sito generando le pagine tramite dei template HTML, questo ci é stato di aiuto per mantenere una coerenza stilistica tra le varie pagine e per facilitare la manutenzione del codice. Ogni pagina é composta da tre sezioni principali: header, breadcrumb, contenuto principale e footer. L'header e il footer sono comuni a tutte le pagine, mentre il contenuto principale e il breadcrumb varia a seconda della pagina.
 
 \subsection{Elementi comuni}
 
-TODO
-
 \subsubsection{Header}
 
-TODO
-
+Nell Header é presente il logo del sito che funge da link alla home page, il menu di navigazione principale con i link alle pagine principali del sito, un'icona per l'accesso all'area personale e un pulsante per il passaggio da modalitá scura a modalitá chiara. L'header é progettato per essere responsive, adattandosi a diverse dimensioni di schermo e dispositivi. Su schermi piú piccoli, il menu di navigazione si trasforma in un'icona "hamburger" che apre un menu a discesa quando cliccata.
 \subsubsection{Footer}
 
-TODO
+Nel footer é presente informazioni di contatto della farmacia come numero di telefono e email, l'indirizzo fisico e la partita iva. Inolte é riportata la tebella degli orari della farmacia. Compresa le indicazioni di copyright.
 
 \subsubsection{Breadcrumb}
 
-TODO
+Per agevolare agli utenti la navigazione all'interno del sito, in particolare per coloro che utilizzano tecnologie assistive, ogni pagina (tranne area personale)include un elemento breadcrumb. Questo elemento mostra il percorso di navigazione dall'homepage alla pagina corrente, consentendo agli utenti di comprendere facilmente la loro posizione all'interno della struttura del sito e di tornare rapidamente a pagine precedenti se necessario.
 
 \subsection{Emotional Design}
 
-TODO
-
-\subsection{Suddivisione del lavoro}
-
-TODO
+Abbiamo pensato di utiliazzare un design che trasmetta fiducia e professionalitá, in linea con l'immagine di una farmacia. Per questo motivo abbiamo scelto una combinazione di colori che include il verde, associato alla salute e al benessere, e il bianco, che evoca pulizia e purezza. Inoltre nella pagina chi siamo abbiamo inserito delle foto del team, con una breve descrizione e frase per umanizzare l'esperienza e creare un senso di connessione con gli utenti.
