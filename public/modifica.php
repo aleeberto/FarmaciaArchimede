@@ -37,11 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($product_id) {
         $prod = $productService->getProductByID($product_id);
         if (!$prod) {
-            $_SESSION['flash_message'] = [
-                'type'    => 'error',
-                'message' => 'Il prodotto richiesto non è stato trovato.',
-            ];
-            header('Location: /prodotti.php');
+            header('Location: 404.php');
             exit;
         }
         $data = [
@@ -140,7 +136,7 @@ if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ER
     } catch (Exception $e) {
         $randomName = uniqid('img_', true) . '.' . $ext;
     }
-    $target = __DIR__ . '/../public/assets/img/' . $randomName;
+    $target = __DIR__ . '../public/assets/img/' . $randomName;
 
     if (move_uploaded_file($tmp, $target)) {
         $image_path = $randomName;

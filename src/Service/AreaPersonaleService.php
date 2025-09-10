@@ -173,11 +173,11 @@ class AreaPersonaleService
         $csrf = $this->ensureCsrfToken();
 
         // 3) Carica template
-        $tableTpl = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/all_products.html');
+        $tableTpl = file_get_contents(__DIR__ . '/../html/area_personale/card/all_products.html');
         if ($tableTpl === false) {
             throw new \RuntimeException("Template non trovato: all_products.html");
         }
-        $rowTpl = file_get_contents(__DIR__ . '/../html/area_personale/tabelle/_product_row.html');
+        $rowTpl = file_get_contents(__DIR__ . '/../html/area_personale/card/_product_row.html');
         if ($rowTpl === false) {
             throw new \RuntimeException("Template non trovato: _product_row.html");
         }
@@ -238,9 +238,9 @@ class AreaPersonaleService
         $csrf = $this->ensureCsrfToken();
 
         // Template (wrapper + row specifico per ruolo)
-        $tableTplPath = __DIR__ . '/../html/area_personale/tabelle/all_users.html';
-        $rowTplAdmin  = __DIR__ . '/../html/area_personale/tabelle/_user_row.html';
-        $rowTplPublic = __DIR__ . '/../html/area_personale/tabelle/_user_row_public.html';
+        $tableTplPath = __DIR__ . '/../html/area_personale/card/all_users.html';
+        $rowTplAdmin  = __DIR__ . '/../html/area_personale/card/_user_row.html';
+        $rowTplPublic = __DIR__ . '/../html/area_personale/card/_user_row_public.html';
 
         $tableTpl = file_get_contents($tableTplPath);
         if ($tableTpl === false) {
