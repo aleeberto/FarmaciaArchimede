@@ -1739,16 +1739,15 @@ input[type="submit"][disabled]:hover
 }
 
 .cards-grid {
+    padding: 0;
+    list-style: none;
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
     margin-inline: 1rem;  /* spazio laterale */
     margin-block: 1rem;   /* spazio sopra/sotto */
+    margin: 1em;
 }
-@media (min-width: 600px) {
-    .cards-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-}
-
 /* Card base con bordo più visibile sopra/sotto */
 .product-card {
     background: var(--primary-bg);

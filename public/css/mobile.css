@@ -525,3 +525,7 @@
         text-align: center;
     }
 }
+
+@media (min-width: 600px) {
+    .cards-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+}
