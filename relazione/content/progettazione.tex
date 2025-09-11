@@ -3,18 +3,53 @@
 
 \subsection{Struttura del sito}
 
-Il sito non presenta un elevata profondità di navigazione, in quanto quasi tutte le pagine sono raggiungibili dalla home page tramite il menu di navigazione principale. Le uniche eccezioni sono rappresentate dalle pagine di dettaglio dei prodotti, che sono accessibili solo dalla pagina di elenco prodotti e quella dell area personale, accessibile dopo il login.
+Il sito non presenta un elevata profondità di navigazione, in quanto quasi tutte le pagine sono raggiungibili dalla home page tramite il menu di navigazione principale. Le uniche eccezioni sono rappresentate dalle pagine di dettaglio dei prodotti, che sono accessibili solo dalla pagina di elenco prodotti e quella dell'area personale, accessibile dopo il login.
 
 \begin{itemize}
-    \item \textbf{Home} Il suo scopo principale é quello di landing page, con un messaggio di benvenuto e una breve descrizione del sito, con presentazione del team e degli obiettivi.
-    \item \textbf{Prodotti} La pagina di elenco prodotti mostra una lista di tutti i prodotti disponibili, con la possibilitá di filtrare per tipologia e di cercare il nome del prodotto Ogni prodotto é rappresentato da una card che mostra un'anteprima delle informazioni principali.
+    \item \textbf{Home}: Il suo scopo principale è quello di landing page, con un messaggio di benvenuto e una breve descrizione del sito, con presentazione del team e degli obiettivi.
+    \item \textbf{Prodotti}: La pagina di elenco prodotti mostra una lista di tutti i prodotti disponibili, con la possibilità di filtrare per tipologia e di cercare il nome del prodotto. Ogni prodotto è rappresentato da una card che mostra un'anteprima delle informazioni principali.
     \begin{itemize}
-        \item \textbf{Prodotto} La pagina di dettaglio del prodotto presenta informazioni specifiche sul prodotto selezionato come nome, prezzo, produttore, disponibilitá, descrizione e codice AIC.
+        \item \textbf{Prodotto}: La pagina di dettaglio del prodotto presenta informazioni specifiche sul prodotto selezionato, come nome, prezzo, produttore, disponibilità, descrizione e codice AIC.
     \end{itemize}
-    \item \textbf{Chi Siamo} La pagina presenta il team di dipendenti della farmacia, con una foto seguita da una breve descrizione di conoscenze e mansioni.
-    \item \textbf{Contatti} La pagina fornisce informaizoni su come contattare la farmacia, inclusi indirizzo, numero di telefono, email e orari di apertura. Inoltre é presente una mappa con descrizione per persone con disabilitá visive.
-    \item \textbf{Area Personale} La pagina dell'area personale consente agli utenti di gestire il proprio profilo, visualizzare la cronologia degli ordini e le informazioni di pagamento. Questa pagina é accessibile solo dopo il login. Inoltre consente ai gestori di aggiungere, modificare o rimuovere prodotti dal catalogo.
+    \item \textbf{Chi Siamo}: La pagina presenta il team di dipendenti della farmacia, con una foto seguita da una breve descrizione di conoscenze e mansioni.
+    \item \textbf{Contatti}: La pagina fornisce informazioni su come contattare la farmacia, inclusi indirizzo, numero di telefono, email e orari di apertura. Inoltre è presente una mappa con descrizione per persone con disabilità visive.
+    \item \textbf{Area Personale}: La pagina consente agli utenti di gestire il proprio profilo, visualizzare la cronologia degli ordini e le informazioni di pagamento. Questa pagina è accessibile solo dopo il login.
+    \begin{itemize}
+        \item \textbf{I miei dati}: Sezione che consente all’utente di visualizzare e modificare i propri dati personali.
+        \item \textbf{Gestione}: Sezione dedicata ai gestori, che consente di amministrare il catalogo e gli utenti registrati.
+        \begin{itemize}
+            \item \textbf{Gestione utenti}: Permette di visualizzare, modificarne il proprio o eliminare gli account degli utenti.
+            \item \textbf{Gestione prodotti}: Consente di aggiungere, modificare o rimuovere prodotti dal catalogo.
+        \end{itemize}
+    \end{itemize}
 \end{itemize}
+
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  every node/.style = {rectangle, draw=black, align=center, font=\small},
+  level distance=12mm,
+  sibling distance=25mm,
+  edge from parent/.style = {draw, -latex}
+]
+
+\node {Home}
+  child { node {Prodotti}
+    child { node {Prodotto\\(dettaglio)} }
+  }
+  child { node {Chi Siamo} }
+  child { node {Contatti} }
+  child { node {Area Personale\\(dopo login)}
+    child { node {I miei dati} }
+    child { node {Gestione}
+      child { node {Utenti} }
+      child { node {Prodotti} }
+    }
+  };
+
+\end{tikzpicture}
+\end{figure}
 
 \subsection{Layout e contenuti delle pagine}
 
