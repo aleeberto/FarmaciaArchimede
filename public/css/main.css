@@ -1182,6 +1182,7 @@ ul.area-personale-menu {
     color: var(--primary-text, #000);
 }
 
+
 /* CONTATTI PAGE STYLES TODO TODO TODO*/
 /* CONTATTI PAGE STYLES */
 .contact-grid {
@@ -1894,6 +1895,152 @@ input[type="submit"][disabled]:hover
 /* Stati disabilitati coerenti */
 .product-card .btn-edit[aria-disabled="true"],
 .product-card .btn-delete:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+
+.user-card {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+
+    border-top: 2px solid var(--card-border-strong);
+    border-bottom: 2px solid var(--card-border-strong);
+    border-left: 1.5px solid var(--card-border-color);
+    border-right: 1.5px solid var(--card-border-color);
+
+    border-radius: 16px;
+    box-shadow: 0 2px 6px var(--shadow-color);
+    padding: 1rem;
+    margin: .5rem 0; /* un po' di aria verticale */
+    transition:
+            box-shadow .15s ease,
+            transform .12s ease,
+            background-color .15s ease,
+            border-color .15s ease;
+}
+.user-card:hover,
+.user-card:focus-within {
+    background-color: var(--active-hover-color);
+    border-top-color: var(--card-border-strong);
+    border-bottom-color: var(--card-border-strong);
+    border-left-color: var(--card-border-color);
+    border-right-color: var(--card-border-color);
+
+    box-shadow: 0 3px 12px var(--shadow-color-hover);
+    transform: translateY(-1px);
+}
+.user-card:focus-within {
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
+
+/* Intestazione */
+.user-card__header { margin-bottom: .5rem; }
+.user-card__title {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin: 0 0 .25rem 0;
+    color: var(--non-visited-link);
+}
+.user-card__email {
+    margin: 0;
+    color: var(--muted-text, var(--primary-text));
+}
+.user-card__email a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* Dettagli */
+.user-card__details { margin: .75rem 0 1rem; }
+.user-card__details .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .5rem 1rem;
+    align-items: baseline;
+    padding: .35rem 0;
+    border-top: 1px dashed var(--card-border-color);
+}
+.user-card__details .row:first-child { border-top: 0; }
+.user-card__details dt { font-weight: 600; color: var(--primary-text); }
+.user-card__details dd { margin: 0; text-align: right; color: var(--primary-text); }
+
+/* Badge ruolo (coerente con badge disponibilità) */
+.badge {
+    display: inline-block;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    font-size: .9rem;
+    line-height: 1;
+    color: var(--primary-text);
+    box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+/* Azioni */
+.user-card__actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.user-card .btn-edit,
+.user-card .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem .75rem;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+            background-color .15s ease,
+            transform .12s ease,
+            box-shadow .15s ease,
+            outline .15s ease;
+    box-shadow: 0 2px 3px var(--shadow-color);
+}
+
+/* Edit = verde (come product) */
+.user-card .btn-edit {
+    background-color: var(--secondary-accent-bg);
+    color: var(--primary-text);
+}
+.user-card .btn-edit:hover,
+.user-card .btn-edit:focus-visible {
+    background-color: var(--tertiary-accent-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-color-hover);
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
+
+/* Delete = rosso coerente */
+.user-card .btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: transparent;
+}
+.user-card .btn-delete:hover,
+.user-card .btn-delete:focus-visible {
+    background-color: #a71d2a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px var(--shadow-color-hover);
+    outline: 3px solid var(--outline-color);
+    outline-offset: 2px;
+}
+
+/* Form elimina allineato */
+.user-card .delete-form { margin: 0; padding: 0; }
+
+/* Stati disabilitati */
+.user-card .btn-edit[aria-disabled="true"],
+.user-card .btn-delete:disabled {
     opacity: .55;
     cursor: not-allowed;
     box-shadow: none;

@@ -3,22 +3,27 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Core\Auth;
+use App\Core\Auth;           // se esiste già nel tuo progetto
 use App\Core\Database;
+use App\Service\AuthService; // <-- importa il servizio
 use App\Service\DeleteService;
 
 Auth::requireLogin();
 Auth::requireAdmin();
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $type = $_POST['type'] ?? '';
 $id   = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
-$db = Database::getInstance(
-    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
-);
-$svc = new DeleteService($db);
+
+$db   = Database::getInstance('localhost', 'gbarison', 'SaSoo9chahNguuCh', 'gbarison');
+$auth = new AuthService($db);
+$svc  = new DeleteService($db);
+
+$currentUserId = $auth->getUserId() ?? 0;
 
 try {
     switch ($type) {
@@ -29,7 +34,8 @@ try {
             $svc->deleteOrder($id);
             break;
         case 'user':
-            $svc->deleteUser($id, Auth::getUserId());
+            // <<< PRIMA mancava il secondo argomento
+            $svc->deleteUser($id, $currentUserId);
             break;
         default:
             throw new RuntimeException("Tipo non valido.");

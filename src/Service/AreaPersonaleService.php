@@ -237,18 +237,17 @@ class AreaPersonaleService
         // CSRF
         $csrf = $this->ensureCsrfToken();
 
-        // Template (wrapper + row specifico per ruolo)
-        $tableTplPath = __DIR__ . '/../html/area_personale/card/all_users.html';
-        $rowTplAdmin  = __DIR__ . '/../html/area_personale/card/_user_row.html';
-        $rowTplPublic = __DIR__ . '/../html/area_personale/card/_user_row_public.html';
+        // Template: un solo row template (niente *_public.html)
+        $listTplPath = __DIR__ . '/../html/area_personale/card/all_users.html';
+        $rowTplPath  = __DIR__ . '/../html/area_personale/card/_user_row.html';
 
-        $tableTpl = file_get_contents($tableTplPath);
-        if ($tableTpl === false) {
+        $listTpl = file_get_contents($listTplPath);
+        if ($listTpl === false) {
             throw new \RuntimeException('Template non trovato: all_users.html');
         }
-        $rowTpl = file_get_contents($iAmAdmin ? $rowTplAdmin : $rowTplPublic);
+        $rowTpl = file_get_contents($rowTplPath);
         if ($rowTpl === false) {
-            throw new \RuntimeException('Template non trovato: ' . ($iAmAdmin ? '_user_row.html' : '_user_row_public.html'));
+            throw new \RuntimeException('Template non trovato: _user_row.html');
         }
 
         // Costruzione righe
@@ -269,33 +268,30 @@ class AreaPersonaleService
                 $row->insert('email',    htmlspecialchars((string)$u['email']));
                 $row->insert('tax_code', htmlspecialchars((string)$u['tax_code']));
                 $row->insert('role',     $isAdmin ? 'Admin' : 'Utente');
-
-                // Modifica: consentita SOLO su se stessi; altri = controllo disabilitato (non interattivo)
-                if ($isSelf) {
-                    $row->insert('edit_control', '<a class="btn-edit" href="http://localhost/area_personale.php?section=dati">Modifica</a>');
-                } else {
-                    $row->insert('edit_control', '<span class="btn-edit is-disabled" aria-disabled="true" title="Puoi modificare solo il tuo profilo">Modifica</span>');
-                }
-
-                // Elimina: disabilitato se me stesso
-                $row->insert('delete_disabled', $isSelf ? 'disabled aria-disabled="true"' : '');
             } else {
-                // Vista non-admin: dati sensibili oscurati, nessuna modifica
+                // Vista non-admin: dati sensibili oscurati
                 $row->insert('email',    '—');
                 $row->insert('tax_code', '—');
                 $row->insert('role',     '—');
-
-                // Elimina: posso eliminare altri utenti, non me stesso
-                $row->insert('delete_disabled', $isSelf ? 'disabled aria-disabled="true"' : '');
             }
+            if ($isSelf) {
+                $row->insert(
+                    'edit_control',
+                    '<a class="btn-edit" href="?section=dati">Modifica</a>'
+                );
+            } else {
+                $row->insert('edit_control', '');
+            }
+
+            $row->insert('delete_disabled', $isSelf ? 'disabled aria-disabled="true"' : '');
 
             $rowsHtml .= $row->build();
         }
 
         // Wrapper
-        $table = new Template('all_users', $tableTpl);
-        $table->insert('users_rows', $rowsHtml);
-        return $table->build();
+        $list = new Template('all_users', $listTpl);
+        $list->insert('users_rows', $rowsHtml);
+        return $list->build();
     }
 
     /**

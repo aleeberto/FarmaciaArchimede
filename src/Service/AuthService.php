@@ -145,4 +145,19 @@ class AuthService
             // session_write_close(); // chiudi se vuoi forzare la scrittura immediata
         }
     }
+
+    // dentro class AuthService
+    public function getUserId(): ?int
+    {
+        $u = $this->getUser();
+        return $u ? $u->getId() : null;
+    }
+
+    public function isCurrentUserAdmin(): bool
+    {
+        $u = $this->getUser();
+        return $u ? $u->isAdmin() : false;
+    }
+
+
 }

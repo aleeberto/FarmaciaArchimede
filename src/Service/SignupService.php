@@ -96,12 +96,12 @@ class SignupService extends HeaderBuilder
 
         // Auto-login e redirect area personale
         if ($this->auth->login($email, $pwd)) {
-            header('Location: /area_personale.php');
+            header('Location: area_personale.php');
             exit;
         }
 
         // Fallback: auto-login non riuscito
-        header('Location: /login.php?registered=1');
+        header('Location: login.php?registered=1');
         exit;
     }
 

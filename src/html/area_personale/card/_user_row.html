@@ -1,16 +1,57 @@
-<tr>
-    <td>{{ id }}</td>
-    <td>{{ first_name }}</td>
-    <td>{{ last_name }}</td>
-    <td>{{ email }}</td>
-    <td>{{ tax_code }}</td>
-    <td>{{ role }}</td>
-    <td class="actions">
+<li id="card-user-{{ id }}"
+    class="user-card"
+    aria-labelledby="user-title-{{ id }}"
+    aria-describedby="user-meta-{{ id }}">
+    <header class="user-card__header">
+        <h2 id="user-title-{{ id }}" class="user-card__title">
+            {{ first_name }} {{ last_name }}
+        </h2>
+        <p class="user-card__email">
+            <span class="visually-hidden">Email:</span>
+            <a href="mailto:{{ email }}">{{ email }}</a>
+        </p>
+        <p id="user-meta-{{ id }}" class="visually-hidden">
+            ID {{ id }}, Codice Fiscale {{ tax_code }}, Ruolo {{ role }}.
+        </p>
+    </header>
+
+    <dl class="user-card__details">
+        <div class="row">
+            <dt>ID</dt><dd>{{ id }}</dd>
+        </div>
+        <div class="row">
+            <dt>Nome</dt><dd>{{ first_name }}</dd>
+        </div>
+        <div class="row">
+            <dt>Cognome</dt><dd>{{ last_name }}</dd>
+        </div>
+        <div class="row">
+            <dt>Email</dt><dd><a href="mailto:{{ email }}">{{ email }}</a></dd>
+        </div>
+        <div class="row">
+            <dt>Codice Fiscale</dt><dd><code>{{ tax_code }}</code></dd>
+        </div>
+        <div class="row">
+            <dt>Ruolo</dt>
+            <dd>
+                <span class="badge role-{{ role_class }}" aria-live="polite">{{ role }}</span>
+            </dd>
+        </div>
+    </dl>
+
+    <div class="user-card__actions">
         {{ edit_control }}
-        <form method="post" action="" class="inline-form">
-            <input type="hidden" name="user_id" value="{{ id }}" />
+
+        <form class="delete-form" action="delete.php" method="post" data-row="#card-user-{{ id }}">
             <input type="hidden" name="csrf_token" value="{{ csrf }}" />
-            <button type="submit" class="btn-delete" {{ delete_disabled }}>Elimina</button>
+            <input type="hidden" name="type" value="user" />
+            <input type="hidden" name="id" value="{{ id }}" />
+            <button type="submit" class="btn-delete" {{ delete_disabled }}>
+                Elimina
+                <span class="visually-hidden">
+          utente: {{ first_name }} {{ last_name }} (ID {{ id }})
+        </span>
+            </button>
         </form>
-    </td>
-</tr>
+    </div>
+</li>

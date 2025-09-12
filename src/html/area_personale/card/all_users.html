@@ -1,22 +1,7 @@
-<p id="users-desc" class="visually-hidden">
-  Tabella dati degli utenti: ogni riga rappresenta un utente; l’ultima colonna contiene azioni
-  come modifica ed eliminazione.
+<p id="user-cards-desc" class="visually-hidden">
+  Elenco di schede utente: ogni card mostra ID, Nome, Cognome, Email, Codice Fiscale, Ruolo e Azioni (modifica/elimina).
 </p>
 
-<table class="area-personale-table" aria-describedby="users-desc">
-  <caption class="visually-hidden">Utenti registrati (ID, email, anagrafica, ruolo e azioni)</caption>
-  <thead>
-  <tr>
-    <th scope="col">ID</th>
-    <th scope="col">Email</th>
-    <th scope="col">Nome</th>
-    <th scope="col">Cognome</th>
-    <th scope="col">Codice Fiscale</th>
-    <th scope="col">Ruolo</th>
-    <th scope="col">Azioni</th>
-  </tr>
-  </thead>
-  <tbody>
+<ul class="cards-grid" aria-describedby="user-cards-desc">
   {{ users_rows }}
-  </tbody>
-</table>
+</ul>

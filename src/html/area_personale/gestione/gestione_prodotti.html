@@ -13,12 +13,19 @@
     </nav>
 
     <h1>Gestione Prodotti</h1>
+
     {{ alert }}
-    <p><a href="?section=gestione" class="btn-back">← Torna indietro</a></p>
+
+    <p>
+        <a href="modifica.php" class="btn-back">Aggiungi nuovo prodotto</a>
+        <a href="?section=gestione" class="btn-back">← Torna indietro</a>
+    </p>
+
+    <h1>Lista Prodotti</h1>
+
     {{ all_products }}
 </main>
 
 {{ footer }}
-
 </body>
 </html>
