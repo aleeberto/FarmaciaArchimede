@@ -1,30 +1,29 @@
 <?php
+declare(strict_types=1);
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\PageBuilder;
+use App\Core\Image;
 use App\Service\ProductService;
 
-// Proteggi la rotta
+const IMG_DIR = __DIR__ . '/../public/assets/img';
+const IMG_BASE_URL = '/assets/img';
+
 Auth::requireLogin();
 Auth::requireAdmin();
 
-// Connessione al DB
-$db = Database::getInstance(
-    'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
-);
-
+$db = Database::getInstance('localhost', 'gbarison', 'SaSoo9chahNguuCh', 'gbarison');
 $productService = new ProductService($db);
 
-// Chiavi di errore
 $errorKeys = [
     'product_type_id','short_name','name','manufacturer',
     'aic_code','format','price','availability','image_file'
 ];
 $errors = array_fill_keys($errorKeys, '');
 
-// Recupera product_id da GET o POST
 $product_id = null;
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && ctype_digit($_GET['id'])) {
     $product_id = (int) $_GET['id'];
@@ -32,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && ctype_digit($_
     $product_id = (int) $_POST['product_id'];
 }
 
-// === FASE GET: mostra il form per inserimento o modifica ===
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($product_id) {
         $prod = $productService->getProductByID($product_id);
@@ -51,16 +49,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'availability'    => $prod->availability,
             'description'     => $prod->description,
         ];
-        $previewImageUrl = $prod->imagePath;
+        $existingPath = (string)($prod->imagePath ?? '');
+        $existingStem = $existingPath !== '' ? pathinfo(basename($existingPath), PATHINFO_FILENAME) : '';
+        $pic = Image::resolvePictureSources($existingStem, IMG_DIR, IMG_BASE_URL);
+        $image_jpg_url  = $pic['jpg'];
+        $image_webp_url = $pic['webp'];
     } else {
         $data = array_fill_keys([
             'product_type_id','short_name','name','manufacturer',
             'aic_code','format','price','availability','description'
         ], '');
-        $previewImageUrl = '';
+        $pic = Image::resolvePictureSources('', IMG_DIR, IMG_BASE_URL);
+        $image_jpg_url  = $pic['jpg'];
+        $image_webp_url = $pic['webp'];
     }
 
-    // --- META DINAMICI (GET) ---
     $page_mode = $product_id ? 'Modifica' : 'Inserisci';
     $short     = trim($data['short_name'] ?? '');
     $hasName   = ($short !== '');
@@ -91,21 +94,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'breadcrumb_product'   => $breadcrumb_product,
         'form_action'          => 'modifica.php?id=' . $product_id,
         'errors'               => $errors,
-        'image_url'            => $previewImageUrl,
+        'image_webp_url'       => $image_webp_url,
+        'image_jpg_url'        => $image_jpg_url,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options'       => $productService->renderFormatOptions($data['format']),
-        // META
         'meta_title'           => $meta_title,
         'meta_description'     => $meta_description,
         'meta_keywords'        => $meta_keywords,
-        // UI
         'page_mode'            => $page_mode,
         'submit_label'         => $page_mode,
     ]);
     exit;
 }
 
-// === FASE POST: raccolta dati da form ===
 $post = $_POST;
 $data = [
     'product_type_id' => trim($post['product_type_id'] ?? ''),
@@ -119,35 +120,29 @@ $data = [
     'description'     => trim($post['description']     ?? ''),
 ];
 
-// gestione immagine (nome casuale)
+$image_stem = '';
 if ($product_id) {
     $prod = $productService->getProductByID($product_id);
-    $image_path = $prod->imagePath ? basename($prod->imagePath) : '';
-} else {
-    $image_path = '';
+    $prevPath   = $prod && $prod->imagePath ? basename((string)$prod->imagePath) : '';
+    $image_stem = $prevPath !== '' ? pathinfo($prevPath, PATHINFO_FILENAME) : '';
 }
 
-if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
-    $tmp          = $_FILES['image_file']['tmp_name'];
-    $originalName = $_FILES['image_file']['name'];
-    $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-    try {
-        $randomName = bin2hex(random_bytes(16)) . '.' . $ext;
-    } catch (Exception $e) {
-        $randomName = uniqid('img_', true) . '.' . $ext;
-    }
-    $target = __DIR__ . '../public/assets/img/' . $randomName;
-
-    if (move_uploaded_file($tmp, $target)) {
-        $image_path = $randomName;
+if (isset($_FILES['image_file']) && ($_FILES['image_file']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+    [$ok, $newStem, $err] = Image::store($_FILES['image_file'], IMG_DIR);
+    if ($ok && is_string($newStem) && $newStem !== '') {
+        if ($image_stem !== '' && $image_stem !== $newStem) {
+            Image::deleteImageVariants($image_stem, IMG_DIR);
+        }
+        $image_stem = $newStem;
     } else {
-        $errors['image_file'] = 'Errore durante lo spostamento dell\'immagine.';
+        $errors['image_file'] = $err ?? 'Errore durante l\'elaborazione dell\'immagine.';
     }
 }
 
-$previewImageUrl = $image_path ? '/assets/img/' . $image_path : '';
+$pic = Image::resolvePictureSources($image_stem, IMG_DIR, IMG_BASE_URL);
+$image_jpg_url  = $pic['jpg'];
+$image_webp_url = $pic['webp'];
 
-// === VALIDAZIONE DATI ===
 if ($data['product_type_id'] === '') {
     $errors['product_type_id'] = 'Seleziona il tipo di prodotto.';
 }
@@ -182,14 +177,10 @@ if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
 
 $hasErrors = false;
 foreach ($errors as $msg) {
-    if ($msg !== '') {
-        $hasErrors = true;
-        break;
-    }
+    if ($msg !== '') { $hasErrors = true; break; }
 }
 
 if ($hasErrors) {
-    // --- META DINAMICI (POST CON ERRORI) ---
     $page_mode = $product_id ? 'Modifica' : 'Inserisci';
     $short     = trim($data['short_name'] ?? '');
     $hasName   = ($short !== '');
@@ -198,7 +189,6 @@ if ($hasErrors) {
         ? sprintf('%s prodotto: %s | Farmacia Archimede', $page_mode, $short)
         : sprintf('%s prodotto | Farmacia Archimede', $page_mode);
 
-    // Nota: in presenza di errori, esplicitiamo che ci sono errori nel form
     $meta_description = $hasName
         ? sprintf('%s i dati del prodotto %s. Alcuni campi non sono validi: correggi e invia di nuovo.', $page_mode, $short)
         : sprintf('%s i dati del prodotto. Alcuni campi non sono validi: correggi e invia di nuovo.', $page_mode);
@@ -226,25 +216,23 @@ if ($hasErrors) {
         'breadcrumb_product'   => $breadcrumb_product,
         'form_action'          => 'modifica.php?id=' . $product_id,
         'errors'               => $errors,
-        'image_url'            => $previewImageUrl,
+        'image_webp_url'       => $image_webp_url,
+        'image_jpg_url'        => $image_jpg_url,
         'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
         'format_options'       => $productService->renderFormatOptions($data['format']),
-        // META
         'meta_title'           => $meta_title,
         'meta_description'     => $meta_description,
         'meta_keywords'        => $meta_keywords,
-        // UI
         'page_mode'            => $page_mode,
         'submit_label'         => $page_mode,
     ]);
     exit;
 }
 
-// === SALVATAGGIO e REDIRECT ===
 if ($product_id) {
     $productService->updateProduct($product_id, [
         ...$data,
-        'image_path' => $image_path,
+        'image_path' => $image_stem,
     ]);
     $_SESSION['flash_message'] = [
         'type'    => 'success',
@@ -253,7 +241,7 @@ if ($product_id) {
 } else {
     $productService->insertProduct([
         ...$data,
-        'image_path' => $image_path,
+        'image_path' => $image_stem,
     ]);
     $_SESSION['flash_message'] = [
         'type'    => 'success',

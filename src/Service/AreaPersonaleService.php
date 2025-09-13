@@ -281,7 +281,7 @@ class AreaPersonaleService
                 $row->insert('edit_control', '');
             }
 
-            $row->insert('delete_disabled', $isSelf ? 'disabled aria-disabled="true"' : '');
+            $row->insert('delete_disabled', $isSelf ? 'disabled' : '');
 
             $rowsHtml .= $row->build();
         }

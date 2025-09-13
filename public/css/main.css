@@ -716,7 +716,7 @@ body #product-details > p {
     box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid var(--border-color);
-    border-radius: 12px;;
+    border-radius: 12px;
     color: var(--primary-text);
     line-height: 1.4;
     overflow: hidden;        /* evita che un value lungo allarghi */
@@ -1997,5 +1997,10 @@ input[type="submit"][disabled]:hover
 }
 
 #empty {
+    margin: auto;
+}
+
+.product-preview,
+.form-control--full label {
     margin: auto;
 }

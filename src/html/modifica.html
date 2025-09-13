@@ -47,26 +47,24 @@
 
             <div class="form-control form-control--full">
                 <label for="product-image">Anteprima immagine</label>
-                <img src="{{ image_url }}"
-                     alt="Anteprima prodotto"
-                     class="product-preview" />
+                <picture class="product-preview">
+                    <source srcset="{{ image_webp_url }}" type="image/webp">
+                    <source srcset="{{ image_jpg_url }}"  type="image/jpeg">
+                    <img src="{{ image_jpg_url }}" alt="Anteprima prodotto" class="product-preview" />
+                </picture>
             </div>
 
-            <!-- Upload immagine subito sotto, a tutta larghezza -->
             <div class="form-control form-control--full">
                 <label for="product-image">Carica immagine</label>
                 <input type="file"
                        id="product-image"
                        name="image_file"
-                       accept="image/*"
+                       accept="image/jpeg,image/webp"
                        aria-describedby="help-image error-image-file" />
                 <p id="help-image" class="visually-hidden">
-                    Seleziona un file immagine (PNG o JPG).
+                    Seleziona un file immagine (JPG o WEBP). Il sistema genererà entrambi i formati (.webp e .jpg) nella stessa cartella.
                 </p>
-                <p id="error-image-file"
-                   class="error-msg"
-                   role="alert"
-                   aria-live="assertive">
+                <p id="error-image-file" class="error-msg" role="alert" aria-live="assertive">
                     {{ errors.image_file }}
                 </p>
             </div>
@@ -150,7 +148,7 @@
                 </p>
             </div>
 
-            <!-- Codice AIC -->
+            <!-- Codice AIC (9 cifre) -->
             <div class="form-control">
                 <label for="product-aic">
                     Codice AIC<span aria-hidden="true">*</span>
@@ -159,8 +157,8 @@
                        id="product-aic"
                        name="aic_code"
                        required
-                       maxlength="10"
-                       pattern="[A-Z0-9]{10}"
+                       maxlength="9"
+                       pattern="[0-9]{9}"
                        aria-describedby="error-aic-code"
                        value="{{ aic_code }}" />
                 <p id="error-aic-code"
@@ -231,7 +229,7 @@
                 </p>
             </div>
 
-            <!-- Descrizione (a tutta larghezza per comodità) -->
+            <!-- Descrizione -->
             <div class="form-control form-control--full">
                 <label for="product-description">
                     Descrizione
