@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// public/area_personale.php
+// public_html/area_personale.php
 // Front-controller per l'Area Personale, con breadcrumb e PageBuilder
 
 require __DIR__ . '/../vendor/autoload.php';

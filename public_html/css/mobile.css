@@ -385,7 +385,6 @@
         padding: 1rem;
     }
 
-    /* Contenitore: da righe affiancate a stack verticale */
     body #product-container {
         flex-direction: column;
         max-width: 100%;

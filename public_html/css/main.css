@@ -506,7 +506,6 @@ body .item {
     border-radius: 12px;
 }
 
-/* il link con immagine+nome+prezzo deve riempire lo spazio disponibile */
 .product-link {
     flex: 1 1 auto;
     display: flex;
@@ -516,7 +515,6 @@ body .item {
     color: inherit;
 }
 
-/* immagine: occupa lo spazio previsto ma non “spinge” troppo */
 .product-image {
     flex: 0 0 auto;
     max-height: 90px;
@@ -526,7 +524,6 @@ body .item {
     justify-content: center;
 }
 
-/* titolo: prende spazio variabile ma non fa muovere il prezzo */
 .product-name {
     display: block;          /* valore valido */
     flex: 1 1 auto;

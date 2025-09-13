@@ -27,10 +27,19 @@
 
     <div id="product-container" class="flex-container">
 
-            <div id="product-image">
-                {{ image }}
-            </div>
-            <div id="product-details">
+        <div id="product-image">
+            <picture class="product-image">
+                <source srcset="{{ image_webp_url }}" type="image/webp" />
+                <source srcset="{{ image_jpg_url }}"  type="image/jpeg" />
+                <img
+                        src="{{ image_jpg_url }}"
+                        alt="{{ image_alt }}"
+                        width="700" height="700"
+                        loading="lazy" decoding="async" />
+            </picture>
+        </div>
+
+        <div id="product-details">
                 <h2>{{ name }}</h2>
                 <p id="product-price">{{ price }}</p>
                 <div class="cart-actions">

@@ -3,282 +3,226 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-/**
- * Gestione immagini prodotto con doppio formato (JPG + WEBP),
- * normalizzazione su canvas 700×700 senza upscaling.
- *
- * Regole:
- * - Input JPEG  => genera SEMPRE .jpg + .webp (entrambi obbligatori)
- * - Input WEBP  => genera .webp (obbligatorio) e prova anche .jpg (best-effort)
- * - Canvas: per JPG fondo bianco, per WEBP trasparente
- */
 final class Image
 {
-    /** Limite dimensione upload (byte) */
     public const MAX_FILE_BYTES = 1_600_000;
-
-    /** Canvas di destinazione */
-    public const TARGET_WIDTH  = 700;
-    public const TARGET_HEIGHT = 700;
-
-    /** Placeholder stem (senza estensione) */
+    public const BOX = 700;
     public const PLACEHOLDER_STEM = 'placeholder';
-
-    /** Qualità di salvataggio */
-    private const JPG_QUALITY  = 82;
-    private const WEBP_QUALITY = 80;
+    private const JPG_Q = 82;
+    private const WEBP_Q = 80;
 
     /**
-     * Salva l'upload in `$targetDir` generando immagini 700×700.
+     * @param array{tmp_name:string,name?:string,size?:int,error?:int} $upload
+     * @return array{0:bool,1:?string,2:?string}
      */
     public static function store(array $upload, string $targetDir): array
     {
-        if (!self::isValidUpload($upload)) {
+        if (!self::okUpload($upload)) {
             return [false, null, "Errore durante l'upload dell'immagine."];
         }
-
-        $tmp  = $upload['tmp_name'];
         $size = (int)($upload['size'] ?? 0);
         if ($size <= 0 || $size > self::MAX_FILE_BYTES) {
-            @unlink($tmp);
-            return [false, null, 'Dimensione immagine troppo grande. Max: 1.6MB.'];
+            @unlink($upload['tmp_name']);
+            return [false, null, 'Dimensione immagine troppo grande. Max: 1.5MB.'];
         }
-
-        $type = self::detectType($tmp); // 'jpg' | 'webp' | null
-        if ($type === null) {
-            @unlink($tmp);
-            return [false, null, 'Formato non supportato. Accettati: JPG o WEBP.'];
-        }
-
-        if (!self::ensureDirectoryExists($targetDir)) {
-            @unlink($tmp);
+        if (!self::ensureDir($targetDir)) {
+            @unlink($upload['tmp_name']);
             return [false, null, 'Impossibile creare la cartella immagini.'];
         }
 
-        $stem = self::generateUniqueStem($targetDir);
-        $jpgPath  = self::buildPath($targetDir, $stem, 'jpg');
-        $webpPath = self::buildPath($targetDir, $stem, 'webp');
+        $kind = self::detectKind($upload['tmp_name']); // 'jpeg' | 'webp' | null
+        if ($kind === null) {
+            @unlink($upload['tmp_name']);
+            return [false, null, 'Formato non supportato. Accettati: JPG o WEBP.'];
+        }
 
-        // Carica sorgente
-        $src = ($type === 'jpg') ? @imagecreatefromjpeg($tmp) : @imagecreatefromwebp($tmp);
+        $stem = self::uniqueStem($targetDir);
+
+        $src = self::loadSource($upload['tmp_name'], $kind);
         if (!$src instanceof \GdImage) {
-            @unlink($tmp);
+            @unlink($upload['tmp_name']);
             return [false, null, 'Immagine non valida.'];
         }
-
-        // Auto-orient solo per JPEG (EXIF)
-        if ($type === 'jpg') {
-            $src = self::autoOrientJpeg($src, $tmp);
+        if ($kind === 'jpeg') {
+            $src = self::autoOrient($src, $upload['tmp_name']);
         }
 
-        // Prepara i due canvas
-        $canvasForWebp = self::toCanvas($src, self::TARGET_WIDTH, self::TARGET_HEIGHT, true);   // trasparente
-        $canvasForJpg  = self::toCanvas($src, self::TARGET_WIDTH, self::TARGET_HEIGHT, false);  // bianco
+        $canvasWebp = self::fitToCanvas($src, self::BOX, self::BOX, true);
+        $canvasJpg  = self::fitToCanvas($src, self::BOX, self::BOX, false);
 
-        // Salvataggi secondo le regole
-        if ($type === 'jpg') {
-            // Entrambi obbligatori
-            if (!self::canSaveJpg() || !self::canSaveWebp()) {
-                self::cleanupTemps($tmp, $src, $canvasForWebp, $canvasForJpg);
-                return [false, null, 'GD senza supporto JPEG/WEBP sufficiente.'];
-            }
-            $okJ = @imagejpeg($canvasForJpg,  $jpgPath,  self::JPG_QUALITY);
-            $okW = @imagewebp($canvasForWebp, $webpPath, self::WEBP_QUALITY);
+        $webpPath = self::path($targetDir, $stem, 'webp');
+        $jpgPath  = self::path($targetDir, $stem, 'jpg');
 
-            self::cleanupTemps($tmp, $src, $canvasForWebp, $canvasForJpg);
+        $okWebp = function_exists('imagewebp') ? @imagewebp($canvasWebp, $webpPath, self::WEBP_Q) : false;
 
-            if (!$okJ || !$okW) {
-                @unlink($jpgPath); @unlink($webpPath);
+        if ($kind === 'jpeg') {
+            $okJpg = function_exists('imagejpeg') ? @imagejpeg($canvasJpg, $jpgPath, self::JPG_Q) : false;
+            imagedestroy($canvasWebp);
+            imagedestroy($canvasJpg);
+            imagedestroy($src);
+            @unlink($upload['tmp_name']);
+
+            if (!$okWebp || !$okJpg) {
+                @unlink($webpPath); @unlink($jpgPath);
                 return [false, null, 'Errore nella creazione dei file JPG/WEBP.'];
             }
             return [true, $stem, null];
         }
 
-        // type === 'webp'
-        if (!self::canSaveWebp()) {
-            self::cleanupTemps($tmp, $src, $canvasForWebp, $canvasForJpg);
-            return [false, null, 'GD senza supporto WEBP per il ridimensionamento.'];
+        $okJpg = true;
+        if (function_exists('imagejpeg')) {
+            $okJpg = @imagejpeg($canvasJpg, $jpgPath, self::JPG_Q);
         }
 
-        $okWebp = @imagewebp($canvasForWebp, $webpPath, self::WEBP_QUALITY);
-        $okJpg  = true; // best-effort
-        if (self::canSaveJpg()) {
-            $okJpg = @imagejpeg($canvasForJpg, $jpgPath, self::JPG_QUALITY);
-        }
-
-        self::cleanupTemps($tmp, $src, $canvasForWebp, $canvasForJpg);
+        imagedestroy($canvasWebp);
+        imagedestroy($canvasJpg);
+        imagedestroy($src);
+        @unlink($upload['tmp_name']);
 
         if (!$okWebp) {
-            @unlink($jpgPath); @unlink($webpPath);
-            return [false, null, 'Errore nella creazione del file WEBP 700×700.'];
+            @unlink($webpPath); @unlink($jpgPath);
+            return [false, null, 'Errore nella creazione del file WEBP.'];
         }
-
-        // Se JPEG best-effort fallisce, non è un errore bloccante.
         if (!$okJpg) { @unlink($jpgPath); }
 
         return [true, $stem, null];
     }
 
-    /**
-     * Restituisce gli URL per il tag <picture>, con fallback al placeholder.
-     * @return array{webp:string,jpg:string}
-     */
+    /** @return array{webp:string,jpg:string} */
     public static function resolvePictureSources(string $stem, string $dir, string $baseUrl): array
     {
         $s = $stem !== '' ? $stem : self::PLACEHOLDER_STEM;
 
-        $webp = is_file(self::buildPath($dir, $s, 'webp'))
-            ? self::buildUrl($baseUrl, $s, 'webp')
-            : self::buildUrl($baseUrl, self::PLACEHOLDER_STEM, 'webp');
+        $webp = is_file(self::path($dir, $s, 'webp'))
+            ? self::url($baseUrl, $s, 'webp')
+            : self::url($baseUrl, self::PLACEHOLDER_STEM, 'webp');
 
-        $jpg = is_file(self::buildPath($dir, $s, 'jpg'))
-            ? self::buildUrl($baseUrl, $s, 'jpg')
-            : self::buildUrl($baseUrl, self::PLACEHOLDER_STEM, 'jpg');
+        $jpg = is_file(self::path($dir, $s, 'jpg'))
+            ? self::url($baseUrl, $s, 'jpg')
+            : self::url($baseUrl, self::PLACEHOLDER_STEM, 'jpg');
 
         return ['webp' => $webp, 'jpg' => $jpg];
     }
 
-    /** Elimina `stem.{jpg,webp}` se non è il placeholder. */
     public static function deleteImageVariants(string $stem, string $dir): void
     {
-        if ($stem === '' || $stem === self::PLACEHOLDER_STEM) { return; }
-        @unlink(self::buildPath($dir, $stem, 'jpg'));
-        @unlink(self::buildPath($dir, $stem, 'webp'));
+        if ($stem === '' || $stem === self::PLACEHOLDER_STEM) return;
+        @unlink(self::path($dir, $stem, 'jpg'));
+        @unlink(self::path($dir, $stem, 'webp'));
     }
 
-    /** Upload valido/leggibile. */
-    private static function isValidUpload(array $u): bool
+    private static function okUpload(array $u): bool
     {
-        return isset($u['tmp_name']) && is_string($u['tmp_name'])
-            && ($u['error'] ?? UPLOAD_ERR_OK) === UPLOAD_ERR_OK
+        return isset($u['tmp_name'])
+            && is_string($u['tmp_name'])
+            && (($u['error'] ?? UPLOAD_ERR_OK) === UPLOAD_ERR_OK)
             && @is_uploaded_file($u['tmp_name'])
             && @is_readable($u['tmp_name']);
     }
 
-    /**
-     * Rileva tipo immagine tramite funzioni base:
-     * - preferisce exif_imagetype / getimagesize (magic numbers)
-     * @return 'jpg'|'webp'|null
-     */
-    private static function detectType(string $path): ?string
+    private static function detectKind(string $path): ?string
     {
         if (function_exists('exif_imagetype')) {
             $t = @exif_imagetype($path);
-            if ($t === IMAGETYPE_JPEG) return 'jpg';
+            if ($t === IMAGETYPE_JPEG) return 'jpeg';
             if (defined('IMAGETYPE_WEBP') && $t === IMAGETYPE_WEBP) return 'webp';
         }
         $info = @getimagesize($path);
         if (is_array($info) && isset($info[2])) {
-            if ($info[2] === IMAGETYPE_JPEG) return 'jpg';
+            if ($info[2] === IMAGETYPE_JPEG) return 'jpeg';
             if (defined('IMAGETYPE_WEBP') && $info[2] === IMAGETYPE_WEBP) return 'webp';
         }
-        // Fallback minimale: magic bytes
-        $b = self::readBytes($path, 12);
+        if (function_exists('mime_content_type')) {
+            $m = @mime_content_type($path);
+            if ($m === 'image/jpeg') return 'jpeg';
+            if ($m === 'image/webp') return 'webp';
+        }
+        $b = self::peek($path, 12);
         if ($b !== '') {
-            if (strlen($b) >= 3 && ord($b[0]) === 0xFF && ord($b[1]) === 0xD8 && ord($b[2]) === 0xFF) return 'jpg';
+            if (strlen($b) >= 3 && $b[0] === "\xFF" && $b[1] === "\xD8" && $b[2] === "\xFF") return 'jpeg';
             if (strlen($b) >= 12 && substr($b, 0, 4) === 'RIFF' && substr($b, 8, 4) === 'WEBP') return 'webp';
         }
         return null;
     }
 
-    /** Canvas 700×700 centrato, senza upscaling; alpha opzionale. */
-    private static function toCanvas(\GdImage $src, int $w, int $h, bool $alpha): \GdImage
+    private static function loadSource(string $path, string $kind): ?\GdImage
+    {
+        if ($kind === 'jpeg' && function_exists('imagecreatefromjpeg')) return @imagecreatefromjpeg($path) ?: null;
+        if ($kind === 'webp'  && function_exists('imagecreatefromwebp')) return @imagecreatefromwebp($path) ?: null;
+        return null;
+    }
+
+    private static function autoOrient(\GdImage $img, string $path): \GdImage
+    {
+        if (!function_exists('exif_read_data')) return $img;
+        try {
+            $exif = @exif_read_data($path);
+            $o = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 0;
+            if ($o === 3 || $o === 6 || $o === 8) {
+                $angle = ($o === 3) ? 180 : (($o === 6) ? -90 : 90);
+                $rot = @imagerotate($img, $angle, 0);
+                if ($rot instanceof \GdImage) $img = $rot;
+            }
+        } catch (\Throwable) {}
+        return $img;
+    }
+
+    private static function fitToCanvas(\GdImage $src, int $w, int $h, bool $alpha): \GdImage
     {
         $sw = imagesx($src); $sh = imagesy($src);
         $scale = min($w / max(1, $sw), $h / max(1, $sh), 1.0);
         $nw = (int) floor($sw * $scale); $nh = (int) floor($sh * $scale);
+        $dx = (int) floor(($w - $nw) / 2); $dy = (int) floor(($h - $nh) / 2);
 
         $canvas = imagecreatetruecolor($w, $h);
         if ($alpha) {
             imagealphablending($canvas, false);
             imagesavealpha($canvas, true);
-            $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-            imagefilledrectangle($canvas, 0, 0, $w, $h, $transparent);
+            $t = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+            imagefilledrectangle($canvas, 0, 0, $w, $h, $t);
         } else {
             $white = imagecolorallocate($canvas, 255, 255, 255);
             imagefilledrectangle($canvas, 0, 0, $w, $h, $white);
         }
-
-        $dx = (int) floor(($w - $nw) / 2);
-        $dy = (int) floor(($h - $nh) / 2);
         imagealphablending($canvas, true);
         imagecopyresampled($canvas, $src, $dx, $dy, 0, 0, $nw, $nh, $sw, $sh);
-
         return $canvas;
     }
 
-    /** Auto-orienta JPEG via EXIF (se presente). */
-    private static function autoOrientJpeg(\GdImage $img, string $path): \GdImage
-    {
-        if (!function_exists('exif_read_data')) { return $img; }
-        try {
-            $exif = @exif_read_data($path);
-            if (!$exif || empty($exif['Orientation'])) { return $img; }
-            $o = (int)$exif['Orientation'];
-            if ($o === 3 || $o === 6 || $o === 8) {
-                $angle = ($o === 3) ? 180 : (($o === 6) ? -90 : 90);
-                $rot = @imagerotate($img, $angle, 0);
-                if ($rot instanceof \GdImage) { $img = $rot; }
-            }
-        } catch (\Throwable) { /* noop */ }
-        return $img;
-    }
-
-    /** Pulizia risorse temporanee. */
-    private static function cleanupTemps(string $tmp, \GdImage ...$imgs): void
-    {
-        foreach ($imgs as $i) { if ($i instanceof \GdImage) { imagedestroy($i); } }
-        @unlink($tmp);
-    }
-
-    /** Lettura rapida byte iniziali. */
-    private static function readBytes(string $path, int $n): string
-    {
-        $fh = @fopen($path, 'rb'); if (!$fh) { return ''; }
-        $buf = @fread($fh, $n); @fclose($fh);
-        return $buf !== false ? $buf : '';
-    }
-
-    /** Directory esistente/creata. */
-    private static function ensureDirectoryExists(string $dir): bool
+    private static function ensureDir(string $dir): bool
     {
         return is_dir($dir) || @mkdir($dir, 0755, true);
     }
 
-    /** Path/URL helpers. */
-    private static function buildPath(string $dir, string $stem, string $ext): string
-    {
-        return rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $stem . '.' . $ext;
-    }
-    private static function buildUrl(string $base, string $stem, string $ext): string
-    {
-        return rtrim($base, '/') . '/' . $stem . '.' . $ext;
-    }
-
-    /** Stem univoco. */
-    private static function generateUniqueStem(string $dir): string
+    private static function uniqueStem(string $dir): string
     {
         for ($i = 0; $i < 6; $i++) {
-            $c = self::randomStem();
-            if (!is_file(self::buildPath($dir, $c, 'jpg')) && !is_file(self::buildPath($dir, $c, 'webp'))) {
-                return $c;
-            }
+            $c = self::token();
+            if (!is_file(self::path($dir, $c, 'jpg')) && !is_file(self::path($dir, $c, 'webp'))) return $c;
         }
-        return self::randomStem();
+        return self::token();
     }
-    private static function randomStem(): string
+
+    private static function token(): string
     {
         try { return bin2hex(random_bytes(16)); }
         catch (\Throwable) { return uniqid('img_', true); }
     }
 
-    /** Verifiche rapide capacità GD. */
-    private static function canSaveWebp(): bool
+    private static function path(string $dir, string $stem, string $ext): string
     {
-        return extension_loaded('gd') && function_exists('imagewebp') && function_exists('imagecreatetruecolor');
+        return rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $stem . '.' . $ext;
     }
-    private static function canSaveJpg(): bool
+
+    private static function url(string $base, string $stem, string $ext): string
     {
-        return extension_loaded('gd') && function_exists('imagejpeg') && function_exists('imagecreatetruecolor');
+        return rtrim($base, '/') . '/' . $stem . '.' . $ext;
+    }
+
+    private static function peek(string $path, int $n): string
+    {
+        $fh = @fopen($path, 'rb'); if (!$fh) return '';
+        $buf = @fread($fh, $n); @fclose($fh);
+        return $buf !== false ? $buf : '';
     }
 }

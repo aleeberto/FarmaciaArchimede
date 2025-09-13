@@ -9,8 +9,11 @@ use App\Core\PageBuilder;
 use App\Core\Image;
 use App\Service\ProductService;
 
-const IMG_DIR = __DIR__ . '/../public/assets/img';
-const IMG_BASE_URL = '/assets/img';
+// Path robusti per FS e URL (supporta /gbarison/)
+define('IMG_DIR', rtrim(__DIR__, '/\\') . '/assets/img');
+$__scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
+define('IMG_BASE_URL', ($__scriptDir === '' || $__scriptDir === '/') ? '/assets/img' : ($__scriptDir . '/assets/img'));
+if (!is_dir(IMG_DIR)) { @mkdir(IMG_DIR, 0755, true); }
 
 Auth::requireLogin();
 Auth::requireAdmin();
@@ -18,10 +21,7 @@ Auth::requireAdmin();
 $db = Database::getInstance('localhost', 'gbarison', 'SaSoo9chahNguuCh', 'gbarison');
 $productService = new ProductService($db);
 
-$errorKeys = [
-    'product_type_id','short_name','name','manufacturer',
-    'aic_code','format','price','availability','image_file'
-];
+$errorKeys = ['product_type_id','short_name','name','manufacturer','aic_code','format','price','availability','image_file'];
 $errors = array_fill_keys($errorKeys, '');
 
 $product_id = null;
@@ -34,10 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id']) && ctype_digit($_
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($product_id) {
         $prod = $productService->getProductByID($product_id);
-        if (!$prod) {
-            header('Location: 404.php');
-            exit;
-        }
+        if (!$prod) { header('Location: 404.php'); exit; }
+
         $data = [
             'product_type_id' => $prod->productTypeId,
             'short_name'      => $prod->shortName,
@@ -49,16 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'availability'    => $prod->availability,
             'description'     => $prod->description,
         ];
+
         $existingPath = (string)($prod->imagePath ?? '');
         $existingStem = $existingPath !== '' ? pathinfo(basename($existingPath), PATHINFO_FILENAME) : '';
         $pic = Image::resolvePictureSources($existingStem, IMG_DIR, IMG_BASE_URL);
         $image_jpg_url  = $pic['jpg'];
         $image_webp_url = $pic['webp'];
     } else {
-        $data = array_fill_keys([
-            'product_type_id','short_name','name','manufacturer',
-            'aic_code','format','price','availability','description'
-        ], '');
+        $data = array_fill_keys(['product_type_id','short_name','name','manufacturer','aic_code','format','price','availability','description'], '');
         $pic = Image::resolvePictureSources('', IMG_DIR, IMG_BASE_URL);
         $image_jpg_url  = $pic['jpg'];
         $image_webp_url = $pic['webp'];
@@ -80,30 +76,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ? sprintf('farmacia archimede, prodotti, %s, %s prodotto, catalogo, gestione', $short, strtolower($page_mode))
         : 'farmacia archimede, prodotti, modifica, inserisci, catalogo, gestione';
 
-    $breadcrumb_product = $product_id
-        ? sprintf(
-            '<a href="prodotto.php?id=%s">%s</a>',
-            htmlspecialchars($product_id, ENT_QUOTES),
-            htmlspecialchars($data['short_name'], ENT_QUOTES)
-        )
-        : '';
+    $breadcrumb_product_li = '';
+    if ($product_id && ($data['short_name'] ?? '') !== '') {
+        $href = 'prodotto.php?id=' . rawurlencode((string)$product_id);
+        $text = htmlspecialchars($data['short_name'], ENT_QUOTES);
+        $breadcrumb_product_li = sprintf(
+            '<li><a href="%s">%s</a><span class="separator" aria-hidden="true">&gt;&gt;</span></li>',
+            $href,
+            $text
+        );
+    }
 
     PageBuilder::show('modifica.php', [
         ...$data,
-        'product_id'           => $product_id ?: '',
-        'breadcrumb_product'   => $breadcrumb_product,
-        'form_action'          => 'modifica.php?id=' . $product_id,
-        'errors'               => $errors,
-        'image_webp_url'       => $image_webp_url,
-        'image_jpg_url'        => $image_jpg_url,
-        'product_type_options' => $productService->renderTypeOptions($data['product_type_id']),
-        'format_options'       => $productService->renderFormatOptions($data['format']),
-        'meta_title'           => $meta_title,
-        'meta_description'     => $meta_description,
-        'meta_keywords'        => $meta_keywords,
-        'page_mode'            => $page_mode,
-        'submit_label'         => $page_mode,
+        'product_id'             => $product_id ?: '',
+        'breadcrumb_product_li'  => $breadcrumb_product_li,           // <- passa il LI pronto
+        'form_action'            => $product_id ? ('modifica.php?id=' . $product_id) : 'modifica.php',
+        'errors'                 => $errors,
+        'image_webp_url'         => $image_webp_url,
+        'image_jpg_url'          => $image_jpg_url,
+        'product_type_options'   => $productService->renderTypeOptions($data['product_type_id']),
+        'format_options'         => $productService->renderFormatOptions($data['format']),
+        'meta_title'             => $meta_title,
+        'meta_description'       => $meta_description,
+        'meta_keywords'          => $meta_keywords,
+        'page_mode'              => $page_mode,
+        'submit_label'           => $page_mode,
     ]);
+
     exit;
 }
 
@@ -176,9 +176,7 @@ if (!ctype_digit($data['availability']) || (int)$data['availability'] < 0) {
 }
 
 $hasErrors = false;
-foreach ($errors as $msg) {
-    if ($msg !== '') { $hasErrors = true; break; }
-}
+foreach ($errors as $msg) { if ($msg !== '') { $hasErrors = true; break; } }
 
 if ($hasErrors) {
     $page_mode = $product_id ? 'Modifica' : 'Inserisci';
@@ -198,17 +196,10 @@ if ($hasErrors) {
         : 'farmacia archimede, prodotti, modifica, inserisci, errori form, validazione';
 
     $breadcrumb_product = $product_id
-        ? sprintf(
-            '<a href="prodotto.php?id=%s">%s</a>',
-            htmlspecialchars($product_id, ENT_QUOTES),
-            htmlspecialchars($data['short_name'], ENT_QUOTES)
-        )
+        ? sprintf('<a href="prodotto.php?id=%s">%s</a>',
+            htmlspecialchars((string)$product_id, ENT_QUOTES),
+            htmlspecialchars($data['short_name'], ENT_QUOTES))
         : '';
-
-    $_SESSION['flash_message'] = [
-        'type'    => 'error',
-        'message' => 'Alcuni dati inseriti non sono corretti. Verifica i campi evidenziati e invia nuovamente il modulo.',
-    ];
 
     PageBuilder::show('modifica.php', [
         ...$data,
@@ -230,26 +221,13 @@ if ($hasErrors) {
 }
 
 if ($product_id) {
-    $productService->updateProduct($product_id, [
-        ...$data,
-        'image_path' => $image_stem,
-    ]);
-    $_SESSION['flash_message'] = [
-        'type'    => 'success',
-        'message' => 'Il prodotto è stato aggiornato correttamente.',
-    ];
+    $productService->updateProduct($product_id, [...$data, 'image_path' => $image_stem]);
+    $_SESSION['flash_message'] = ['type'=>'success','message'=>'Il prodotto è stato aggiornato correttamente.'];
+    header('Location: modifica.php?id=' . $product_id);
+    exit;
 } else {
-    $productService->insertProduct([
-        ...$data,
-        'image_path' => $image_stem,
-    ]);
-    $_SESSION['flash_message'] = [
-        'type'    => 'success',
-        'message' => 'Il nuovo prodotto è stato inserito correttamente.',
-    ];
+    $productService->insertProduct([...$data, 'image_path' => $image_stem]);
+    $_SESSION['flash_message'] = ['type'=>'success','message'=>'Il nuovo prodotto è stato inserito correttamente.'];
     header('Location: prodotti.php');
     exit;
 }
-
-header('Location: modifica.php?id=' . $product_id);
-exit;

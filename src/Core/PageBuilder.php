@@ -19,7 +19,7 @@ class PageBuilder {
     private bool $degraded = false;            // true se Auth/DB non disponibili
 
     // === DEBUG FORZATO (metti a false in produzione) ===
-    private const FORCE_DEBUG = false;
+    private const FORCE_DEBUG = true;
 
     private static function isDebug(): bool
     {

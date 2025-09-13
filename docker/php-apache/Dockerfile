@@ -15,8 +15,8 @@ RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
 
-# Imposta la DocumentRoot a /var/www/html/public
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
+# Imposta la DocumentRoot a /var/www/html/public_html
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public_html|' /etc/apache2/sites-available/000-default.conf
 
 # Installa estensioni grafiche GD
 RUN apt-get update \
