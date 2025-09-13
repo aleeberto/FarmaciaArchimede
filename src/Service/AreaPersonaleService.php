@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Core\Database;
 use App\Core\Template;
 use App\Core\Model\UserDTO;
-use App\Service\AuthService;
 use RuntimeException;
 
 class AreaPersonaleService
@@ -185,8 +184,7 @@ class AreaPersonaleService
         // 4) Costruisci righe (gestione stato vuoto)
         $rowsHtml = '';
         if (empty($products)) {
-            $colspan = 6;
-            $rowsHtml = '<tr><td colspan="' . $colspan . '" class="empty" role="status">Non ci sono prodotti al momento.</td></tr>';
+            $rowsHtml = '<p id="empty">Non ci sono prodotti al momento.</p>';
         } else {
             foreach ($products as $p) {
                 $row = new Template('product_row', $rowTpl);

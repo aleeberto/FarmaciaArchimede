@@ -673,7 +673,6 @@ body #product-details > p {
     width: 100%;
     margin: 1rem auto 2rem;
     padding: 1.5rem;
-    background: var(--primary-bg);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     box-shadow: 0 2px 6px var(--shadow-color);
@@ -717,8 +716,7 @@ body #product-details > p {
     box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    background: var(--primary-bg);
+    border-radius: 12px;;
     color: var(--primary-text);
     line-height: 1.4;
     overflow: hidden;        /* evita che un value lungo allarghi */
@@ -879,7 +877,6 @@ main.error-page {
     letter-spacing: -0.02em;
     font-size: clamp(4rem, 12vw, 10rem);
 
-    /* colore uniforme preso dalla palette del sito */
     color: var(--non-visited-link); /* verde scuro */
 
     text-shadow:
@@ -1019,7 +1016,7 @@ th {
 a#theme-toggle:focus-visible {
     outline: 3px solid var(--outline-color);
     outline-offset: 4px;
-    border-radius: 8px; /* opzionale, coerente con la UI */
+    border-radius: 8px;
 }
 /* TOGGLE THEME ICON */
 a#theme-toggle svg {
@@ -1124,7 +1121,8 @@ header nav ul.flex-container > li:last-child > a {
     color: var(--alert-info-fg);
 }
 
-ul.area-personale-menu {
+ul.area-personale-menu,
+.btn-add {
     list-style: none;
     margin: 20px auto;
     padding: 0;
@@ -1134,7 +1132,8 @@ ul.area-personale-menu {
     align-items: center; /* centra i pulsanti orizzontalmente */
 }
 
-.area-personale-menu li a {
+.area-personale-menu li a,
+.btn-add {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1183,7 +1182,6 @@ ul.area-personale-menu {
 }
 
 
-/* CONTATTI PAGE STYLES TODO TODO TODO*/
 /* CONTATTI PAGE STYLES */
 .contact-grid {
     display: grid;
@@ -1334,7 +1332,6 @@ input[type="radio"]:focus-visible {
     outline-offset: 2px;
 }
 
-/* Hover per submit e search input se vuoi un effetto simile ai bottoni */
 body input[type="submit"]:hover,
 body #search-box input:hover {
     background-color: var(--secondary-accent-bg);
@@ -1454,39 +1451,6 @@ body #tipologia option {
     color: var(--primary-bg);
     transform: scale(1.05);
 }
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .welcome-content {
-        grid-template-columns: 1fr;
-    }
-
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-        width: 200px;
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .welcome-container {
-        padding: 10px;
-    }
-
-    .welcome-section {
-        padding: 20px;
-    }
-
-    .welcome-cta {
-        padding: 1.5rem;
-    }
-}
-
 /* ABOUT PAGE STYLES */
 .about-container {
     max-width: 1200px;
@@ -1715,8 +1679,6 @@ body #tipologia option {
     box-shadow: 0 0 0 3px var(--outline-color);
 }
 
-
-
 .map-frame {
     width: 100%;
     height: auto;
@@ -1749,7 +1711,6 @@ input[type="submit"][disabled]:hover
     margin-block: 1rem;   /* spazio sopra/sotto */
     margin: 1em;
 }
-/* Card base con bordo più visibile sopra/sotto */
 .product-card {
     background: var(--primary-bg);
     color: var(--primary-text);
@@ -1772,7 +1733,6 @@ input[type="submit"][disabled]:hover
 .product-card:hover,
 .product-card:focus-within {
     background-color: var(--active-hover-color);
-    /* mantieni i bordi ben contrastati anche in hover/focus */
     border-top-color: var(--card-border-strong);
     border-bottom-color: var(--card-border-strong);
     border-left-color: var(--card-border-color);
@@ -1786,7 +1746,6 @@ input[type="submit"][disabled]:hover
     outline-offset: 2px;
 }
 
-/* Intestazione card */
 .product-card__header { margin-bottom: .5rem; }
 .product-card__title {
     font-size: 1.1rem;
@@ -1799,7 +1758,6 @@ input[type="submit"][disabled]:hover
     color: var(--muted-text, var(--primary-text));
 }
 
-/* Dettagli (DL etichetta/valore) */
 .product-card__details { margin: .75rem 0 1rem; }
 .product-card__details .row {
     display: grid;
@@ -1813,7 +1771,6 @@ input[type="submit"][disabled]:hover
 .product-card__details dt { font-weight: 600; color: var(--primary-text); }
 .product-card__details dd { margin: 0; text-align: right; color: var(--primary-text); }
 
-/* Badge disponibilità */
 .badge {
     display: inline-block;
     padding: .2rem .6rem;
@@ -1826,21 +1783,19 @@ input[type="submit"][disabled]:hover
 }
 .badge.is-available { background: var(--secondary-accent-bg); }
 .badge.is-low       { background: var(--tertiary-accent-bg);  }
-/* "Esaurito" coerente con gli alert rossi */
+
 .badge.is-out {
     background-color: rgba(220, 53, 69, .12);
     border-color: rgba(220, 53, 69, .4);
     color: var(--primary-text);
 }
 
-/* Azioni card */
 .product-card__actions {
     display: flex;
     gap: .5rem;
     flex-wrap: wrap;
 }
 
-/* Bottoni coerenti (edit/delete) — scope limitato alla card */
 .product-card .btn-edit,
 .product-card .btn-delete {
     display: inline-flex;
@@ -1860,7 +1815,7 @@ input[type="submit"][disabled]:hover
     box-shadow: 0 2px 3px var(--shadow-color);
 }
 
-/* Edit = verde della palette */
+
 .product-card .btn-edit {
     background-color: var(--secondary-accent-bg);
     color: var(--primary-text);
@@ -1874,7 +1829,6 @@ input[type="submit"][disabled]:hover
     outline-offset: 2px;
 }
 
-/* Delete = rosso consistente con il resto del sito */
 .product-card .btn-delete {
     background-color: #dc3545;
     color: #fff;
@@ -1968,7 +1922,6 @@ input[type="submit"][disabled]:hover
 .user-card__details dt { font-weight: 600; color: var(--primary-text); }
 .user-card__details dd { margin: 0; text-align: right; color: var(--primary-text); }
 
-/* Badge ruolo (coerente con badge disponibilità) */
 .badge {
     display: inline-block;
     padding: .2rem .6rem;
@@ -2006,7 +1959,6 @@ input[type="submit"][disabled]:hover
     box-shadow: 0 2px 3px var(--shadow-color);
 }
 
-/* Edit = verde (come product) */
 .user-card .btn-edit {
     background-color: var(--secondary-accent-bg);
     color: var(--primary-text);
@@ -2020,7 +1972,6 @@ input[type="submit"][disabled]:hover
     outline-offset: 2px;
 }
 
-/* Delete = rosso coerente */
 .user-card .btn-delete {
     background-color: #dc3545;
     color: #fff;
@@ -2035,14 +1986,16 @@ input[type="submit"][disabled]:hover
     outline-offset: 2px;
 }
 
-/* Form elimina allineato */
 .user-card .delete-form { margin: 0; padding: 0; }
 
-/* Stati disabilitati */
 .user-card .btn-edit[aria-disabled="true"],
 .user-card .btn-delete:disabled {
     opacity: .55;
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
+}
+
+#empty {
+    margin: auto;
 }
