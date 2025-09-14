@@ -517,7 +517,6 @@ body .item {
 
 .product-image {
     flex: 0 0 auto;
-    max-height: 90px;
     margin-bottom: 6px;
     display: flex;
     align-items: center;
@@ -525,7 +524,7 @@ body .item {
 }
 
 .product-name {
-    display: block;          /* valore valido */
+    display: block;
     flex: 1 1 auto;
     margin-bottom: 0.5em;
     line-height: 1.25;
@@ -543,9 +542,7 @@ body .item {
     color: var(--primary-text);
 }
 
-/* bottone: resta sotto il link e non influisce sul prezzo */
 .add-to-cart {
-    margin-top: 8px;
     padding: 8px 12px;
     border-radius: 14px;
     border: 1px solid transparent;
@@ -597,6 +594,30 @@ body #product-image img {
     max-width: 100%;
     display: block;
 }
+
+#product-image {
+    display: block;
+    height: auto;
+    aspect-ratio: auto;
+    max-width: 700px;
+    margin-inline: auto;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#product-image .product-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+#product-image .product-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
 body #product-details {
     flex: 2;
     margin: 30px;
@@ -630,7 +651,7 @@ body #product-details > p {
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: 15px;
-    padding: 6px 12px;
+    padding: 8px 12px;
     text-align: center;
 }
 
@@ -675,7 +696,6 @@ body #product-details > p {
     box-shadow: 0 2px 6px var(--shadow-color);
 }
 
-/* Ogni controllo: di default metà form (6/12) su desktop */
 .product-form .form-control {
     display: flex;
     flex-direction: column;

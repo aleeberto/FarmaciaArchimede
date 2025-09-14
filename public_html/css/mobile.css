@@ -207,12 +207,6 @@
         gap: 5px;
     }
 
-    /* TABELLE: scroll orizzontale */
-    table {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-    }
 
     /* FOOTER: impilamento colonne */
     footer .flex-container {
@@ -431,14 +425,14 @@
         border-top: 1px solid var(--border-color);
     }
 
-    /* Prezzo più evidente */
+
     #product-price {
         font-size: 1.3rem;
         font-weight: 800;
         margin: 6px 0 10px;
     }
 
-    /* Azioni carrello: più spazio, target tattili comodi */
+
     .cart-actions {
         gap: 10px;
         margin: 10px 0 16px 0;
@@ -446,8 +440,8 @@
     }
 
     #qty-input {
-        width: 96px;
-        min-height: 44px;           /* target touch */
+        width: 15%;
+        min-height: 40px;           /* target touch */
         padding: 8px 10px;
         font-size: 1rem;
     }
@@ -480,21 +474,19 @@
         min-width: 100%;
     }
 
-    /* Input e select più alti per touch */
     .product-form input,
     .product-form select,
     .product-form textarea,
     .product-form button {
         font-size: 1rem;
         padding: 10px 12px;
-        min-height: 44px;   /* target touch */
+        min-height: 44px;
     }
 
     .product-form textarea {
         min-height: 140px;
     }
 
-    /* Anteprima immagine centrata */
     .product-preview {
         display: block;
         margin: 0.5rem auto;
@@ -504,7 +496,6 @@
         box-shadow: 0 2px 4px var(--shadow-color);
     }
 
-    /* Azioni sempre in colonna */
     .product-form .form-actions {
         flex-direction: column;
         gap: 10px;

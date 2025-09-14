@@ -15,27 +15,8 @@ class PageBuilder {
     private static ?PageBuilder $instance = null;
 
     private string $basePath;
-    private ?AuthService $auth = null;         // può rimanere null in degraded mode
-    private bool $degraded = false;            // true se Auth/DB non disponibili
-
-    // === DEBUG FORZATO (metti a false in produzione) ===
-    private const FORCE_DEBUG = true;
-
-    private static function isDebug(): bool
-    {
-        $env = getenv('APP_ENV') ?: '';
-        return self::FORCE_DEBUG
-            || (getenv('APP_DEBUG') === '1')
-            || in_array($env, ['dev','local','development'], true);
-    }
-
-    private static function setPlain500(): void
-    {
-        if (!headers_sent()) {
-            http_response_code(500);
-            header('Content-Type: text/plain; charset=utf-8');
-        }
-    }
+    private ?AuthService $auth = null;
+    private bool $degraded = false;
 
     private function __construct()
     {
@@ -50,26 +31,13 @@ class PageBuilder {
             );
             $this->auth = new AuthService($db);
         } catch (Throwable $e) {
-            // Niente DB/Auth: continuiamo lo stesso
+            // Niente DB/Auth: continuiamo lo stesso in modalità degradata, senza output di debug
             $this->auth = null;
             $this->degraded = true;
-
-            // In debug: mostra a schermo
-            if (self::isDebug()) {
-                self::setPlain500();
-                echo "[PageBuilder::__construct][Auth/DB degraded] " . $e->getMessage() . "\n";
-                echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-                // non usciamo: proviamo comunque a renderizzare
-            }
         }
 
         $configuredPath = realpath(__DIR__ . '/../html');
         if ($configuredPath === false) {
-            if (self::isDebug()) {
-                self::setPlain500();
-                echo "[PageBuilder] Directory template non trovata: " . (__DIR__ . '/../html') . "\n";
-                exit;
-            }
             throw new RuntimeException('Directory template non trovata');
         }
         $this->basePath = $configuredPath;
@@ -108,14 +76,6 @@ class PageBuilder {
         try {
             echo $self->build($templateName, $parameters);
         } catch (Throwable $e) {
-            if (self::isDebug()) {
-                self::setPlain500();
-                echo "[PageBuilder::show] " . $e->getMessage() . "\n";
-                echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-                echo $e->getTraceAsString() . "\n";
-                exit;
-            }
-
             // Produzione: pagina 500 “pulita”
             self::error(500, [
                 'meta_description' => 'Si è verificato un errore interno. Torna alla home.',
@@ -132,18 +92,6 @@ class PageBuilder {
         $allowed = [400, 401, 403, 404, 418, 422, 429, 500, 502, 503, 504];
         if (!in_array($code, $allowed, true)) {
             $code = 500;
-        }
-
-        if (self::isDebug()) {
-            self::setPlain500();
-            echo "[PageBuilder::error] HTTP $code\n";
-            if (!empty($parameters)) {
-                echo "Dettagli:\n";
-                foreach ($parameters as $k => $v) {
-                    echo "- $k: " . (is_scalar($v) ? (string)$v : json_encode($v)) . "\n";
-                }
-            }
-            exit;
         }
 
         http_response_code($code);
@@ -164,12 +112,6 @@ class PageBuilder {
         $file = preg_replace('/\.(html|php)$/i', '', $name);
         $path = $this->basePath . '/' . $file . '.html';
         if (!is_readable($path)) {
-            if (self::isDebug()) {
-                self::setPlain500();
-                echo "[PageBuilder::loadTemplate] Impossibile leggere il template: {$file}.html\n";
-                echo "Percorso: {$path}\n";
-                exit;
-            }
             throw new RuntimeException("Impossibile leggere il template: {$file}.html");
         }
         return new Template($file . '.html', file_get_contents($path));
@@ -211,14 +153,8 @@ class PageBuilder {
                     $parameters['is_admin'] = (bool)$user->isAdmin();
                 }
             } catch (Throwable $e) {
-                // ignora errori auth in fase di build ma MOSTRA in debug
+                // In caso di errore auth in fase di build, procedi silenziosamente
                 $parameters['is_admin'] = false;
-                if (self::isDebug()) {
-                    self::setPlain500();
-                    echo "[PageBuilder::build][getUser] " . $e->getMessage() . "\n";
-                    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-                    // non usciamo: continuiamo il rendering
-                }
             }
         }
 
@@ -233,14 +169,12 @@ class PageBuilder {
         $headerHtml = (new HeaderBuilder($this, $uriPath))->build();
         $footerHtml = (new FooterBuilder($this))->build();
 
-        // Inserisci i componenti standard
         $main->insert('head', $headHtml);
         $main->insert('header', $headerHtml);
         $main->insert('footer', $footerHtml);
         $main->insert('alert', self::getFlashMessage());
         $main->insertAll($parameters);
 
-        // Materializza i blocchi condizionali PRIMA del build
         $adminBlock = $main->getBlockContent('admin_section');
         $userBlock  = $main->getBlockContent('user_section');
 
