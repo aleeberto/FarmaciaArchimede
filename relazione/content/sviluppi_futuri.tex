@@ -6,3 +6,44 @@
   
   \item \textbf{Carrello}: la funzionalità è stata prevista in fase di progettazione, ma non è stata implementata. Le modalità di funzionamento non sono state definite a causa dei vincoli di tempo e della riduzione del gruppo di lavoro (da quattro a due persone), che hanno portato a privilegiare altre parti essenziali del progetto. Una sua introduzione costituirebbe un’evoluzione naturale e rilevante per completare il sito.
 \end{itemize}
+
+\section{Installazione progetto}
+
+I seguenti passaggi sono stati già effettuati, ma vengono riportati per completezza e riproducibilità:
+
+\begin{enumerate}
+  \item \textbf{Copia dei file sul server.}
+    Copiare \emph{il contenuto} di \texttt{public/} dentro \texttt{public\_html/} (DocumentRoot). Nella stessa root del progetto (accanto a \texttt{public\_html/}) copiare anche \texttt{src/} e \texttt{vendor/}.
+    
+    \noindent Struttura consigliata:
+\begin{verbatim}
+/nome_utente
+    public_html/        ← DocumentRoot (solo file pubblici)
+    src/                ← codice applicativo non pubblico
+    vendor/             ← dipendenze Composer + autoload
+\end{verbatim}
+
+    \noindent \texttt{vendor/} serve a runtime (dipendenze Composer e \texttt{autoload.php}); gli entry–point tipicamente includono:
+\begin{verbatim}
+require __DIR__ . '/../vendor/autoload.php';
+\end{verbatim}
+
+  \item \textbf{Ripristino database (phpMyAdmin).}
+    Eliminare eventuali tabelle esistenti (o ricreare il DB vuoto) e importare \emph{in quest’ordine}:
+    \begin{enumerate}
+      \item \texttt{/db/schema.sql} (creazione schema)
+      \item \texttt{/db/data.sql} (dati iniziali)
+    \end{enumerate}
+    Verificare che \emph{tutte} le chiamate a \texttt{Database::getInstance(...)} usino host, utente, password e nome DB corretti per il server di destinazione.
+
+  \item \textbf{Gestione dell’errore 404 in \texttt{.htaccess}.}
+   \texttt{ErrorDocument} con URL assoluto}
+\begin{verbatim}
+ErrorDocument 404 http://tecweb.studenti.math.unipd.it/nome_utente/404.php
+\end{verbatim}
+      Garantisce comportamento uniforme anche nelle sottodirectory.
+\end{enumerate}
+
+
+
+ 
