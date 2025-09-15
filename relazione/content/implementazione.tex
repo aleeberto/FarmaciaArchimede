@@ -39,6 +39,7 @@ Gestisce gli account registrati.
   \item \texttt{user\_id} — \textbf{INT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}: identificatore interno univoco.
   \item \texttt{email} — \textbf{VARCHAR(255)}, \textbf{NOT NULL}, \textbf{UNIQUE}: credenziale di login univoca.
   \item \texttt{password\_hash} — \textbf{CHAR(64)}, \textbf{NOT NULL}: hash della password (esadecimale, p.\,es.\ SHA--256).
+   \item \texttt{username} — \textbf{VARCHAR(30)}, \textbf{NOT NULL}: credenziale di login.
   \item \texttt{first\_name} — \textbf{VARCHAR(50)}, \textbf{NOT NULL}: nome.
   \item \texttt{last\_name} — \textbf{VARCHAR(50)}, \textbf{NOT NULL}: cognome.
   \item \texttt{tax\_code} — \textbf{CHAR(16)}, \textbf{NOT NULL}: codice fiscale.
