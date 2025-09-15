@@ -1,6 +1,48 @@
 \section{Sviluppi Futuri}
 
 \begin{itemize}
-  \item Implementare funzionalità di ricerca avanzata, come filtri multipli e ordinamento personalizzato. AAttualmente è possibile filtrare per tipologia, ma si potrebbero aggiungere opzioni come fascia di prezzo, valutazioni degli utenti, o disponibilità in magazzino. Per quanto riguarda l'ordinamento, attualmente il sito non supporta alcun tipo di ordinamento ma si potrebbe permettere agli utenti di scegliere se visualizzare i prodotti per prezzo crescente, decrescente, o per popolarità.
-  \item Il carello é stato pensato ma mai implementato, le modalitá di funzionamento non sono state definite. La non implementazione di questa funzione é stata dettata dal fatto che il progetto che doveva essere realizzato in 4 persone é alla fine stato portato avanti da 2 soltanto e per motivi di tempo e prioritá é stato deciso di non implementarlo.
+  \item \textbf{Ricerca avanzata}: attualmente il sito consente di filtrare i prodotti soltanto per tipologia. In prospettiva, sarebbe opportuno introdurre funzionalità di ricerca più articolate, come filtri multipli (ad esempio per fascia di prezzo, valutazioni degli utenti o disponibilità in magazzino) e opzioni di ordinamento. Quest’ultimo, al momento assente, potrebbe permettere agli utenti di visualizzare i prodotti in ordine crescente o decrescente di prezzo, oppure secondo criteri di popolarità.
+  
+  \item \textbf{Carrello}: la funzionalità è stata prevista in fase di progettazione, ma non è stata implementata. Le modalità di funzionamento non sono state definite a causa dei vincoli di tempo e della riduzione del gruppo di lavoro (da quattro a due persone), che hanno portato a privilegiare altre parti essenziali del progetto. Una sua introduzione costituirebbe un’evoluzione naturale e rilevante per completare il sito.
 \end{itemize}
+
+\section{Installazione progetto}
+
+I seguenti passaggi sono stati già effettuati, ma vengono riportati per completezza e riproducibilità:
+
+\begin{enumerate}
+  \item \textbf{Copia dei file sul server.}
+    Copiare \emph{il contenuto} di \texttt{public/} dentro \texttt{public\_html/} (DocumentRoot). Nella stessa root del progetto (accanto a \texttt{public\_html/}) copiare anche \texttt{src/} e \texttt{vendor/}.
+    
+    \noindent Struttura consigliata:
+\begin{verbatim}
+/nome_utente
+    public_html/        ← DocumentRoot (solo file pubblici)
+    src/                ← codice applicativo non pubblico
+    vendor/             ← dipendenze Composer + autoload
+\end{verbatim}
+
+    \noindent \texttt{vendor/} serve a runtime (dipendenze Composer e \texttt{autoload.php}); gli entry–point tipicamente includono:
+\begin{verbatim}
+require __DIR__ . '/../vendor/autoload.php';
+\end{verbatim}
+
+  \item \textbf{Ripristino database (phpMyAdmin).}
+    Eliminare eventuali tabelle esistenti (o ricreare il DB vuoto) e importare \emph{in quest’ordine}:
+    \begin{enumerate}
+      \item \texttt{/db/schema.sql} (creazione schema)
+      \item \texttt{/db/data.sql} (dati iniziali)
+    \end{enumerate}
+    Verificare che \emph{tutte} le chiamate a \texttt{Database::getInstance(...)} usino host, utente, password e nome DB corretti per il server di destinazione.
+
+  \item \textbf{Gestione dell’errore 404 in \texttt{.htaccess}.}
+   \texttt{ErrorDocument} con URL assoluto}
+\begin{verbatim}
+ErrorDocument 404 http://tecweb.studenti.math.unipd.it/nome_utente/404.php
+\end{verbatim}
+      Garantisce comportamento uniforme anche nelle sottodirectory.
+\end{enumerate}
+
+
+
+ 

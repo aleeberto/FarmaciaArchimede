@@ -1,7 +1,14 @@
 \section{Implementazione}
 
-\subsection{HTML
-}
+\subsection{HTML}
+Le pagine del sito sono state realizzate utilizzando \textbf{HTML5} come linguaggio di markup e sono state
+validate tramite seguendo le buone pratiche di sviluppo web. In particolare:
+\begin{itemize}
+  \item è stata garantita una netta \textbf{separazione tra struttura, presentazione e comportamento}, mantenendo distinti i fogli di stile CSS, i file PHP e gli script JavaScript dal codice HTML;
+  \item sono stati definiti appositi \textbf{metatag} nella sezione \texttt{<head>} per migliorare il SEO e l’accessibilità;
+  \item la presentazione di informazioni intrinsecamente tabellari, come gli \textbf{orari di apertura} della farmacia riportati nel \texttt{footer}. In questo caso la tabella è stata arricchita con didascalie, intestazioni di riga/colonna e descrizione tramite \verb|aria-describedby|, così da renderla pienamente comprensibile anche a chi utilizza screen reader.
+\end{itemize}
+
 \subsection{PHP}
 
 L'applicazione è sviluppata in PHP adottando una separazione netta tra presentazione e comportamento. Gli \emph{entry point} risiedono in \texttt{public\_html/} (ad es.\ \texttt{index.php}, \texttt{prodotti.php}, \texttt{prodotto.php}, \texttt{login.php}, \texttt{signup.php}, \texttt{logout.php}, \texttt{area\_personale.php}) e hanno il solo compito di caricare l'autoloader e di delegare al servizio pertinente la costruzione della pagina. La logica applicativa è organizzata in \texttt{src/}.
@@ -48,7 +55,7 @@ Raccoglie le tipologie di prodotto (utile per filtri, categorie e SEO).
 \end{itemize}
 \textbf{Relazioni}: \textbf{1--N} con \texttt{products} (una tipologia può avere molti prodotti).
 
-\subsubsection{\texttt{products}}
+\subsection{\texttt{products}}
 Contiene il catalogo dei prodotti in vendita.
 \begin{itemize}[leftmargin=2.2em]
   \item \texttt{product\_id} — \textbf{SMALLINT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}.

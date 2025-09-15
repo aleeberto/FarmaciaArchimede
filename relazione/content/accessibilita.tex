@@ -1,10 +1,16 @@
-\section{Accessibilità}
+ \section{Accessibilità}
 
-L'accessibilità di un sito web è fondamentale per garantire che tutti gli utenti, indipendentemente dalle loro capacità fisiche, sensoriali o cognitive, possano accedere ai contenuti e ai servizi offerti. Un sito accessibile permette la fruizione delle informazioni anche a persone con disabilità, favorendo l'inclusione digitale e rispettando i principi di uguaglianza. Inoltre, l'accessibilità migliora l'usabilità generale del sito, rendendolo più semplice da navigare per tutti gli utenti, e contribuisce a soddisfare i requisiti normativi previsti dalla legge. Nel nostro caso in Italia si richiede certificazione AA.
+Il sito è stato sviluppato seguendo le linee guida WCAG~2.1 a livello di conformità \textbf{AA}, come richiesto dalla normativa AGID. L’obiettivo principale è garantire un’esperienza d’uso accessibile a tutte le tipologie di utenti, inclusi coloro che utilizzano tecnologie assistive.
 
 \subsection{Separazione tra contenuto, presentazione e struttura}
 
-In tutto il progetto è stata mantenuta una separazione tra i 3 elementi chiave di un sito web: contenuto, presentazione e struttura. In modo da migliorare l'accessibilità e la manutenibilità del sito.
+La struttura logica del sito è separata dalla sua presentazione grafica e dal comportamento dinamico:
+\begin{itemize}
+  \item \textbf{Contenuto}: fornito tramite documenti HTML semantici.
+  \item \textbf{Presentazione}: gestita esclusivamente da fogli di stile CSS, distinti per desktop, mobile e stampa.
+  \item \textbf{Struttura e comportamento}: implementati con HTML semantico e, dove necessario, JavaScript non intrusivo.
+\end{itemize}
+Questa separazione migliora la manutenibilità del codice e facilita l’uso di tecnologie assistive come screen reader e browser testuali.
 
 \subsubsection{Assenza di CSS e JavaScript}
 Il sito è completamente funzionale anche in assenza di CSS e JavaScript, garantendo così l'accesso ai contenuti anche a utenti con disabilità che utilizzano tecnologie assistive come screen reader o browser testuali.
@@ -27,6 +33,52 @@ Per il controllo di accessibilità e presentazioni del sito sono stati utilizzat
 
 \subsubsection{Total validator}
 
+La navigazione e la comprensione dei contenuti rimangono possibili anche in assenza di CSS e JavaScript: 
+\begin{itemize}
+  \item Senza CSS la pagina mantiene una gerarchia semantica corretta, basata su titoli e paragrafi.
+  \item Senza JavaScript le funzionalità fondamentali (consultazione dei prodotti, contatti, informazioni istituzionali) restano accessibili.
+\end{itemize}
+
+\subsubsection{Attributi ARIA}
+
+Sono stati utilizzati \textbf{attributi ARIA} solo dove strettamente necessari:
+\begin{itemize}
+  \item \verb|aria-label| per i link con contenuto grafico (es.\ logo del sito).
+  \item \verb|aria-current| per evidenziare la pagina attiva nel menu.
+\end{itemize}
+Abbiamo inoltre adottato la specifica \textbf{WAI-ARIA} sviluppata dal W3C al fine di garantire l’accessibilità a tutte le categorie di utenti. In particolare:
+\begin{itemize}
+  \item Nel \textbf{menu} e nelle \textbf{breadcrumb} sono stati utilizzati \verb|aria-label| e \verb|aria-current| per fornire una descrizione testuale degli elementi di navigazione e indicare la pagina corrente.
+  \item È stato utilizzato \verb|aria-hidden| per nascondere elementi non rilevanti per la navigazione, come il menu mobile quando non è attivo o il link “Torna su”. Questi elementi sono stati esclusi anche dal focus con \verb|tabindex="-1"|, poiché gli utenti con disabilità visiva dispongono di comandi da tastiera dedicati per svolgere le stesse azioni.
+  \item L’attributo \verb|tabindex| è stato adottato solo in questi casi specifici: per il resto la navigazione tramite \texttt{Tab} è garantita dal corretto ordine semantico degli elementi HTML.
+  \item Per le immagini informative è stato fornito un testo alternativo (\verb|alt|), così da garantire che anche gli utenti con disabilità visiva possano comprenderne il contenuto.
+\end{itemize}
+
+\subsubsection{Contrasti}
+
+La palette cromatica è stata verificata con strumenti di contrasto per assicurare il rispetto del rapporto minimo di 4.5:1 tra testo e sfondo. Sono stati inoltre previsti:
+\begin{itemize}
+  \item Temi chiaro e scuro, con variabili CSS personalizzate.
+  \item Stati di hover e focus ben visibili, con colori ad alto contrasto.
+\end{itemize}
+
+\subsection{Strumenti di Testing}
+
+Per la verifica dell’accessibilità e della correttezza del codice sono stati adottati diversi strumenti.
+
+\subsubsection{Ambienti di testing}
+
+Le pagine del sito sono state testate con:
+\begin{itemize}
+  \item \textbf{Validator W3C}: per la verifica della conformità sintattica del codice HTML e CSS.
+  \item \textbf{Total Validator}: per controlli integrati su accessibilità, usabilità e link non funzionanti.
+  \item \textbf{Browser multipli}: Chrome, Firefox e Safari, per garantire compatibilità e resa coerente.
+  \item \textbf{Screen reader NVDA}: per la verifica dell’esperienza di utenti con disabilità visiva.
+\end{itemize}
+
+
+% Per alessandro ... sposta dove vuoi
+\subsubsection{Avvisi di validazione}
 La validazione con Total Validator ha segnalato 5 falsi positivi e 1 probabile errore:
 \begin{itemize}
   \item \textbf{E626 — All element names must be in lower case}. Falso positivo dovuto agli SVG inline: alcuni nomi di elementi SVG sono in camelCase (p.es.\ \texttt{linearGradient}, \texttt{feGaussianBlur}) e sono validi secondo le specifiche SVG. Il validatore applica invece la regola XHTML/HTML che impone i nomi in minuscolo, segnalando erroneamente l’\verb|<svg>|.
