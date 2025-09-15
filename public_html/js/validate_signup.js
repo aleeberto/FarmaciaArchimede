@@ -6,10 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
         first_name: 'Inserisci il nome.',
         last_name: 'Inserisci il cognome.',
         tax_code: 'Codice fiscale non valido (16 caratteri alfanumerici).',
+        username: 'Il nome utente deve essere lungo 3–30 caratteri e può contenere lettere, numeri, punto, underscore o trattino.',
         email: 'Inserisci un’email valida.',
         password: 'La password deve avere almeno 8 caratteri.',
         password_confirm: 'Le password non coincidono.',
-        terms: 'Devi accettare i termini e l’informativa privacy.'
     };
 
     const getField = (name) => form.elements?.[name] || null;
@@ -27,8 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
         tax_code: () => {
             const f = getField('tax_code'); if (!f) return '';
             const v = f.value.trim().toUpperCase();
-            if (v.length === 0) return '';
+            if (v.length === 0) return ''; // consenti vuoto in realtime; il server resta il guardiano finale
             return /^[A-Z0-9]{16}$/.test(v) ? '' : errorMessages.tax_code;
+        },
+        username: () => {
+            const f = getField('username'); if (!f) return '';
+            const v = f.value.trim();
+            if (v.length === 0) return errorMessages.username;
+            return /^[a-zA-Z0-9_.-]{3,30}$/.test(v) ? '' : errorMessages.username;
         },
         email: () => {
             const f = getField('email'); if (!f) return '';
@@ -45,11 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!p1 || !p2) return '';
             return p1.value !== p2.value ? errorMessages.password_confirm : '';
         },
-        terms: () => {
-            const f = getField('terms'); // checkbox
-            if (!f) return ''; // se non esiste, non validare
-            return f.checked ? '' : errorMessages.terms;
-        }
     };
 
     function showError(key, message) {
@@ -87,14 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // 2) normalizza CF se presente
+        // 1) normalizza CF se presente
         const cf = getField('tax_code');
         if (cf) cf.value = cf.value.toUpperCase();
 
-        // 3) valida
+        // 2) valida
         let isValid = true;
         for (const key of Object.keys(validators)) {
-
             if (!validateField(key)) isValid = false;
         }
 

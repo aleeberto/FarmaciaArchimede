@@ -9,16 +9,25 @@
 
         {{ alert }}
 
-        <form action="login.php" method="post">
+        <form action="login.php" method="post" novalidate>
             <p>Accedi alla tua area personale</p>
 
-            <label for="email">Email:</label>
-            <input id="email" type="email" name="email"
-                   placeholder="mariorossi@dominio.it"
-                   value="{{ old.email }}" required />
+            <label for="username">Nome utente:</label>
+            <input id="username"
+                   type="text"
+                   name="username"
+                   autocomplete="username"
+                   placeholder="mariorossi"
+                   pattern="^[a-zA-Z0-9_.-]{3,30}$"
+                   value="{{ old.username }}"
+                   required />
 
             <label for="password">Password:</label>
-            <input id="password" type="password" name="password" required />
+            <input id="password"
+                   type="password"
+                   name="password"
+                   autocomplete="current-password"
+                   required />
 
             <div class="form-buttons">
                 <a href="signup.php" aria-label="Crea account">Crea account</a>

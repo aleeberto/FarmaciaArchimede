@@ -36,6 +36,7 @@ class SignupService extends HeaderBuilder
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName  = trim($_POST['last_name'] ?? '');
         $taxCode   = strtoupper(trim($_POST['tax_code'] ?? ''));
+        $username  = trim($_POST['username'] ?? '');
         $email     = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '';
         $pwd       = $_POST['password'] ?? '';
         $pwd2      = $_POST['password_confirm'] ?? '';
@@ -44,20 +45,22 @@ class SignupService extends HeaderBuilder
             'first_name' => $firstName,
             'last_name'  => $lastName,
             'tax_code'   => $taxCode,
+            'username'   => $username,
             'email'      => $email,
         ];
 
         // Validazioni basilari → array di errori per campo
-        $errors = $this->validate($firstName, $lastName, $taxCode, $email, $pwd, $pwd2);
+        $errors = $this->validate($firstName, $lastName, $taxCode, $username, $email, $pwd, $pwd2);
 
-        // Controllo email già esistente
+        // Unicità
         if ($email !== '' && $this->emailExists($email)) {
             $errors['email'] = 'Esiste già un account con questa email.';
         }
-
-        // Controllo codice fiscale univoco
         if ($taxCode !== '' && $this->taxCodeExists($taxCode)) {
             $errors['tax_code'] = 'Esiste già un account con questo codice fiscale.';
+        }
+        if ($username !== '' && $this->usernameExists($username)) {
+            $errors['username'] = 'Username non disponibile.';
         }
 
         if (!empty($errors)) {
@@ -73,13 +76,13 @@ class SignupService extends HeaderBuilder
             $this->db->begin_transaction();
 
             $hash = password_hash($pwd, PASSWORD_DEFAULT);
-            $q = 'INSERT INTO users (email, first_name, last_name, tax_code, password_hash, is_admin)
-                  VALUES (?, ?, ?, ?, ?, 0)';
+            $q = 'INSERT INTO users (email, username, first_name, last_name, tax_code, password_hash, is_admin)
+                  VALUES (?, ?, ?, ?, ?, ?, 0)';
             $stmt = $this->db->prepare($q);
             if (!$stmt) {
                 throw new Exception('Preparazione INSERT fallita.');
             }
-            $stmt->bind_param('sssss', $email, $firstName, $lastName, $taxCode, $hash);
+            $stmt->bind_param('ssssss', $email, $username, $firstName, $lastName, $taxCode, $hash);
             $ok = $stmt->execute();
             $stmt->close();
 
@@ -94,8 +97,8 @@ class SignupService extends HeaderBuilder
             return;
         }
 
-        // Auto-login e redirect area personale
-        if ($this->auth->login($email, $pwd)) {
+        // Auto-login e redirect area personale (login via email+password)
+        if ($this->auth->login($username, $pwd)) {
             header('Location: area_personale.php');
             exit;
         }
@@ -112,6 +115,7 @@ class SignupService extends HeaderBuilder
             'first_name' => '',
             'last_name'  => '',
             'tax_code'   => '',
+            'username'   => '',
             'email'      => '',
         ];
         $old = array_merge($defaults, $old);
@@ -149,6 +153,7 @@ class SignupService extends HeaderBuilder
         string $firstName,
         string $lastName,
         string $taxCode,
+        string $username,
         string $email,
         string $pwd,
         string $pwd2,
@@ -160,6 +165,7 @@ class SignupService extends HeaderBuilder
         if ($lastName === '')  $errors['last_name']  = 'Il cognome è obbligatorio.';
         if ($email === '')     $errors['email']      = 'L’email è obbligatoria.';
         if ($taxCode === '')   $errors['tax_code']   = 'Il codice fiscale è obbligatorio.';
+        if ($username === '')  $errors['username']   = 'Lo username è obbligatorio.';
         if ($pwd === '')       $errors['password']   = 'La password è obbligatoria.';
         if ($pwd2 === '')      $errors['password_confirm'] = 'Conferma la password.';
 
@@ -167,6 +173,11 @@ class SignupService extends HeaderBuilder
         if (!empty($errors)) {
             $errors['_global'] = 'Correggi i campi evidenziati.';
             return $errors;
+        }
+
+        // Username: 3–30, alfanumerico + . _ -
+        if (!preg_match('/^[a-zA-Z0-9_.-]{3,30}$/', $username)) {
+            $errors['username'] = 'Username non valido (3–30 caratteri: lettere, numeri, punto, underscore, trattino).';
         }
 
         // Password
@@ -207,6 +218,19 @@ class SignupService extends HeaderBuilder
         $stmt = $this->db->prepare($q);
         if (!$stmt) return false; // se fallisce la prepare, non blocco la registrazione
         $stmt->bind_param('s', $taxCode);
+        $stmt->execute();
+        $stmt->store_result();
+        $exists = $stmt->num_rows > 0;
+        $stmt->close();
+        return $exists;
+    }
+
+    private function usernameExists(string $username): bool
+    {
+        $q = 'SELECT 1 FROM users WHERE username = ? LIMIT 1';
+        $stmt = $this->db->prepare($q);
+        if (!$stmt) return true; // conservativo
+        $stmt->bind_param('s', $username);
         $stmt->execute();
         $stmt->store_result();
         $exists = $stmt->num_rows > 0;

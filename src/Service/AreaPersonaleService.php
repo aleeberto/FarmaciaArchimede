@@ -116,7 +116,6 @@ class AreaPersonaleService
             throw new \RuntimeException("Utente non autenticato.");
         }
 
-        // Leggi sempre dal DB per evitare dati stantii in sessione
         $row = $this->getProfiloUtente($user->getId());
         if ($row === null) {
             throw new \RuntimeException("Profilo utente non trovato.");
@@ -126,6 +125,7 @@ class AreaPersonaleService
             'user' => [
                 'first_name' => $row->first_name,
                 'last_name'  => $row->last_name,
+                'username'   => $row->username,
                 'email'      => $row->email,
                 'tax_code'   => $row->tax_code,
             ],
@@ -218,11 +218,9 @@ class AreaPersonaleService
             throw new \RuntimeException('Utente non autenticato.');
         }
         $myId     = (int)$me->getId();
-        $iAmAdmin = method_exists($me, 'isAdmin') ? (bool)$me->isAdmin() : $this->isUserAdminById($myId);
 
-        // Dati
         $sql = "
-        SELECT user_id, email, first_name, last_name, tax_code, is_admin
+        SELECT user_id, email, username, first_name, last_name, tax_code, is_admin
         FROM users
         ORDER BY last_name, first_name
     ";
@@ -235,7 +233,7 @@ class AreaPersonaleService
         // CSRF
         $csrf = $this->ensureCsrfToken();
 
-        // Template: un solo row template (niente *_public.html)
+        // Template
         $listTplPath = __DIR__ . '/../html/area_personale/card/all_users.html';
         $rowTplPath  = __DIR__ . '/../html/area_personale/card/_user_row.html';
 
@@ -259,24 +257,15 @@ class AreaPersonaleService
             $row->insert('id',         (string)$userId);
             $row->insert('first_name', htmlspecialchars((string)$u['first_name']));
             $row->insert('last_name',  htmlspecialchars((string)$u['last_name']));
+            $row->insert('username',   htmlspecialchars((string)($u['username'] ?? '')));
+            $row->insert('email',      htmlspecialchars((string)$u['email']));
+            $row->insert('tax_code',   htmlspecialchars((string)$u['tax_code']));
+            $row->insert('role',       $isAdmin ? 'Admin' : 'Utente');
+            $row->insert('role_class', $isAdmin ? 'admin' : 'user');
             $row->insert('csrf',       $csrf);
 
-            if ($iAmAdmin) {
-                // Vista admin: tutti i dati visibili
-                $row->insert('email',    htmlspecialchars((string)$u['email']));
-                $row->insert('tax_code', htmlspecialchars((string)$u['tax_code']));
-                $row->insert('role',     $isAdmin ? 'Admin' : 'Utente');
-            } else {
-                // Vista non-admin: dati sensibili oscurati
-                $row->insert('email',    '—');
-                $row->insert('tax_code', '—');
-                $row->insert('role',     '—');
-            }
             if ($isSelf) {
-                $row->insert(
-                    'edit_control',
-                    '<a class="btn-edit" href="?section=dati">Modifica</a>'
-                );
+                $row->insert('edit_control', '<a class="btn-edit" href="?section=dati">Modifica</a>');
             } else {
                 $row->insert('edit_control', '');
             }
@@ -292,6 +281,7 @@ class AreaPersonaleService
         return $list->build();
     }
 
+
     /**
      * =========================
      * Profilo / Aggiornamenti
@@ -305,11 +295,11 @@ class AreaPersonaleService
     public function getProfiloUtente(int $userId): ?\stdClass
     {
         $stmt = $this->mysqli->prepare("
-            SELECT user_id, first_name, last_name, email, tax_code
-            FROM users
-            WHERE user_id = ?
-            LIMIT 1
-        ");
+        SELECT user_id, first_name, last_name, username, email, tax_code
+        FROM users
+        WHERE user_id = ?
+        LIMIT 1
+    ");
         if (!$stmt) {
             throw new \RuntimeException("Errore prepare getProfiloUtente: " . $this->mysqli->error);
         }
@@ -330,73 +320,13 @@ class AreaPersonaleService
         $o->user_id    = (int)$row['user_id'];
         $o->first_name = (string)$row['first_name'];
         $o->last_name  = (string)$row['last_name'];
+        $o->username   = (string)$row['username'];
         $o->email      = (string)$row['email'];
         $o->tax_code   = (string)$row['tax_code'];
         return $o;
     }
 
-    /**
-     * Aggiorna i dati base del profilo utente.
-     * $data atteso: first_name, last_name, email, tax_code (già validati a monte).
-     */
-    public function updateProfiloUtente(int $userId, array $data): void
-    {
-        $firstName = $data['first_name'] ?? '';
-        $lastName  = $data['last_name']  ?? '';
-        $email     = $data['email']      ?? '';
-        $taxCode   = $data['tax_code']   ?? '';
 
-        $stmt = $this->mysqli->prepare("
-            UPDATE users
-            SET first_name = ?, last_name = ?, email = ?, tax_code = ?
-            WHERE user_id = ?
-            LIMIT 1
-        ");
-        if (!$stmt) {
-            throw new \RuntimeException("Errore prepare updateProfiloUtente: " . $this->mysqli->error);
-        }
-
-        $stmt->bind_param('ssssi', $firstName, $lastName, $email, $taxCode, $userId);
-        if (!$stmt->execute()) {
-            throw new \RuntimeException("Errore execute updateProfiloUtente: " . $stmt->error);
-        }
-
-        // Allinea eventuali dati in sessione se l'AuthService espone un metodo dedicato
-        if (method_exists($this->auth, 'refreshSessionUserData')) {
-            try {
-                $this->auth->refreshSessionUserData($userId);
-            } catch (\Throwable $e) {
-                // Non è bloccante per il salvataggio
-            }
-        }
-    }
-
-    /**
-     * Verifica se l'email è già usata da un altro utente (utile per la validazione server-side).
-     * Ritorna true se esiste un altro utente con la stessa email.
-     */
-    public function emailEsistePerAltroUtente(string $email, int $excludeUserId): bool
-    {
-        $stmt = $this->mysqli->prepare("
-            SELECT 1
-            FROM users
-            WHERE email = ?
-              AND user_id <> ?
-            LIMIT 1
-        ");
-        if (!$stmt) {
-            throw new \RuntimeException("Errore prepare emailEsistePerAltroUtente: " . $this->mysqli->error);
-        }
-
-        $stmt->bind_param('si', $email, $excludeUserId);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        if (!$res) {
-            throw new \RuntimeException("Errore execute emailEsistePerAltroUtente: " . $stmt->error);
-        }
-
-        return (bool)$res->fetch_row();
-    }
 
     /**
      * Verifica la password di conferma per l’utente corrente.
@@ -492,18 +422,32 @@ class AreaPersonaleService
         }
 
         // Normalizzazione + validazioni
-        $first = trim((string)($data['first_name'] ?? ''));
-        $last  = trim((string)($data['last_name']  ?? ''));
-        $email = strtolower(trim((string)($data['email'] ?? '')));
-        $tax   = strtoupper(trim((string)($data['tax_code'] ?? '')));
-        if ($first === '' || $last === '') throw new \RuntimeException('Nome e cognome sono obbligatori.');
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new \RuntimeException('Email non valida.');
-        if (!preg_match('/^[A-Z0-9]{16}$/', $tax)) throw new \RuntimeException('Codice fiscale non valido.');
+        $first    = trim((string)($data['first_name'] ?? ''));
+        $last     = trim((string)($data['last_name']  ?? ''));
+        $username = trim((string)($data['username']   ?? ''));
+        $email    = strtolower(trim((string)($data['email'] ?? '')));
+        $tax      = strtoupper(trim((string)($data['tax_code'] ?? '')));
+
+        if ($first === '' || $last === '') {
+            throw new \RuntimeException('Nome e cognome sono obbligatori.');
+        }
+        if ($username === '') {
+            throw new \RuntimeException('Lo username è obbligatorio.');
+        }
+        if (!preg_match('/^[a-zA-Z0-9_.-]{3,30}$/', $username)) {
+            throw new \RuntimeException('Username non valido (3–30 caratteri: lettere, numeri, punto, underscore, trattino).');
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \RuntimeException('Email non valida.');
+        }
+        if (!preg_match('/^[A-Z0-9]{16}$/', $tax)) {
+            throw new \RuntimeException('Codice fiscale non valido.');
+        }
 
         $uid = (int)$user->getId();
 
-        // 1) Carica valori correnti
-        $stmt = $this->mysqli->prepare('SELECT first_name,last_name,email,tax_code FROM users WHERE user_id = ? LIMIT 1');
+        // 1) Carica valori correnti (incluso username)
+        $stmt = $this->mysqli->prepare('SELECT first_name,last_name,username,email,tax_code FROM users WHERE user_id = ? LIMIT 1');
         if (!$stmt) throw new \RuntimeException('Errore sistema (prep select current).');
         $stmt->bind_param('i', $uid);
         if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec select current).');
@@ -514,10 +458,11 @@ class AreaPersonaleService
         if (!$current) throw new \RuntimeException('Utente non trovato.');
 
         $noOp =
-            (trim((string)$current['first_name']) === $first) &&
-            (trim((string)$current['last_name'])  === $last)  &&
-            (strtolower((string)$current['email']) === $email) &&
-            (strtoupper((string)$current['tax_code']) === $tax);
+            (trim((string)$current['first_name'])           === $first) &&
+            (trim((string)$current['last_name'])            === $last)  &&
+            (trim((string)$current['username'])             === $username) &&
+            (strtolower((string)$current['email'])          === $email) &&
+            (strtoupper((string)$current['tax_code'])       === $tax);
 
         if ($noOp) {
             return 'noop';
@@ -528,16 +473,25 @@ class AreaPersonaleService
         if (!$stmt) throw new \RuntimeException('Errore sistema (prep check email).');
         $stmt->bind_param('si', $email, $uid);
         if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec check email).');
-        $exists = (bool)$stmt->get_result()->fetch_row();
+        $existsEmail = (bool)$stmt->get_result()->fetch_row();
         $stmt->close();
-        if ($exists) throw new \RuntimeException('Email già in uso.');
+        if ($existsEmail) throw new \RuntimeException('Email già in uso.');
 
-        // 3) UPDATE
+        // 3) Unicità username
+        $stmt = $this->mysqli->prepare('SELECT 1 FROM users WHERE username = ? AND user_id <> ? LIMIT 1');
+        if (!$stmt) throw new \RuntimeException('Errore sistema (prep check username).');
+        $stmt->bind_param('si', $username, $uid);
+        if (!$stmt->execute()) throw new \RuntimeException('Errore sistema (exec check username).');
+        $existsUsername = (bool)$stmt->get_result()->fetch_row();
+        $stmt->close();
+        if ($existsUsername) throw new \RuntimeException('Username non disponibile.');
+
+        // 4) UPDATE (incluso username)
         $stmt = $this->mysqli->prepare(
-            'UPDATE users SET first_name = ?, last_name = ?, email = ?, tax_code = ? WHERE user_id = ? LIMIT 1'
+            'UPDATE users SET first_name = ?, last_name = ?, username = ?, email = ?, tax_code = ? WHERE user_id = ? LIMIT 1'
         );
         if (!$stmt) throw new \RuntimeException('Errore sistema (prep update).');
-        $stmt->bind_param('ssssi', $first, $last, $email, $tax, $uid);
+        $stmt->bind_param('sssssi', $first, $last, $username, $email, $tax, $uid);
 
         try {
             if (!$stmt->execute()) {
@@ -545,7 +499,14 @@ class AreaPersonaleService
             }
         } catch (\mysqli_sql_exception $e) {
             if ((int)$e->getCode() === 1062) {
-                throw new \RuntimeException('Email già in uso.');
+                $msg = $e->getMessage();
+                if (stripos($msg, 'username') !== false || stripos($msg, 'uniq_users_username') !== false) {
+                    throw new \RuntimeException('Username non disponibile.');
+                }
+                if (stripos($msg, 'email') !== false || stripos($msg, 'uniq_users_email') !== false) {
+                    throw new \RuntimeException('Email già in uso.');
+                }
+                throw new \RuntimeException('Dato già in uso.');
             }
             error_log('[updateProfile] SQL error '.$e->getCode().': '.$e->getMessage());
             throw new \RuntimeException('Errore durante l’aggiornamento del profilo.');
@@ -553,7 +514,7 @@ class AreaPersonaleService
             $stmt->close();
         }
 
-        // 4) Riallinea sessione (best-effort)
+        // 5) Riallinea sessione (best-effort)
         try {
             $this->auth->reloadUserFromDbAndSyncSession();
         } catch (\Throwable $e) {
@@ -562,4 +523,5 @@ class AreaPersonaleService
 
         return 'updated';
     }
+
 }

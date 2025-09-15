@@ -20,16 +20,18 @@ class AuthService
         $this->mysqli   = $database->connect();
     }
 
-    public function login(string $email, string $password): bool
+    public function login(string $username, string $password): bool
     {
         $stmt = $this->mysqli->prepare(
-            'SELECT user_id, email, first_name, last_name, tax_code, password_hash, is_admin
-             FROM users WHERE email = ? LIMIT 1'
+            'SELECT user_id, email, username, first_name, last_name, tax_code, password_hash, is_admin
+         FROM users
+         WHERE username = ?
+         LIMIT 1'
         );
         if (!$stmt) {
-            throw new Exception('Errore nella preparazione della query di login.');
+            throw new \Exception('Errore nella preparazione della query di login.');
         }
-        $stmt->bind_param('s', $email);
+        $stmt->bind_param('s', $username);
         $stmt->execute();
         $res = $stmt->get_result();
         $row = $res?->fetch_assoc();
@@ -45,7 +47,8 @@ class AuthService
             (string)$row['first_name'],
             (string)$row['last_name'],
             (string)$row['tax_code'],
-            (bool)$row['is_admin']
+            (bool)$row['is_admin'],
+            (string)$row['username']
         );
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -54,6 +57,7 @@ class AuthService
         $_SESSION['user'] = $userDTO;
         return true;
     }
+
 
     public function logout(): void
     {

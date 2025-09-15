@@ -32,31 +32,39 @@ class LoginService
             exit;
         }
 
-        // === POST → tenta login, poi SEMPRE redirect (PRG) ===
+        // === POST → tenta login con USERNAME, poi PRG ===
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '';
-            $pwd   = $_POST['password'] ?? '';
+            $username = trim((string)($_POST['username'] ?? ''));
+            $pwd      = (string)($_POST['password'] ?? '');
 
-            if ($this->auth->login($email, $pwd)) {
-                // Successo → vai all’area personale
+            if ($username === '' || !preg_match('/^[a-zA-Z0-9_.-]{3,30}$/', $username)) {
+                $_SESSION['flash_message'] = [
+                    'type'    => 'error',
+                    'message' => 'Credenziali errate.',
+                ];
+                $_SESSION['old'] = ['username' => $username];
+                header('Location: login.php');
+                exit;
+            }
+
+            if ($this->auth->login($username, $pwd)) {
                 header('Location: area_personale.php');
                 exit;
             }
 
-            // Fallimento → imposta flash + old values in session
+            // Fallimento → flash + old
             $_SESSION['flash_message'] = [
                 'type'    => 'error',
                 'message' => 'Credenziali errate.',
             ];
-            $_SESSION['old'] = ['email' => $email];
+            $_SESSION['old'] = ['username' => $username];
 
-            // GET pulita
             header('Location: login.php');
             exit;
         }
 
-        $old = $_SESSION['old'] ?? ['email' => ''];
-        unset($_SESSION['old']); // pulizia dopo lettura
+        $old = $_SESSION['old'] ?? ['username' => ''];
+        unset($_SESSION['old']); // pulizia
 
         PageBuilder::show('login', [
             'old'               => $old,

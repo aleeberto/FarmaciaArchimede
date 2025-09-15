@@ -11,6 +11,7 @@ class UserDTO
     private string $lastName;
     private string $taxCode;
     private bool $isAdmin;
+    private string $username; // NEW
 
     public function __construct(
         int $id,
@@ -18,7 +19,8 @@ class UserDTO
         string $firstName,
         string $lastName,
         string $taxCode,
-        bool $isAdmin
+        bool $isAdmin,
+        string $username = '' // NEW default per retro-compatibilità
     ) {
         $this->id = $id;
         $this->email = $email;
@@ -26,6 +28,7 @@ class UserDTO
         $this->lastName = $lastName;
         $this->taxCode = $taxCode;
         $this->isAdmin = $isAdmin;
+        $this->username = $username;
     }
 
     public function getId(): int { return $this->id; }
@@ -34,4 +37,5 @@ class UserDTO
     public function getLastName(): string { return $this->lastName; }
     public function getTaxCode(): string { return $this->taxCode; }
     public function isAdmin(): bool { return $this->isAdmin; }
+    public function getUsername(): string { return $this->username; }
 }

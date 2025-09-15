@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
                                      user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                                      email VARCHAR(255) NOT NULL UNIQUE,
                                      password_hash CHAR(64) NOT NULL,
+                                     username VARCHAR(30) NOT NULL,
                                      first_name VARCHAR(50) NOT NULL,
                                      last_name  VARCHAR(50) NOT NULL,
                                      tax_code   CHAR(16) NOT NULL,

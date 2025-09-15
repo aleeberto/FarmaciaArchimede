@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('profile-edit-form');
     if (!form) return;
 
-    // Helpers
     const getField = (name) => form.elements?.[name] || null;
     const showError = (key, message) => {
         const id = 'error-' + key.replace(/_/g, '-');
@@ -21,14 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const M = {
         first_name: 'Inserisci il nome.',
         last_name: 'Inserisci il cognome.',
+        username: 'Lo username deve essere lungo 3–30 caratteri e può contenere lettere, numeri, punto, underscore o trattino.',
         email: 'Inserisci un’email valida.',
         tax_code: 'Codice fiscale non valido (16 caratteri alfanumerici).',
         nothing_changed: 'Nessuna modifica apportata.'
     };
 
-    // Rileva modifiche ai dati profilo (confronto con data-original)
     function isProfileChanged() {
-        const keys = ['first_name','last_name','email','tax_code'];
+        const keys = ['first_name','last_name','username','email','tax_code'];
         return keys.some(k => {
             const f = getField(k);
             if (!f) return false;
@@ -46,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return fields.some(f => (f.value ?? '').length > 0);
     }
 
-    // Validazioni SOLO profilo
     function validateFirstName() {
         const f = getField('first_name'); if (!f) return true;
         const msg = f.value.trim().length === 0 ? M.first_name : '';
@@ -56,6 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const f = getField('last_name'); if (!f) return true;
         const msg = f.value.trim().length === 0 ? M.last_name : '';
         showError('last_name', msg); return !msg;
+    }
+    function validateUsername() {
+        const f = getField('username'); if (!f) return true;
+        const v = f.value.trim();
+        const ok = /^[a-zA-Z0-9_.-]{3,30}$/.test(v);
+        const msg = ok ? '' : M.username;
+        showError('username', msg); return !msg;
     }
     function validateEmail() {
         const f = getField('email'); if (!f) return true;
@@ -71,11 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
         showError('tax_code', msg); return !msg;
     }
 
-    // Binding live SOLO ai campi profilo
-    [['first_name', validateFirstName],
+    [
+        ['first_name', validateFirstName],
         ['last_name',  validateLastName],
+        ['username',   validateUsername],
         ['email',      validateEmail],
-        ['tax_code',   validateTaxCode]].forEach(([name, fn]) => {
+        ['tax_code',   validateTaxCode],
+    ].forEach(([name, fn]) => {
         const f = getField(name); if (!f) return;
         const h = () => fn();
         f.addEventListener('input', h);
@@ -87,14 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // Normalizza CF
         const cf = getField('tax_code');
         if (cf) cf.value = cf.value.toUpperCase();
 
         const changed = isProfileChanged();
         const passwordFlow = isPasswordFlow();
 
-        // Se niente è cambiato e non stai usando i campi password -> blocca
         if (!changed && !passwordFlow) {
             // riutilizzo l’area errori di conferma per non aggiungere UI
             showError('confirm_with_password', M.nothing_changed);
@@ -103,17 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Se stai usando il flusso password, non validiamo nulla qui (fa tutto il server)
-        // Se stai cambiando solo profilo, valida i 4 campi
         if (!passwordFlow && changed) {
             let ok = true;
             ok = validateFirstName() && ok;
             ok = validateLastName()  && ok;
+            ok = validateUsername()  && ok;
             ok = validateEmail()     && ok;
             ok = validateTaxCode()   && ok;
 
             if (!ok) {
-                const errorEls = form.querySelectorAll('.form-error:not([hidden])');
+                const errorEls = form.querySelectorAll('.error-msg:not([hidden])');
                 if (errorEls.length > 0) {
                     const first = errorEls[0];
                     const forId = first.id.replace(/^error-/, '').replace(/-/g, '_');
@@ -124,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // In tutti gli altri casi lascia che il server gestisca (soprattutto password)
         form.submit();
     });
 });

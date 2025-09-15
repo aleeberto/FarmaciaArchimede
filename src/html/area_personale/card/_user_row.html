@@ -5,19 +5,23 @@
     <header class="user-card__header">
         <h2 id="user-title-{{ id }}" class="user-card__title">
             {{ first_name }} {{ last_name }}
+            <span class="user-card__username">(@{{ username }})</span>
         </h2>
         <p class="user-card__email">
             <span class="visually-hidden">Email:</span>
             <a href="mailto:{{ email }}">{{ email }}</a>
         </p>
         <p id="user-meta-{{ id }}" class="visually-hidden">
-            ID {{ id }}, Codice Fiscale {{ tax_code }}, Ruolo {{ role }}.
+            ID {{ id }}, Username {{ username }}, Codice Fiscale {{ tax_code }}, Ruolo {{ role }}.
         </p>
     </header>
 
     <dl class="user-card__details">
         <div class="row">
             <dt>ID</dt><dd>{{ id }}</dd>
+        </div>
+        <div class="row">
+            <dt>Nome utente</dt><dd>{{ username }}</dd>
         </div>
         <div class="row">
             <dt>Nome</dt><dd>{{ first_name }}</dd>
@@ -49,8 +53,8 @@
             <button type="submit" class="btn-delete" {{ delete_disabled }}>
                 Elimina
                 <span class="visually-hidden">
-          utente: {{ first_name }} {{ last_name }} (ID {{ id }})
-        </span>
+                    utente: {{ first_name }} {{ last_name }} (ID {{ id }}, username {{ username }})
+                </span>
             </button>
         </form>
     </div>

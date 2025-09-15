@@ -20,6 +20,23 @@
             <h2 id="form-title" class="visually-hidden">Compila i dati per registrarti</h2>
 
             <div class="form-control">
+                <label for="username">Nome utente</label>
+                <input id="username"
+                       name="username"
+                       type="text"
+                       required
+                       minlength="3"
+                       maxlength="30"
+                       pattern="^[a-zA-Z0-9_.-]{3,30}$"
+                       autocomplete="username"
+                       aria-describedby="error-username"
+                       value="{{ old.username }}" />
+                <p id="error-username" class="error-msg" role="alert" aria-live="assertive">
+                    {{ errors.username }}
+                </p>
+            </div>
+
+            <div class="form-control">
                 <label for="first_name">Nome</label>
                 <input id="first_name" name="first_name" type="text" required
                        aria-describedby="error-first-name"
@@ -62,6 +79,7 @@
             <div class="form-control">
                 <label for="password">Password</label>
                 <input id="password" name="password" type="password" required
+                       autocomplete="new-password"
                        aria-describedby="error-password" />
                 <p id="error-password" class="error-msg" role="alert" aria-live="assertive">
                     {{ errors.password }}
@@ -71,6 +89,7 @@
             <div class="form-control">
                 <label for="password_confirm">Conferma password</label>
                 <input id="password_confirm" name="password_confirm" type="password" required
+                       autocomplete="new-password"
                        aria-describedby="error-password-confirm" />
                 <p id="error-password-confirm" class="error-msg" role="alert" aria-live="assertive">
                     {{ errors.password_confirm }}

@@ -14,18 +14,18 @@ use App\Service\AreaPersonaleService;
 
 Auth::requireLogin();
 
-// 2) Inizializza DB e servizi
+
 $db = Database::getInstance(
     'localhost', 'gbarison','SaSoo9chahNguuCh', 'gbarison'
 );
 $auth = new AuthService($db);
 $svc  = new AreaPersonaleService($auth, $db);
 
-// 3) Determina la sezione (menu, dati, ordini, gestione, ecc.) e l'azione
+
 $section = $_GET['section'] ?? 'menu';
 $action  = $_GET['action']  ?? 'view'; // non più usato per 'dati' in GET
 
-// 4) Breadcrumb e parametri base
+
 $params = [];
 $crumbs = [
     '<a href="index.php" lang="en">Home</a>',
@@ -34,14 +34,15 @@ $crumbs = [
 
 $isAdmin = $auth->getUser()->isAdmin();
 
-// Helper di escaping HTML
+
 $esc = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-// Helper: merge valori form (flat)
+
 $mergeForm = static function (array $oldSafe, array $safeUser): array {
     return [
         'first_name' => ($oldSafe['first_name'] ?? '') !== '' ? $oldSafe['first_name'] : ($safeUser['first_name'] ?? ''),
         'last_name'  => ($oldSafe['last_name']  ?? '') !== '' ? $oldSafe['last_name']  : ($safeUser['last_name']  ?? ''),
+        'username'   => ($oldSafe['username']   ?? '') !== '' ? $oldSafe['username']   : ($safeUser['username']   ?? ''),
         'email'      => ($oldSafe['email']      ?? '') !== '' ? $oldSafe['email']      : ($safeUser['email']      ?? ''),
         'tax_code'   => ($oldSafe['tax_code']   ?? '') !== '' ? $oldSafe['tax_code']   : ($safeUser['tax_code']   ?? ''),
     ];
@@ -50,18 +51,17 @@ $mergeForm = static function (array $oldSafe, array $safeUser): array {
 // 5) Router
 switch ($section) {
     case 'dati': {
-        // Dati base utente
-        $base = $svc->getDatiUtente();        // ['user' => ['first_name','last_name','email','tax_code']]
+        $base = $svc->getDatiUtente();        // ['user' => ['first_name','last_name','username','email','tax_code']]
         $user = $base['user'] ?? [];
 
-        $metaDesc = 'Aggiorna nome, cognome, email e codice fiscale. Modifica password in sicurezza nell’Area Personale di Farmacia Archimede.';
-        $metaKeys = 'area personale, dati utente, modifica profilo, cambio password, sicurezza, farmacia archimede';
+        $metaDesc = 'Aggiorna nome, cognome, username, email e codice fiscale. Modifica password in sicurezza nell’Area Personale di Farmacia Archimede.';
+        $metaKeys = 'area personale, dati utente, modifica profilo, username, cambio password, sicurezza, farmacia archimede';
 
 
-        // Versione "safe" per il template
         $safeUser = [
             'first_name' => $esc($user['first_name'] ?? ''),
             'last_name'  => $esc($user['last_name']  ?? ''),
+            'username'   => $esc($user['username']   ?? ''),
             'email'      => $esc($user['email']      ?? ''),
             'tax_code'   => $esc($user['tax_code']   ?? ''),
         ];
@@ -74,7 +74,7 @@ switch ($section) {
 
         // Chiavi errore per il form
         $errorKeys = [
-            'first_name','last_name','email','tax_code',
+            'first_name','last_name','username','email','tax_code',
             'current_password','new_password','new_password_confirm','confirm_with_password'
         ];
         $errors = array_fill_keys($errorKeys, '');
@@ -99,6 +99,7 @@ switch ($section) {
         $data = [
             'first_name'            => trim($post['first_name'] ?? ''),
             'last_name'             => trim($post['last_name'] ?? ''),
+            'username'              => trim($post['username'] ?? ''),
             'email'                 => trim($post['email'] ?? ''),
             'tax_code'              => strtoupper(trim($post['tax_code'] ?? '')),
             'current_password'      => $post['current_password'] ?? '',
@@ -112,6 +113,7 @@ switch ($section) {
         $oldSafe = [
             'first_name' => $esc($data['first_name']),
             'last_name'  => $esc($data['last_name']),
+            'username'   => $esc($data['username']),
             'email'      => $esc($data['email']),
             'tax_code'   => $esc($data['tax_code']),
         ];
@@ -139,6 +141,7 @@ switch ($section) {
         $profileChanged =
             ($data['first_name'] !== ($user['first_name'] ?? '')) ||
             ($data['last_name']  !== ($user['last_name']  ?? '')) ||
+            ($data['username']   !== ($user['username']   ?? '')) ||
             ($data['email']      !== ($user['email']      ?? '')) ||
             ($data['tax_code']   !== (isset($user['tax_code']) ? strtoupper((string)$user['tax_code']) : ''));
 
@@ -151,7 +154,7 @@ switch ($section) {
                 'type'    => 'info',
                 'message' => 'Nessuna modifica apportata.',
             ];
-            header('Location: /area_personale.php?section=dati');
+            header('Location: area_personale.php?section=dati');
             exit;
         }
 
@@ -162,6 +165,11 @@ switch ($section) {
             }
             if ($data['last_name'] === '') {
                 $errors['last_name'] = 'Inserisci il cognome.';
+            }
+            if ($data['username'] === '') {
+                $errors['username'] = 'Inserisci lo username.';
+            } elseif (!preg_match('/^[a-zA-Z0-9_.-]{3,30}$/', $data['username'])) {
+                $errors['username'] = 'Username non valido (3–30 caratteri: lettere, numeri, punto, underscore, trattino).';
             }
             if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = 'Inserisci un’email valida.';
@@ -217,19 +225,17 @@ switch ($section) {
 
         // ===== Salvataggio =====
         try {
-            // Conferma con password (arriva qui solo se c'erano modifiche)
             $svc->verifyPassword($data['confirm_with_password']);
 
-            // Cambio password se richiesto
             if ($wantsPwChange) {
                 $svc->changePassword($data['current_password'], $data['new_password']);
             }
 
-            // Aggiorna profilo se cambiano i dati
             if ($profileChanged) {
                 $svc->updateProfile([
                     'first_name' => $data['first_name'],
                     'last_name'  => $data['last_name'],
+                    'username'   => $data['username'],
                     'email'      => $data['email'],
                     'tax_code'   => $data['tax_code'],
                 ]);
@@ -249,6 +255,8 @@ switch ($section) {
                 $errors['current_password'] = $msg;
             } elseif (stripos($msg, 'conferma') !== false) {
                 $errors['confirm_with_password'] = $msg;
+            } elseif (stripos($msg, 'username') !== false) {
+                $errors['username'] = $msg; // es. "Username non disponibile."
             } elseif (stripos($msg, 'email') !== false) {
                 $errors['email'] = $msg;
             } else {
@@ -336,10 +344,8 @@ $items = '';
 
 foreach ($crumbs as $i => $crumb) {
     if ($i === $lastIndex) {
-        // Ultimo: solo testo, aria-current
         $items .= '<li aria-current="page">' . strip_tags($crumb) . '</li>';
     } else {
-        // Intermedi: link + separatore visivo non letto dagli screen reader
         $items .= '<li>' . $crumb . ' <span class="separator" aria-hidden="true">&gt;&gt;</span></li>';
     }
 }
@@ -347,5 +353,4 @@ foreach ($crumbs as $i => $crumb) {
 $params['breadcrumb'] = $items;
 $params['is_admin']   = $isAdmin;
 
-// 7) Render con PageBuilder
 PageBuilder::show($templateName, $params);
