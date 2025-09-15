@@ -45,8 +45,8 @@
             <div class="form-control form-control--full">
                 <label for="product-image">Anteprima immagine</label>
                 <picture class="product-preview">
-                    <source srcset="{{ image_webp_url }}" type="image/webp">
-                    <source srcset="{{ image_jpg_url }}"  type="image/jpeg">
+                    <source srcset="{{ image_webp_url }}" type="image/webp" />
+                    <source srcset="{{ image_jpg_url }}"  type="image/jpeg" />
                     <img src="{{ image_jpg_url }}" alt="Anteprima prodotto" class="product-preview" />
                 </picture>
             </div>
@@ -190,14 +190,17 @@
                 <label for="product-price">
                     Prezzo (€)<span aria-hidden="true">*</span>
                 </label>
-                <input type="number"
-                       id="product-price"
-                       name="price"
-                       step="0.01"
-                       min="0.01"
-                       required
-                       aria-describedby="error-price"
-                       value="{{ price }}" />
+                <input
+                        type="number"
+                        id="product-price"
+                        name="price"
+                        inputmode="decimal"
+                        step="0.01"
+                        min="0.01"
+                        required
+                        aria-describedby="error-price"
+                        placeholder="0.00"
+                />
                 <p id="error-price"
                    class="error-msg"
                    role="alert"
@@ -211,13 +214,16 @@
                 <label for="product-availability">
                     Disponibilità<span aria-hidden="true">*</span>
                 </label>
-                <input type="number"
-                       id="product-availability"
-                       name="availability"
-                       min="0"
-                       required
-                       aria-describedby="error-availability"
-                       value="{{ availability }}" />
+                <input
+                        type="number"
+                        id="product-availability"
+                        name="availability"
+                        step="1"
+                        min="0"
+                        required
+                        aria-describedby="error-availability"
+                        placeholder="0"
+                />
                 <p id="error-availability"
                    class="error-msg"
                    role="alert"

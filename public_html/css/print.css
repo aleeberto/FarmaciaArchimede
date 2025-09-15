@@ -253,3 +253,61 @@ header, nav, footer, main, aside,
 .member-quote {
     color: black;
 }
+
+@media print {
+    @page { size: A4 portrait; margin: 12mm; }
+    html, body { font-size: 11pt; }
+
+    .cards-grid,
+    .users-grid,
+    .user-list,
+    .admin-users { display: block; padding-left: 5mm; margin: 0; }
+
+    .cards-grid > *,
+    .users-grid > *,
+    .user-list > *,
+    .admin-users > *,
+    .product-card,
+    .user-card {
+        display: list-item;
+        list-style-type: disc;
+        list-style-position: outside;
+        margin: 0 0 2.5mm 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .product-card,
+    .user-card { border: 0; padding: 0; background: transparent; box-shadow: none; }
+
+    .product-card__actions,
+    .user-card__actions,
+    .product-card .delete-form,
+    .user-card .delete-form,
+    .badge,
+    img, picture, svg,
+    .product-card__details,
+    .user-card__details { display: none; }
+
+    .product-card__header,
+    .user-card__header { margin: 0; }
+
+    .product-card__title,
+    .user-card__title { display: inline; margin: 0; }
+
+    .product-card__manufacturer,
+    .user-card__email { display: inline; margin: 0; }
+
+    .product-card__manufacturer::before { content: " — "; }
+    .user-card__email::before { content: " — "; }
+
+    a, a:visited { text-decoration: underline; }
+    .user-card__email a::after,
+    .product-card a[href^="http"]::after,
+    .product-card a[href^="mailto:"]::after,
+    .user-card a[href^="http"]::after,
+    .user-card a[href^="mailto:"]::after { content: " <" attr(href) ">"; font-weight: 400; }
+
+    p { orphans: 3; widows: 3; }
+    * { transition: none; animation: none; }
+}
