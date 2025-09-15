@@ -14,30 +14,11 @@ Questa separazione migliora la manutenibilità del codice e facilita l’uso di 
 
 \subsubsection{Assenza di CSS e JavaScript}
 Il sito è completamente funzionale anche in assenza di CSS e JavaScript, garantendo così l'accesso ai contenuti anche a utenti con disabilità che utilizzano tecnologie assistive come screen reader o browser testuali.
-
-\subsubsection{Attributi ARIA}
-
-Sono sempre stati utilizzati gli attributi ARIA (Accessible Rich Internet Applications) per migliorare l'accessibilità delle interfacce web dinamiche. Questi attributi forniscono informazioni aggiuntive ai dispositivi di assistenza, come screen reader, aiutando gli utenti a comprendere meglio la struttura e il funzionamento del sito.
-
-\subsubsection{Contrasti}
-
-I colori del sito sono stati scelti per garantire un contrasto sufficiente tra testo e sfondo, in modo da facilitare la lettura anche a persone con disabilità visive. Sono stati utilizzati strumenti di verifica del contrasto per assicurarsi che i valori rispettino le linee guida WCAG. In particolare, il contrasto tra testo e sfondo deve essere almeno di 4.5:1 per il testo normale e di 3:1 per il testo grande (18pt o 14pt grassetto). Per gli elementi grafici e le icone, si è cercato di mantenere un contrasto minimo di 3:1 rispetto allo sfondo circostante. Questo sia per la modalitá scura che la modalitá chiara del sito.
-
-\subsubsection{Lingue straniere e termini abbreviati}
-
-Nel sito sono sempre stati utilizzati gli attributi \texttt{lang} e \texttt{abbr} quando necessari per indicare una lingua diversa dall italiano o per abbreviazioni di termini.
-
-\subsection{Strumenti di Testing}
-
-Per il controllo di accessibilità e presentazioni del sito sono stati utilizzati i seguenti strumenti:
-
-\subsubsection{Total validator}
-
-La navigazione e la comprensione dei contenuti rimangono possibili anche in assenza di CSS e JavaScript: 
 \begin{itemize}
   \item Senza CSS la pagina mantiene una gerarchia semantica corretta, basata su titoli e paragrafi.
   \item Senza JavaScript le funzionalità fondamentali (consultazione dei prodotti, contatti, informazioni istituzionali) restano accessibili.
 \end{itemize}
+
 
 \subsubsection{Attributi ARIA}
 
@@ -56,29 +37,27 @@ Abbiamo inoltre adottato la specifica \textbf{WAI-ARIA} sviluppata dal W3C al fi
 
 \subsubsection{Contrasti}
 
-La palette cromatica è stata verificata con strumenti di contrasto per assicurare il rispetto del rapporto minimo di 4.5:1 tra testo e sfondo. Sono stati inoltre previsti:
+I colori del sito sono stati scelti per garantire un contrasto sufficiente tra testo e sfondo, in modo da facilitare la lettura anche a persone con disabilità visive. Sono stati utilizzati strumenti di verifica del contrasto per assicurarsi che i valori rispettino le linee guida WCAG. In particolare, il contrasto tra testo e sfondo deve essere almeno di 4.5:1 per il testo normale e di 3:1 per il testo grande (18pt o 14pt grassetto). Per gli elementi grafici e le icone, si è cercato di mantenere un contrasto minimo di 3:1 rispetto allo sfondo circostante. Questo sia per la modalitá scura che la modalitá chiara del sito.
+
 \begin{itemize}
   \item Temi chiaro e scuro, con variabili CSS personalizzate.
   \item Stati di hover e focus ben visibili, con colori ad alto contrasto.
 \end{itemize}
 
+\subsubsection{Lingue straniere e termini abbreviati}
+
+Nel sito sono sempre stati utilizzati gli attributi \texttt{lang} e \texttt{abbr} quando necessari per indicare una lingua diversa dall italiano o per abbreviazioni di termini.
+
 \subsection{Strumenti di Testing}
 
-Per la verifica dell’accessibilità e della correttezza del codice sono stati adottati diversi strumenti.
+Per il controllo di accessibilità e presentazioni del sito sono stati utilizzati i seguenti strumenti:
 
-\subsubsection{Ambienti di testing}
+\subsubsection{Validator W3C}
 
-Le pagine del sito sono state testate con:
-\begin{itemize}
-  \item \textbf{Validator W3C}: per la verifica della conformità sintattica del codice HTML e CSS.
-  \item \textbf{Total Validator}: per controlli integrati su accessibilità, usabilità e link non funzionanti.
-  \item \textbf{Browser multipli}: Chrome, Firefox e Safari, per garantire compatibilità e resa coerente.
-  \item \textbf{Screen reader NVDA}: per la verifica dell’esperienza di utenti con disabilità visiva.
-\end{itemize}
+Il Validator W3C è uno strumento online fornito dal World Wide Web Consortium che permette di verificare la correttezza sintattica del codice HTML e CSS. Utilizzando questo validatore, è possibile individuare errori e avvisi che potrebbero compromettere l’accessibilità o la compatibilità del sito con i diversi browser. Tutte le pagine del sito sono state sottoposte a validazione, ottenendo la conformità agli standard richiesti.
 
+\subsubsection{Total validator}
 
-% Per alessandro ... sposta dove vuoi
-\subsubsection{Avvisi di validazione}
 La validazione con Total Validator ha segnalato 5 falsi positivi e 1 probabile errore:
 \begin{itemize}
   \item \textbf{E626 — All element names must be in lower case}. Falso positivo dovuto agli SVG inline: alcuni nomi di elementi SVG sono in camelCase (p.es.\ \texttt{linearGradient}, \texttt{feGaussianBlur}) e sono validi secondo le specifiche SVG. Il validatore applica invece la regola XHTML/HTML che impone i nomi in minuscolo, segnalando erroneamente l’\verb|<svg>|.
