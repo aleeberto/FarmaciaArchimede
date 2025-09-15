@@ -1,13 +1,13 @@
 \section{Implementazione}
 
 \subsection{HTML}
-Le pagine del sito sono state realizzate utilizzando \textbf{HTML5} come linguaggio di markup e sono state
-validate tramite seguendo le buone pratiche di sviluppo web. In particolare:
+Le pagine del sito sono state realizzate in \textbf{HTML5} e validate seguendo le buone pratiche di sviluppo web. In particolare:
 \begin{itemize}
-  \item è stata garantita una netta \textbf{separazione tra struttura, presentazione e comportamento}, mantenendo distinti i fogli di stile CSS, i file PHP e gli script JavaScript dal codice HTML;
-  \item sono stati definiti appositi \textbf{metatag} nella sezione \texttt{<head>} per migliorare il SEO e l’accessibilità;
-  \item la presentazione di informazioni intrinsecamente tabellari, come gli \textbf{orari di apertura} della farmacia riportati nel \texttt{footer}. In questo caso la tabella è stata arricchita con didascalie, intestazioni di riga/colonna e descrizione tramite \verb|aria-describedby|, così da renderla pienamente comprensibile anche a chi utilizza screen reader.
+  \item è stata garantita una chiara \textbf{separazione tra struttura, presentazione e comportamento}, mantenendo distinti fogli di stile CSS, file PHP e script JavaScript dal codice HTML;
+  \item sono stati definiti \textbf{meta tag} appropriati nella sezione \texttt{<head>} per migliorare SEO e accessibilità;
+  \item per contenuti intrinsecamente tabellari (es. \textbf{orari di apertura} nel \texttt{footer}) sono state utilizzate \textbf{tabelle semantiche} con \texttt{<caption>}, \texttt{<thead>}/\texttt{<tbody>}, intestazioni \texttt{<th>} con \verb|scope="col"|/\verb|scope="row"| e descrizione associata tramite \verb|aria-describedby|, così da risultare pienamente comprensibili anche agli screen reader.
 \end{itemize}
+
 
 \subsection{PHP}
 
