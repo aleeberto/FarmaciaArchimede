@@ -47,7 +47,7 @@ Gestisce gli account registrati.
 \end{itemize}
 \textbf{Relazioni}: al momento non sono definiti vincoli di chiave esterna verso altre tabelle.
 
-\subsection{\texttt{product\_types}}
+\subsubsection{\texttt{product\_types}}
 Raccoglie le tipologie di prodotto (utile per filtri, categorie e SEO).
 \begin{itemize}[leftmargin=2.2em]
   \item \texttt{product\_type\_id} — \textbf{SMALLINT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}.
@@ -56,7 +56,7 @@ Raccoglie le tipologie di prodotto (utile per filtri, categorie e SEO).
 \end{itemize}
 \textbf{Relazioni}: \textbf{1--N} con \texttt{products} (una tipologia può avere molti prodotti).
 
-\subsection{\texttt{products}}
+\subsubsection{\texttt{products}}
 Contiene il catalogo dei prodotti in vendita.
 \begin{itemize}[leftmargin=2.2em]
   \item \texttt{product\_id} — \textbf{SMALLINT UNSIGNED}, \textbf{PRIMARY KEY}, \textbf{AUTO\_INCREMENT}.
